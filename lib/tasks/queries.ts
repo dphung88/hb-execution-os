@@ -1,37 +1,59 @@
-import { redirect } from "next/navigation";
-
 import { createClient } from "@/lib/supabase/server";
+import { demoTasks } from "@/lib/demo-data";
 import type { TaskWithOwner } from "@/types/database";
 
-export async function requireUser() {
+export async function getViewerContext() {
+  const hasSupabaseEnv =
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+  if (!hasSupabaseEnv) {
+    return {
+      supabase: null,
+      user: null,
+      isPreviewMode: true
+    };
+  }
+
   const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  return { supabase, user: user! };
+  return {
+    supabase,
+    user,
+    isPreviewMode: !user
+  };
 }
 
 export async function getTaskList() {
-  const { supabase } = await requireUser();
+  const { supabase, isPreviewMode } = await getViewerContext();
+
+  if (isPreviewMode || !supabase) {
+    return demoTasks;
+  }
+
   const { data, error } = await supabase
     .from("task_overview")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) {
-    throw new Error(error.message);
+    return demoTasks;
   }
 
   return (data ?? []) as TaskWithOwner[];
 }
 
 export async function getTaskById(taskId: string) {
-  const { supabase } = await requireUser();
+  const { supabase, isPreviewMode } = await getViewerContext();
+
+  if (isPreviewMode || !supabase) {
+    const demoTask = demoTasks.find((task) => task.id === taskId) ?? demoTasks[0];
+    return demoTask;
+  }
+
   const { data, error } = await supabase
     .from("task_overview")
     .select("*")
@@ -39,7 +61,8 @@ export async function getTaskById(taskId: string) {
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    const demoTask = demoTasks.find((task) => task.id === taskId) ?? demoTasks[0];
+    return demoTask;
   }
 
   return data as TaskWithOwner;

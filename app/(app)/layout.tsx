@@ -1,14 +1,11 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { requireUser } from "@/lib/tasks/queries";
 
 export default async function AppLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireUser();
-
   return (
     <div className="flex min-h-screen">
       <Sidebar />

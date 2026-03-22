@@ -3,11 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireUser } from "@/lib/tasks/queries";
+import { getViewerContext } from "@/lib/tasks/queries";
 import type { TaskPriority, TaskStatus } from "@/types/database";
 
 export async function createTask(formData: FormData) {
-  const { supabase, user } = await requireUser();
+  const { supabase, user } = await getViewerContext();
+
+  if (!supabase || !user) {
+    redirect("/login?error=Sign%20in%20to%20create%20live%20tasks");
+  }
 
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim() || null;
@@ -27,8 +31,8 @@ export async function createTask(formData: FormData) {
       status,
       priority,
       due_date: dueDate,
-      owner_user_id: user.id,
-      created_by: user.id
+      owner_user_id: user!.id,
+      created_by: user!.id
     })
     .select("id")
     .single();
