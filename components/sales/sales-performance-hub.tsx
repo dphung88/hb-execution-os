@@ -1,61 +1,46 @@
-import { BarChart3, Calculator, DatabaseZap, ShieldCheck, Users } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BarChart3, Calculator, DatabaseZap, ShieldCheck, Users } from "lucide-react";
 
-import { demoErpPipeline, demoSalesAsms, salesScoringRules } from "@/lib/demo-data";
+import { demoErpPipeline, salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
+import { getSalesScorecards } from "@/lib/sales/scorecards";
 
-function calculateScorecard(asm: (typeof demoSalesAsms)[number]) {
-  const revenuePct = Math.round((asm.revenueActual / asm.revenueTarget) * 100);
-  const revenueScore = revenuePct >= 100 ? 65 : revenuePct >= 80 ? 55 : revenuePct >= 60 ? 40 : 20;
-  const customerScore =
-    asm.newCustomersActual >= 10 ? 15 : asm.newCustomersActual >= 7 ? 10 : asm.newCustomersActual >= 4 ? 5 : 0;
-  const keySkuScore = asm.hb031 >= asm.keySkuTarget && asm.hb035 >= asm.keySkuTarget ? 5 : 0;
-  const clearstockHits = Number(asm.hb006 >= asm.clearstockTarget) + Number(asm.hb034 >= asm.clearstockTarget);
-  const clearstockScore = clearstockHits === 2 ? 10 : clearstockHits === 1 ? 5 : 0;
-  const reviewScore = asm.disciplineScore + asm.reportingScore;
-  const total = revenueScore + customerScore + keySkuScore + clearstockScore + reviewScore;
-  const payout = total >= 85 ? 12 : total >= 75 ? 10 : total >= 60 ? 8 : 5;
-
-  return {
-    revenuePct,
-    revenueScore,
-    customerScore,
-    keySkuScore,
-    clearstockScore,
-    reviewScore,
-    total,
-    payout
-  };
+function getHealthTone(total: number) {
+  if (total >= 80) return "text-emerald-700 bg-emerald-50";
+  if (total >= 60) return "text-amber-700 bg-amber-50";
+  return "text-rose-700 bg-rose-50";
 }
 
 export function SalesPerformanceHub() {
-  const scorecards = demoSalesAsms.map((asm) => ({
-    ...asm,
-    scorecard: calculateScorecard(asm)
-  }));
+  const scorecards = getSalesScorecards();
+  const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
+  const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
+  const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
+  const averageKpi = Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length);
 
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-[1.1fr,0.9fr] xl:items-end">
+        <div className="grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">
               Sales Performance
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-              ERP-driven KPI scorecards with manager review layered on top.
+              Real ASM scorecards with KPI drill-down, not just a top-line dashboard.
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              This module is designed for the real operating flow you described: hard sales numbers come
-              in automatically from ERP, while manager-entered review KPIs complete the scorecard and payout logic.
+              I have aligned this module to the structure of your existing Sales KPI site: real ASM IDs,
+              real key-SKU and clearstock targets, manager-entered soft inputs, and a detail view per ASM.
             </p>
           </div>
 
           <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                { label: "ASM scorecards", value: "3 live" },
-                { label: "ERP-fed KPIs", value: "4 metrics" },
-                { label: "Manual review KPIs", value: "2 metrics" },
-                { label: "Payout preview", value: "Enabled" }
+                { label: "ASM scorecards", value: `${scorecards.length} live` },
+                { label: "Current period", value: scorecards[0]?.periodLabel ?? "-" },
+                { label: "ERP-fed KPIs", value: "Revenue + SKU + Clearstock" },
+                { label: "Detail view", value: "Per ASM" }
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white/10 p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
@@ -67,7 +52,22 @@ export function SalesPerformanceHub() {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Tong DT thuc dat", value: `${totalRevenue.toLocaleString("vi-VN")}M`, note: "Doanh thu ERP" },
+          { label: "Trung binh KPI", value: `${averageKpi} diem`, note: "Tong diem / 100" },
+          { label: "Dat >=80% DT", value: `${aboveEighty}/${scorecards.length}`, note: "Nguong doanh thu" },
+          { label: "Luong KPI du kien", value: `${totalPayout.toLocaleString("vi-VN")}M`, note: "Theo cong thuc cu" }
+        ].map((card) => (
+          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
+            <p className="mt-2 text-sm text-slate-500">{card.note}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.18fr,0.82fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
@@ -75,7 +75,7 @@ export function SalesPerformanceHub() {
             </div>
             <div>
               <p className="text-sm font-medium text-brand-700">ASM scorecards</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Current cycle</h2>
+              <h2 className="text-2xl font-semibold text-slate-900">Bam sat danh sach ASM thuc te</h2>
             </div>
           </div>
 
@@ -85,37 +85,55 @@ export function SalesPerformanceHub() {
                 <tr>
                   <th className="px-4 py-4 font-medium">ASM</th>
                   <th className="px-4 py-4 font-medium">Revenue</th>
-                  <th className="px-4 py-4 font-medium">Auto score</th>
-                  <th className="px-4 py-4 font-medium">Manager review</th>
+                  <th className="px-4 py-4 font-medium">ERP score</th>
+                  <th className="px-4 py-4 font-medium">Manager KPI</th>
                   <th className="px-4 py-4 font-medium">Total</th>
-                  <th className="px-4 py-4 font-medium">Payout</th>
+                  <th className="px-4 py-4 font-medium">Luong KPI</th>
+                  <th className="px-4 py-4 font-medium" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {scorecards.map((asm) => (
-                  <tr key={asm.id}>
-                    <td className="px-4 py-4">
-                      <div className="font-medium text-slate-900">{asm.name}</div>
-                      <div className="mt-1 text-xs text-slate-500">{asm.region}</div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="font-medium text-slate-900">
-                        {asm.revenueActual}/{asm.revenueTarget}M
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">{asm.scorecard.revenuePct}% target</div>
-                    </td>
-                    <td className="px-4 py-4 text-slate-700">
-                      {asm.scorecard.revenueScore + asm.scorecard.customerScore + asm.scorecard.keySkuScore + asm.scorecard.clearstockScore} pts
-                    </td>
-                    <td className="px-4 py-4 text-slate-700">{asm.scorecard.reviewScore} pts</td>
-                    <td className="px-4 py-4">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">
-                        {asm.scorecard.total} pts
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
-                  </tr>
-                ))}
+                {scorecards.map((asm) => {
+                  const erpScore =
+                    asm.scorecard.revenueScore +
+                    asm.scorecard.customerScore +
+                    asm.scorecard.keySkuScore +
+                    asm.scorecard.clearstockScore;
+
+                  return (
+                    <tr key={asm.id}>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-slate-900">{asm.name}</div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {asm.id} · {asm.region}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-slate-900">
+                          {asm.revenueActual}/{asm.revenueTarget}M
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.revenuePct}% target</div>
+                      </td>
+                      <td className="px-4 py-4 text-slate-700">{erpScore} pts</td>
+                      <td className="px-4 py-4 text-slate-700">{asm.scorecard.manualScore}/5</td>
+                      <td className="px-4 py-4">
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
+                          {asm.scorecard.total} pts
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
+                      <td className="px-4 py-4 text-right">
+                        <Link
+                          href={`/sales-performance/${asm.id}`}
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                        >
+                          Chi tiet
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -128,13 +146,13 @@ export function SalesPerformanceHub() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-brand-700">Manager review</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Soft KPI overlay</h2>
+                <p className="text-sm font-medium text-brand-700">Manager inputs</p>
+                <h2 className="text-2xl font-semibold text-slate-900">KPI bao cao va ky luat</h2>
               </div>
             </div>
 
             <div className="mt-6 space-y-4">
-              {scorecards.map((asm) => (
+              {scorecards.slice(0, 5).map((asm) => (
                 <div key={asm.id} className="rounded-2xl bg-slate-50 px-4 py-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -142,10 +160,42 @@ export function SalesPerformanceHub() {
                       <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
                     </div>
                     <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
-                      Review {asm.scorecard.reviewScore}/10
+                      Ky luat {asm.scorecard.manualScore}/5
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-violet-100 p-3 text-violet-700">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-brand-700">Real SKU targets</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Trong so dang dung tren web cu</h2>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {Object.values(salesKpiProducts).map((product) => (
+                <div key={product.code} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="font-medium text-slate-900">
+                        {product.code} · {product.name}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Target {product.target} · Nguong {Math.round(product.minPct * 100)}%
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium uppercase tracking-[0.14em] text-slate-600">
+                      {product.category}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -206,39 +256,6 @@ export function SalesPerformanceHub() {
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-fuchsia-100 p-3 text-fuchsia-700">
-            <BarChart3 className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">What this proves</p>
-            <h2 className="text-2xl font-semibold text-slate-900">You can separate ERP facts from manager judgment cleanly</h2>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">ERP-fed facts</p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">
-              Revenue, SKU, customer, and stock metrics should flow in automatically and remain immutable in the scorecard.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Manager inputs</p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">
-              Review-only KPIs like discipline, reporting quality, and exception notes stay manual and auditable.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Executive outputs</p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">
-              HB Execution OS then rolls everything into payout view, department health, and leadership reporting.
-            </p>
           </div>
         </div>
       </section>
