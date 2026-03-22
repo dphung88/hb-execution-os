@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { SalesPerformanceDetail } from "@/components/sales/sales-performance-detail";
-import { getSalesAsmById } from "@/lib/sales/scorecards";
+import { getSalesAsmByIdResolved } from "@/lib/sales/queries";
 
 type SalesPerformanceDetailPageProps = {
   params: Promise<{
@@ -11,7 +11,7 @@ type SalesPerformanceDetailPageProps = {
 
 export default async function SalesPerformanceDetailPage({ params }: SalesPerformanceDetailPageProps) {
   const { id } = await params;
-  const asm = getSalesAsmById(id);
+  const asm = await getSalesAsmByIdResolved(id);
 
   if (!asm) {
     notFound();

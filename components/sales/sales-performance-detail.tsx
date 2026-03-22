@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ArrowLeft, BadgeDollarSign, ClipboardCheck, Database, UserCircle2 } from "lucide-react";
 
 import { salesKpiProducts } from "@/lib/demo-data";
-import { type SalesAsm, getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
+import type { SalesAsmResolved } from "@/lib/sales/queries";
+import { getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
 
 type SalesPerformanceDetailProps = {
-  asm: SalesAsm;
+  asm: SalesAsmResolved;
 };
 
 function getStatusColor(passed: boolean) {
@@ -62,6 +63,10 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
               {asm.id} · {asm.region} · Period {periodLabel}
             </p>
+            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
+              {asm.source === "supabase" ? "Live data from Supabase" : "Seeded fallback data"}
+              {asm.fromDate && asm.toDate ? ` · Sync window ${asm.fromDate} to ${asm.toDate}` : ""}
+            </p>
           </div>
 
           <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
@@ -83,12 +88,17 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          { icon: Database, label: "Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
-          { icon: ClipboardCheck, label: "New customers", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
-          { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner" },
-          { icon: BadgeDollarSign, label: "Payout formula", value: "4.1% x target revenue x factor", note: "Aligned with the legacy KPI site" }
-        ].map((card) => (
+          {[
+            { icon: Database, label: "Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
+            { icon: ClipboardCheck, label: "New customers", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
+            { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner" },
+            {
+              icon: BadgeDollarSign,
+              label: "Payout formula",
+              value: "4.1% x target revenue x factor",
+              note: asm.sourceSyncedAt ? `Last synced ${new Date(asm.sourceSyncedAt).toLocaleString("en-US")}` : "Aligned with the legacy KPI site"
+            }
+          ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <card.icon className="h-5 w-5 text-brand-700" />
             <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>

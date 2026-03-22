@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ArrowRight, BarChart3, Calculator, DatabaseZap, ShieldCheck, Users } from "lucide-react";
 
 import { demoErpPipeline, salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
-import { getSalesScorecards } from "@/lib/sales/scorecards";
+import type { SalesAsmResolved } from "@/lib/sales/queries";
+import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
 
 function getHealthTone(total: number) {
   if (total >= 80) return "text-emerald-700 bg-emerald-50";
@@ -10,8 +11,13 @@ function getHealthTone(total: number) {
   return "text-rose-700 bg-rose-50";
 }
 
-export function SalesPerformanceHub() {
-  const scorecards = getSalesScorecards();
+type SalesPerformanceHubProps = {
+  scorecards: Array<SalesAsmResolved & { periodLabel: string; scorecard: SalesAsmScorecard }>;
+  liveCount: number;
+  seededCount: number;
+};
+
+export function SalesPerformanceHub({ scorecards, liveCount, seededCount }: SalesPerformanceHubProps) {
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
@@ -31,6 +37,9 @@ export function SalesPerformanceHub() {
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
               I have aligned this module to the structure of your existing Sales KPI site: real ASM IDs,
               real key-SKU and clearstock targets, manager-entered soft inputs, and a detail view per ASM.
+            </p>
+            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
+              Live Supabase rows: {liveCount} · Seeded fallback rows: {seededCount}
             </p>
           </div>
 
@@ -84,6 +93,7 @@ export function SalesPerformanceHub() {
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
                   <th className="px-4 py-4 font-medium">ASM</th>
+                  <th className="px-4 py-4 font-medium">Source</th>
                   <th className="px-4 py-4 font-medium">Revenue</th>
                   <th className="px-4 py-4 font-medium">ERP score</th>
                   <th className="px-4 py-4 font-medium">Manager KPI</th>
@@ -107,6 +117,15 @@ export function SalesPerformanceHub() {
                         <div className="mt-1 text-xs text-slate-500">
                           {asm.id} · {asm.region}
                         </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            asm.source === "supabase" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {asm.source === "supabase" ? "Live" : "Seeded"}
+                        </span>
                       </td>
                       <td className="px-4 py-4">
                         <div className="font-medium text-slate-900">
@@ -157,7 +176,9 @@ export function SalesPerformanceHub() {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-slate-900">{asm.name}</p>
-                      <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Manager: {asm.manager} · {asm.source === "supabase" ? "Live data" : "Seeded review copy"}
+                      </p>
                     </div>
                     <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
                       Discipline {asm.scorecard.manualScore}/5

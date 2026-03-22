@@ -1,6 +1,7 @@
 import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
 
 export type SalesAsm = (typeof demoSalesAsms)[number];
+export type SalesAsmScorecard = ReturnType<typeof getAsmScorecard>;
 
 export function getSalesPeriodLabel(periodKey: string) {
   return salesPeriods.find((period) => period.key === periodKey)?.label ?? periodKey;
@@ -81,12 +82,12 @@ export function getAsmScorecard(asm: SalesAsm) {
   };
 }
 
-export function getSalesAsmById(id: string) {
-  return demoSalesAsms.find((asm) => asm.id === id) ?? null;
+export function getSalesAsmById(id: string, asms: SalesAsm[] = demoSalesAsms) {
+  return asms.find((asm) => asm.id === id) ?? null;
 }
 
-export function getSalesScorecards() {
-  return demoSalesAsms.map((asm) => ({
+export function getSalesScorecards<T extends SalesAsm>(asms: T[] = demoSalesAsms as T[]) {
+  return asms.map((asm) => ({
     ...asm,
     periodLabel: getSalesPeriodLabel(asm.periodKey),
     scorecard: getAsmScorecard(asm)
