@@ -7,13 +7,14 @@ import { getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
 
 type SalesPerformanceDetailProps = {
   asm: SalesAsmResolved;
+  selectedPeriod: string;
 };
 
 function getStatusColor(passed: boolean) {
   return passed ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50";
 }
 
-export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
+export function SalesPerformanceDetail({ asm, selectedPeriod }: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
   const periodLabel = getSalesPeriodLabel(asm.periodKey);
 
@@ -47,7 +48,7 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <Link
-          href="/sales-performance"
+          href={`/sales-performance?period=${selectedPeriod}`}
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-200 transition hover:bg-white/10"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

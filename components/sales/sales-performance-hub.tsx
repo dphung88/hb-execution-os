@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BarChart3, Calculator, DatabaseZap, ShieldCheck, Users } from "lucide-react";
 
 import { demoErpPipeline, salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
-import type { SalesAsmResolved } from "@/lib/sales/queries";
+import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
 
 function getHealthTone(total: number) {
@@ -15,13 +15,22 @@ type SalesPerformanceHubProps = {
   scorecards: Array<SalesAsmResolved & { periodLabel: string; scorecard: SalesAsmScorecard }>;
   liveCount: number;
   seededCount: number;
+  periods: SalesPeriodOption[];
+  selectedPeriod: string;
 };
 
-export function SalesPerformanceHub({ scorecards, liveCount, seededCount }: SalesPerformanceHubProps) {
+export function SalesPerformanceHub({
+  scorecards,
+  liveCount,
+  seededCount,
+  periods,
+  selectedPeriod,
+}: SalesPerformanceHubProps) {
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
   const averageKpi = Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length);
+  const selectedPeriodLabel = periods.find((period) => period.key === selectedPeriod)?.label ?? scorecards[0]?.periodLabel ?? "-";
 
   return (
     <div className="space-y-6">
@@ -39,15 +48,41 @@ export function SalesPerformanceHub({ scorecards, liveCount, seededCount }: Sale
               real key-SKU and clearstock targets, manager-entered soft inputs, and a detail view per ASM.
             </p>
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
-              Live Supabase rows: {liveCount} · Seeded fallback rows: {seededCount}
+              Tracking period: {selectedPeriodLabel} · Live Supabase rows: {liveCount} · Seeded fallback rows: {seededCount}
             </p>
           </div>
 
           <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
+            <form method="get" className="mb-5 rounded-2xl border border-white/10 bg-black/10 p-4">
+              <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+                Tracking period
+              </label>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <select
+                  id="period"
+                  name="period"
+                  defaultValue={selectedPeriod}
+                  className="h-11 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                >
+                  {periods.map((period) => (
+                    <option key={period.key} value={period.key} className="text-slate-900">
+                      {period.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                >
+                  Apply period
+                </button>
+              </div>
+            </form>
+
             <div className="grid gap-4 sm:grid-cols-2">
               {[
                 { label: "ASM scorecards", value: `${scorecards.length} live` },
-                { label: "Current period", value: scorecards[0]?.periodLabel ?? "-" },
+                { label: "Current period", value: selectedPeriodLabel },
                 { label: "ERP-fed KPIs", value: "Revenue + SKU + Clearstock" },
                 { label: "Detail view", value: "Per ASM" }
               ].map((item) => (
@@ -143,7 +178,7 @@ export function SalesPerformanceHub({ scorecards, liveCount, seededCount }: Sale
                       <td className="px-4 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
                       <td className="px-4 py-4 text-right">
                         <Link
-                          href={`/sales-performance/${asm.id}`}
+                          href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
                           className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
                         >
                           View detail

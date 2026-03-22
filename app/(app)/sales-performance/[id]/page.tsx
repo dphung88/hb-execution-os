@@ -7,15 +7,23 @@ type SalesPerformanceDetailPageProps = {
   params: Promise<{
     id: string;
   }>;
+  searchParams?: Promise<{
+    period?: string;
+  }>;
 };
 
-export default async function SalesPerformanceDetailPage({ params }: SalesPerformanceDetailPageProps) {
+export default async function SalesPerformanceDetailPage({
+  params,
+  searchParams,
+}: SalesPerformanceDetailPageProps) {
   const { id } = await params;
-  const asm = await getSalesAsmByIdResolved(id);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const period = resolvedSearchParams?.period;
+  const asm = await getSalesAsmByIdResolved(id, period);
 
   if (!asm) {
     notFound();
   }
 
-  return <SalesPerformanceDetail asm={asm} />;
+  return <SalesPerformanceDetail asm={asm} selectedPeriod={period ?? asm.periodKey} />;
 }
