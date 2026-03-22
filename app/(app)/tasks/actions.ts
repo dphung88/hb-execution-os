@@ -39,5 +39,5 @@ export async function createTask(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath("/tasks");
-  redirect(`/tasks/${data.id}`);
+  redirect(`/tasks/${data!.id}`);
 }

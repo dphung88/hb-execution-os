@@ -13,7 +13,7 @@ export async function requireUser() {
     redirect("/login");
   }
 
-  return { supabase, user };
+  return { supabase, user: user! };
 }
 
 export async function getTaskList() {
