@@ -105,3 +105,78 @@ export const demoTimeline = [
     detail: "Go-to-market talking points refreshed with this morning's pipeline changes."
   }
 ];
+
+export const demoKpis = [
+  {
+    name: "Pipeline coverage",
+    value: "3.4x",
+    target: "Target 3.0x",
+    status: "Ahead",
+    trend: [52, 58, 61, 66, 73, 80, 84]
+  },
+  {
+    name: "Marketing CAC",
+    value: "$182",
+    target: "Target <$175",
+    status: "Watch",
+    trend: [70, 68, 65, 63, 60, 58, 55]
+  },
+  {
+    name: "CEO brief SLA",
+    value: "92%",
+    target: "Target 90%",
+    status: "Healthy",
+    trend: [40, 50, 56, 61, 72, 80, 92]
+  }
+];
+
+export const demoExecutiveBrief = {
+  title: "Monday CEO Brief",
+  readiness: "Ready for review",
+  summary:
+    "Revenue momentum remains positive, but two enterprise approvals and paid CAC drift need executive attention before the board prep window closes.",
+  bullets: [
+    "Marketing launch readiness has reached 91% with landing pages, creative, and outbound assets aligned.",
+    "Sales forecast confidence is still below target because two large deals are blocked in procurement.",
+    "Board packet draft is on track, but KPI commentary needs final input from Operations by 16:00."
+  ]
+};
+
+export const demoNotifications = [
+  {
+    title: "Critical task at risk",
+    detail: "Board packet approval is due tomorrow and still missing Finance commentary.",
+    tone: "critical"
+  },
+  {
+    title: "New executive summary ready",
+    detail: "Regional pipeline review has been converted into a CEO-ready summary.",
+    tone: "info"
+  },
+  {
+    title: "KPI moved to watch state",
+    detail: "Paid CAC exceeded threshold for the third day in a row.",
+    tone: "warning"
+  }
+];
+
+export const demoStreams = [
+  {
+    team: "Marketing",
+    headline: "Launch room locked for Q2 wave",
+    metric: "91% ready",
+    body: "Messaging, ad sets, and landing pages are aligned. Remaining gap is regional legal approval."
+  },
+  {
+    team: "Sales",
+    headline: "Enterprise forecast needs intervention",
+    metric: "2 deals at risk",
+    body: "Procurement friction is the main blocker. Leadership call suggested before Thursday."
+  },
+  {
+    team: "CEO Office",
+    headline: "Board packet approaching final state",
+    metric: "3 briefs queued",
+    body: "Weekly narrative is coherent; the final risk memo and KPI commentary are still pending."
+  }
+];
