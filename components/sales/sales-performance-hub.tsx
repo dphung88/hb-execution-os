@@ -54,10 +54,10 @@ export function SalesPerformanceHub() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Tong DT thuc dat", value: `${totalRevenue.toLocaleString("vi-VN")}M`, note: "Doanh thu ERP" },
-          { label: "Trung binh KPI", value: `${averageKpi} diem`, note: "Tong diem / 100" },
-          { label: "Dat >=80% DT", value: `${aboveEighty}/${scorecards.length}`, note: "Nguong doanh thu" },
-          { label: "Luong KPI du kien", value: `${totalPayout.toLocaleString("vi-VN")}M`, note: "Theo cong thuc cu" }
+          { label: "Total actual revenue", value: `${totalRevenue.toLocaleString("en-US")}M`, note: "ERP revenue feed" },
+          { label: "Average KPI", value: `${averageKpi} pts`, note: "Total score / 100" },
+          { label: "Above 80% revenue", value: `${aboveEighty}/${scorecards.length}`, note: "Revenue threshold" },
+          { label: "Projected KPI payout", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
@@ -75,7 +75,7 @@ export function SalesPerformanceHub() {
             </div>
             <div>
               <p className="text-sm font-medium text-brand-700">ASM scorecards</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Bam sat danh sach ASM thuc te</h2>
+              <h2 className="text-2xl font-semibold text-slate-900">Built around the real ASM roster</h2>
             </div>
           </div>
 
@@ -88,7 +88,7 @@ export function SalesPerformanceHub() {
                   <th className="px-4 py-4 font-medium">ERP score</th>
                   <th className="px-4 py-4 font-medium">Manager KPI</th>
                   <th className="px-4 py-4 font-medium">Total</th>
-                  <th className="px-4 py-4 font-medium">Luong KPI</th>
+                  <th className="px-4 py-4 font-medium">KPI payout</th>
                   <th className="px-4 py-4 font-medium" />
                 </tr>
               </thead>
@@ -127,7 +127,7 @@ export function SalesPerformanceHub() {
                           href={`/sales-performance/${asm.id}`}
                           className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
                         >
-                          Chi tiet
+                          View detail
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </td>
@@ -145,11 +145,11 @@ export function SalesPerformanceHub() {
               <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">Manager inputs</p>
-                <h2 className="text-2xl font-semibold text-slate-900">KPI bao cao va ky luat</h2>
-              </div>
+            <div>
+              <p className="text-sm font-medium text-brand-700">Manager inputs</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Reporting and discipline overlay</h2>
             </div>
+          </div>
 
             <div className="mt-6 space-y-4">
               {scorecards.slice(0, 5).map((asm) => (
@@ -160,7 +160,7 @@ export function SalesPerformanceHub() {
                       <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
                     </div>
                     <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
-                      Ky luat {asm.scorecard.manualScore}/5
+                      Discipline {asm.scorecard.manualScore}/5
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
@@ -174,11 +174,11 @@ export function SalesPerformanceHub() {
               <div className="rounded-2xl bg-violet-100 p-3 text-violet-700">
                 <BarChart3 className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">Real SKU targets</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Trong so dang dung tren web cu</h2>
-              </div>
+            <div>
+              <p className="text-sm font-medium text-brand-700">Real SKU targets</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Targets currently used in the legacy KPI site</h2>
             </div>
+          </div>
 
             <div className="mt-6 space-y-3">
               {Object.values(salesKpiProducts).map((product) => (
@@ -189,7 +189,7 @@ export function SalesPerformanceHub() {
                         {product.code} · {product.name}
                       </p>
                       <p className="mt-1 text-sm text-slate-500">
-                        Target {product.target} · Nguong {Math.round(product.minPct * 100)}%
+                        Target {product.target} · Threshold {Math.round(product.minPct * 100)}%
                       </p>
                     </div>
                     <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium uppercase tracking-[0.14em] text-slate-600">

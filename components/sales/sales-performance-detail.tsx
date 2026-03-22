@@ -50,7 +50,7 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-200 transition hover:bg-white/10"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Quay lai bang KPI
+          Back to KPI board
         </Link>
 
         <div className="mt-6 grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
@@ -60,15 +60,15 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">{asm.name}</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              {asm.id} · {asm.region} · Chu ky {periodLabel}
+              {asm.id} · {asm.region} · Period {periodLabel}
             </p>
           </div>
 
           <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                { label: "Tong KPI", value: `${scorecard.total}/100` },
-                { label: "Luong KPI", value: `${scorecard.payout}M` },
+                { label: "Total KPI", value: `${scorecard.total}/100` },
+                { label: "KPI payout", value: `${scorecard.payout}M` },
                 { label: "Manager KPI", value: `${scorecard.manualScore}/5` },
                 { label: "Reporting", value: `${scorecard.reportingScore}/5` }
               ].map((item) => (
@@ -84,10 +84,10 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { icon: Database, label: "Doanh thu", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% dat muc tieu` },
-          { icon: ClipboardCheck, label: "KH moi", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 diem` },
-          { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Danh gia thuc dia" },
-          { icon: BadgeDollarSign, label: "Cong thuc luong", value: "4.1% x DT target x he so", note: "Giong site KPI cu" }
+          { icon: Database, label: "Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
+          { icon: ClipboardCheck, label: "New customers", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
+          { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner" },
+          { icon: BadgeDollarSign, label: "Payout formula", value: "4.1% x target revenue x factor", note: "Aligned with the legacy KPI site" }
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <card.icon className="h-5 w-5 text-brand-700" />
@@ -100,14 +100,14 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
 
       <section className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <h2 className="text-2xl font-semibold text-slate-900">Breakdown theo muc KPI</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">KPI breakdown</h2>
           <div className="mt-6 space-y-4">
             {[
-              { label: "3.1 Doanh thu", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% doanh thu` },
-              { label: "3.2 Khach hang moi", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} KH moi` },
-              { label: "3.3 SKU Key", value: `${scorecard.keySkuScore}/5`, detail: "Ca HB031 va HB035 phai dat >=50%" },
-              { label: "3.4 Clearstock", value: `${scorecard.clearstockScore}/10`, detail: "HB006 va HB034 theo nguong 80%" },
-              { label: "3.5 Noi quy", value: `${scorecard.manualScore}/5`, detail: "Manager nhap tay" }
+              { label: "3.1 Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% revenue attainment` },
+              { label: "3.2 New customers", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} new customers` },
+              { label: "3.3 Key SKU", value: `${scorecard.keySkuScore}/5`, detail: "Both HB031 and HB035 must reach at least 50%" },
+              { label: "3.4 Clearstock", value: `${scorecard.clearstockScore}/10`, detail: "HB006 and HB034 are scored against the 80% threshold" },
+              { label: "3.5 Discipline", value: `${scorecard.manualScore}/5`, detail: "Entered manually by the manager" }
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                 <div className="flex items-center justify-between gap-3">
@@ -121,7 +121,7 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
         </div>
 
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <h2 className="text-2xl font-semibold text-slate-900">Nhan xet manager</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">Manager review</h2>
           <div className="mt-6 rounded-3xl bg-slate-50 p-5">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Manager note</p>
             <p className="mt-3 text-sm leading-7 text-slate-600">{asm.managerNote}</p>
@@ -129,11 +129,11 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Noi quy</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Discipline</p>
               <p className="mt-3 text-2xl font-semibold text-slate-950">{scorecard.manualScore}/5</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Chat luong bao cao</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Reporting quality</p>
               <p className="mt-3 text-2xl font-semibold text-slate-950">{scorecard.reportingScore}/5</p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
                       </p>
                     </div>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(passed)}`}>
-                      {passed ? "Dat" : "Chua dat"}
+                      {passed ? "Passed" : "Not met"}
                     </span>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export function SalesPerformanceDetail({ asm }: SalesPerformanceDetailProps) {
                       </p>
                     </div>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(passed)}`}>
-                      {passed ? "Dat" : "Chua dat"}
+                      {passed ? "Passed" : "Not met"}
                     </span>
                   </div>
                 </div>

@@ -4,10 +4,12 @@
 
 :root {
   color-scheme: light;
+  --font-app: "Aptos", "Aptos Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
   @apply bg-slate-100 text-slate-900 antialiased;
+  font-family: var(--font-app);
   background-image:
     radial-gradient(circle at top left, rgba(47, 134, 246, 0.12), transparent 30%),
     linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);

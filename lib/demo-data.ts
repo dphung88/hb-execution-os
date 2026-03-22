@@ -263,8 +263,8 @@ export const demoNotificationFeed = [
 ];
 
 export const salesPeriods = [
-  { label: "T4 (15/4-14/5)", key: "2026-04" },
-  { label: "T5 (15/5-14/6)", key: "2026-05" }
+  { label: "Apr 15 - May 14", key: "2026-04" },
+  { label: "May 15 - Jun 14", key: "2026-05" }
 ] as const;
 
 export const salesKpiProducts = {
