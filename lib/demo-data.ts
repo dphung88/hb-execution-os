@@ -261,3 +261,115 @@ export const demoNotificationFeed = [
     ]
   }
 ];
+
+export const demoSalesAsms = [
+  {
+    id: "ASM-HCM-01",
+    name: "Nguyen Thanh Ha",
+    region: "Ho Chi Minh City",
+    manager: "Tran Thi Mai",
+    revenueTarget: 520,
+    revenueActual: 468,
+    newCustomersTarget: 10,
+    newCustomersActual: 8,
+    keySkuTarget: 50,
+    hb031: 61,
+    hb035: 54,
+    clearstockTarget: 80,
+    hb006: 72,
+    hb034: 68,
+    disciplineScore: 5,
+    reportingScore: 4,
+    managerNote: "Strong field execution. Needs tighter follow-up on Prenatal clearstock conversion."
+  },
+  {
+    id: "ASM-DN-02",
+    name: "Le Minh Quan",
+    region: "Da Nang",
+    manager: "Tran Thi Mai",
+    revenueTarget: 480,
+    revenueActual: 402,
+    newCustomersTarget: 10,
+    newCustomersActual: 6,
+    keySkuTarget: 50,
+    hb031: 47,
+    hb035: 51,
+    clearstockTarget: 80,
+    hb006: 61,
+    hb034: 55,
+    disciplineScore: 3,
+    reportingScore: 3,
+    managerNote: "Commercially stable, but weekly reporting quality is inconsistent."
+  },
+  {
+    id: "ASM-HN-03",
+    name: "Pham Gia Linh",
+    region: "Ha Noi",
+    manager: "Do Huu Duc",
+    revenueTarget: 560,
+    revenueActual: 538,
+    newCustomersTarget: 10,
+    newCustomersActual: 11,
+    keySkuTarget: 50,
+    hb031: 58,
+    hb035: 62,
+    clearstockTarget: 80,
+    hb006: 81,
+    hb034: 78,
+    disciplineScore: 5,
+    reportingScore: 5,
+    managerNote: "Top performer this cycle. Candidate for best-practice replication across the region."
+  }
+];
+
+export const salesScoringRules = [
+  {
+    name: "3.1 Revenue achievement",
+    description: "ERP provides target vs actual revenue. Score is tiered by achievement percentage.",
+    score: "65 pts",
+    source: "ERP API"
+  },
+  {
+    name: "3.2 New customers",
+    description: "Pulled from ERP/CRM sales activity and mapped to ASM by period.",
+    score: "15 pts",
+    source: "ERP API"
+  },
+  {
+    name: "3.3 Key SKU sell-out",
+    description: "Requires both key SKUs to reach at least 50 percent of target.",
+    score: "5 pts",
+    source: "ERP API"
+  },
+  {
+    name: "3.4 Clearstock",
+    description: "Evaluated on ERP sell-out/clearstock movement against threshold.",
+    score: "10 pts",
+    source: "ERP API"
+  },
+  {
+    name: "3.5 Discipline and reporting",
+    description: "Manager enters soft KPI results after weekly review and compliance check.",
+    score: "5 + manager review",
+    source: "Manager input"
+  }
+];
+
+export const demoErpPipeline = [
+  {
+    step: "ERP pulls commercial data",
+    detail: "Revenue, SKU, customer, and stock movement are fetched by ASM and period."
+  },
+  {
+    step: "Scorecard engine normalizes data",
+    detail: "Each metric is mapped into KPI scorecard items with targets, actuals, and calculation snapshots."
+  },
+  {
+    step: "Manager reviews soft KPIs",
+    detail: "The manager adds discipline, reporting quality, and context notes before finalization."
+  },
+  {
+    step: "Dashboard publishes payout view",
+    detail: "VP sees total score, payout estimate, underperformers, and review completion in one screen."
+  }
+];
