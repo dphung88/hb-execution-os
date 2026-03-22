@@ -20,15 +20,15 @@ export default async function TasksPage() {
             <Button>Create task</Button>
           </Link>
         ) : (
-          <Link href="/login">
-            <Button variant="secondary">Sign in to create</Button>
+          <Link href="/preview">
+            <Button variant="secondary">Preview mode</Button>
           </Link>
         )}
       </div>
 
       {!viewer.user ? (
         <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-800">
-          You are viewing the public demo dataset. Sign in to work with live tasks.
+          You are viewing the public demo dataset. Live task creation stays disabled in this mode.
         </div>
       ) : null}
 

@@ -34,12 +34,12 @@ export default async function NewTaskPage({
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white/80 p-8 shadow-panel">
           <h2 className="text-xl font-semibold text-slate-900">Create task is locked in preview mode</h2>
           <p className="mt-3 text-sm leading-7 text-slate-500">
-            The public view is open for browsing only. Sign in with your Supabase account to create
-            and manage live tasks.
+            The public view is open for browsing only. This keeps the demo clean while still letting
+            you inspect the workflow and layout.
           </p>
           <div className="mt-6">
-            <Link href="/login">
-              <Button>Go to login</Button>
+            <Link href="/tasks">
+              <Button>Back to task list</Button>
             </Link>
           </div>
         </div>

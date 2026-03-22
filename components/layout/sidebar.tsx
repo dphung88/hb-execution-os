@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutDashboard } from "lucide-react";
+import { ClipboardList, Eye, LayoutDashboard } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/tasks", label: "Tasks", icon: ClipboardList }
+  { href: "/tasks", label: "Tasks", icon: ClipboardList },
+  { href: "/preview", label: "Preview", icon: Eye }
 ];
 
 export function Sidebar() {
@@ -21,8 +22,11 @@ export function Sidebar() {
           HB Execution OS
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">
-          Phase 1 Workspace
+          Executive Console
         </h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Public operating view for leadership execution, task ownership, and CEO prep.
+        </p>
       </div>
 
       <nav className="space-y-2">

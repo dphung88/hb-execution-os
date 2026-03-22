@@ -38,8 +38,8 @@ export async function Topbar() {
           </Button>
         </form>
       ) : (
-        <Link href="/login">
-          <Button variant="secondary">Sign in</Button>
+        <Link href="/preview">
+          <Button variant="secondary">Preview story</Button>
         </Link>
       )}
     </header>
