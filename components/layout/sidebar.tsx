@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Eye, LayoutDashboard } from "lucide-react";
+import {
+  BellRing,
+  ClipboardList,
+  Eye,
+  FileStack,
+  LayoutDashboard,
+  Mic
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tasks", label: "Tasks", icon: ClipboardList },
+  { href: "/notifications", label: "Notifications", icon: BellRing },
+  { href: "/briefs", label: "CEO Brief", icon: FileStack },
+  { href: "/meetings", label: "Meetings", icon: Mic },
   { href: "/preview", label: "Preview", icon: Eye }
 ];
 

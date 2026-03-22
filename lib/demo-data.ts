@@ -180,3 +180,84 @@ export const demoStreams = [
     body: "Weekly narrative is coherent; the final risk memo and KPI commentary are still pending."
   }
 ];
+
+export const demoDepartmentBoards = [
+  {
+    name: "Marketing",
+    health: "Strong",
+    owner: "Lan Ho",
+    highlight: "Launch readiness is 91% with execution concentrated on regional approvals.",
+    items: [
+      "Creative and landing page system approved",
+      "Paid CAC drift flagged for daily review",
+      "Regional legal sign-off pending"
+    ]
+  },
+  {
+    name: "Sales",
+    health: "Watch",
+    owner: "Thu Nguyen",
+    highlight: "Forecast is healthy overall, but two enterprise deals still need executive unblockers.",
+    items: [
+      "2 enterprise deals in procurement delay",
+      "Pipeline coverage above target",
+      "Weekly forecast confidence below COO threshold"
+    ]
+  },
+  {
+    name: "CEO Office",
+    health: "Active",
+    owner: "Minh Pham",
+    highlight: "Board packet, regional update, and KPI narrative are all moving toward CEO-ready state.",
+    items: [
+      "3 briefs staged for review",
+      "Risk memo needs final finance comment",
+      "Monday board packet draft nearly complete"
+    ]
+  }
+];
+
+export const demoMeetingInsight = {
+  title: "Weekly Revenue Sync",
+  duration: "48 min recording",
+  summary:
+    "The team aligned on Q2 launch timing, identified two sales blockers, and agreed to escalate CAC correction actions by tomorrow morning.",
+  transcriptMoments: [
+    {
+      speaker: "VP",
+      quote: "We need procurement unblockers before Friday or the forecast slips."
+    },
+    {
+      speaker: "Marketing Lead",
+      quote: "Paid CAC is improving, but not fast enough to hit the board threshold."
+    },
+    {
+      speaker: "CEO Office",
+      quote: "I need the final risk framing by 4 PM for the packet."
+    }
+  ],
+  actionItems: [
+    "Escalate enterprise procurement issue to leadership",
+    "Draft 14-day CAC recovery actions",
+    "Finalize board packet risk section by 16:00"
+  ]
+};
+
+export const demoNotificationFeed = [
+  {
+    group: "Urgent",
+    items: [
+      "Board packet approval overdue by 6 hours",
+      "Enterprise deal blocker escalated to VP",
+      "CAC threshold breached for the third consecutive day"
+    ]
+  },
+  {
+    group: "Today",
+    items: [
+      "Daily executive brief generated at 08:00",
+      "Meeting transcript summarized into action items",
+      "Regional update brief moved to review state"
+    ]
+  }
+];
