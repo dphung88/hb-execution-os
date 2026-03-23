@@ -24,3 +24,14 @@ select,
 textarea {
   @apply outline-none;
 }
+
+.sku-code-input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.sku-code-input::-webkit-outer-spin-button,
+.sku-code-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

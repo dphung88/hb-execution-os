@@ -189,7 +189,7 @@ export function SalesPerformanceDetail({
                               step="1"
                               name={field.codeName}
                               defaultValue={field.codeValue}
-                              className="h-full min-w-0 flex-1 bg-white px-4 pr-10 text-left text-sm tabular-nums text-slate-900 outline-none"
+                              className="sku-code-input h-full min-w-0 flex-1 bg-white px-4 text-left text-sm tabular-nums text-slate-900 outline-none"
                             />
                           </div>
                         </label>
@@ -239,7 +239,7 @@ export function SalesPerformanceDetail({
                               step="1"
                               name={field.codeName}
                               defaultValue={field.codeValue}
-                              className="h-full min-w-0 flex-1 bg-white px-4 pr-10 text-left text-sm tabular-nums text-slate-900 outline-none"
+                              className="sku-code-input h-full min-w-0 flex-1 bg-white px-4 text-left text-sm tabular-nums text-slate-900 outline-none"
                             />
                           </div>
                         </label>
