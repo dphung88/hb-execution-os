@@ -32,7 +32,7 @@ create table if not exists public.sales_manager_reviews (
   discipline_score integer not null default 0 check (discipline_score between 0 and 5),
   reporting_score integer not null default 0 check (reporting_score between 0 and 5),
   manager_note text,
-  reviewed_by uuid references public.profiles(id) on delete set null,
+  reviewed_by text,
   reviewed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
