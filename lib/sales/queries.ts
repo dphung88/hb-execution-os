@@ -1,6 +1,5 @@
 import { demoSalesAsms, salesPeriods } from "@/lib/demo-data";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getSalesScorecards, type SalesAsm } from "@/lib/sales/scorecards";
 
 type KpiDataRow = {
@@ -148,13 +147,15 @@ export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
 }
 
 export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmResolved[]> {
-  const hasSupabaseEnv = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const hasSupabaseEnv =
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   if (!hasSupabaseEnv) {
     return [];
   }
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const [kpiResult, targetResult, reviewResult] = await Promise.all([
     supabase
       .from("kpi_data")
@@ -191,12 +192,12 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
   });
 
   const targetsByAsm = new Map<string, SalesTargetRow>();
-  (targetResult.data ?? [])
+  (!targetResult.error ? targetResult.data : [])
     .filter((row) => row.month === effectivePeriod)
     .forEach((row) => targetsByAsm.set(row.asm_id, row));
 
   const reviewsByAsm = new Map<string, SalesReviewRow>();
-  (reviewResult.data ?? [])
+  (!reviewResult.error ? reviewResult.data : [])
     .filter((row) => row.month === effectivePeriod)
     .forEach((row) => reviewsByAsm.set(row.asm_id, row));
 
@@ -230,11 +231,11 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
 }
 
 export async function getSalesManagementFormData(asmId: string, periodKey: string) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return { target: null, review: null };
   }
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const [{ data: target }, { data: review }] = await Promise.all([
     supabase
       .from("sales_monthly_targets")
