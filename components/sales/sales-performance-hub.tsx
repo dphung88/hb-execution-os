@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, Calculator, DatabaseZap, ShieldCheck, Users } from "lucide-react";
 
+import { syncSalesPeriodAction } from "@/app/(app)/sales-performance/actions";
 import { demoErpPipeline, salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
@@ -17,6 +18,9 @@ type SalesPerformanceHubProps = {
   seededCount: number;
   periods: SalesPeriodOption[];
   selectedPeriod: string;
+  canSync: boolean;
+  syncStatus?: string;
+  syncMessage?: string;
 };
 
 export function SalesPerformanceHub({
@@ -25,6 +29,9 @@ export function SalesPerformanceHub({
   seededCount,
   periods,
   selectedPeriod,
+  canSync,
+  syncStatus,
+  syncMessage,
 }: SalesPerformanceHubProps) {
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
@@ -50,34 +57,59 @@ export function SalesPerformanceHub({
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
               Tracking period: {selectedPeriodLabel} · Live Supabase rows: {liveCount} · Seeded fallback rows: {seededCount}
             </p>
+            {syncStatus ? (
+              <div
+                className={`mt-4 inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
+                  syncStatus === "success"
+                    ? "bg-emerald-400/20 text-emerald-200"
+                    : "bg-rose-400/20 text-rose-200"
+                }`}
+              >
+                {syncStatus === "success" ? syncMessage ?? "Sync completed." : syncMessage ?? "Sync failed."}
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
-            <form method="get" className="mb-5 rounded-2xl border border-white/10 bg-black/10 p-4">
+            <div className="mb-5 rounded-2xl border border-white/10 bg-black/10 p-4">
               <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
                 Tracking period
               </label>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <select
-                  id="period"
-                  name="period"
-                  defaultValue={selectedPeriod}
-                  className="h-11 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
-                >
-                  {periods.map((period) => (
-                    <option key={period.key} value={period.key} className="text-slate-900">
-                      {period.label}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="submit"
-                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-                >
-                  Apply period
-                </button>
+              <div className="mt-3 flex flex-col gap-3 xl:flex-row">
+                <form method="get" className="flex flex-1 flex-col gap-3 sm:flex-row">
+                  <select
+                    id="period"
+                    name="period"
+                    defaultValue={selectedPeriod}
+                    className="h-11 min-w-[220px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                  >
+                    {periods.map((period) => (
+                      <option key={period.key} value={period.key} className="text-slate-900">
+                        {period.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                  >
+                    Apply period
+                  </button>
+                </form>
+
+                {canSync ? (
+                  <form action={syncSalesPeriodAction}>
+                    <input type="hidden" name="period" value={selectedPeriod} />
+                    <button
+                      type="submit"
+                      className="inline-flex h-11 items-center justify-center rounded-2xl border border-emerald-300/30 bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+                    >
+                      Sync all ASM in month
+                    </button>
+                  </form>
+                ) : null}
               </div>
-            </form>
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               {[
