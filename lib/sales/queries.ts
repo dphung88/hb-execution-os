@@ -22,7 +22,6 @@ type KpiDataRow = {
 };
 
 export type SalesAsmResolved = SalesAsm & {
-  source: "supabase" | "demo";
   sourceSyncedAt: string | null;
   fromDate: string | null;
   toDate: string | null;
@@ -60,7 +59,6 @@ function toResolvedAsm(baseAsm: SalesAsm, row: KpiDataRow): SalesAsmResolved {
     hb031: Number(row.hb031 ?? baseAsm.hb031),
     hb035: Number(row.hb035 ?? baseAsm.hb035),
     disciplineScore,
-    source: "supabase",
     sourceSyncedAt: row.source_synced_at ?? row.updated_at,
     fromDate: row.from_date,
     toDate: row.to_date,
@@ -79,17 +77,6 @@ function formatPeriodLabel(periodKey: string) {
     month: "long",
     year: "numeric",
   }).format(new Date(Number(year), monthNumber - 1, 1));
-}
-
-function getDemoResolvedAsms(periodKey?: string | null): SalesAsmResolved[] {
-  return demoSalesAsms.map((asm) => ({
-    ...asm,
-    periodKey: periodKey ?? asm.periodKey,
-    source: "demo" as const,
-    sourceSyncedAt: null,
-    fromDate: null,
-    toDate: null,
-  }));
 }
 
 export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
@@ -134,7 +121,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   if (!hasSupabaseEnv) {
-    return getDemoResolvedAsms(periodKey);
+    return [];
   }
 
   const supabase = await createClient();
@@ -147,7 +134,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     .order("updated_at", { ascending: false });
 
   if (error || !data?.length) {
-    return getDemoResolvedAsms(periodKey);
+    return [];
   }
 
   const latestMonth = data.find((row) => row.month)?.month ?? null;
@@ -161,35 +148,25 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     }
   });
 
-  const resolved = demoSalesAsms.map((asm) => {
+  const resolved = demoSalesAsms
+    .map((asm) => {
     const liveRow = latestByAsm.get(asm.id);
-    return liveRow
-      ? toResolvedAsm(asm, liveRow)
-      : {
-          ...asm,
-          periodKey: effectivePeriod ?? asm.periodKey,
-          source: "demo" as const,
-          sourceSyncedAt: null,
-          fromDate: null,
-          toDate: null,
-        };
-  });
+    return liveRow ? toResolvedAsm(asm, liveRow) : null;
+  })
+    .filter((asm): asm is SalesAsmResolved => asm !== null);
 
-  const hasAnyLiveRows = resolved.some((asm) => asm.source === "supabase");
-  return hasAnyLiveRows ? resolved : getDemoResolvedAsms(effectivePeriod);
+  return resolved;
 }
 
 export async function getSalesScorecardsData(periodKey?: string | null) {
   const [asms, periods] = await Promise.all([getSalesAsms(periodKey), getAvailableSalesPeriods()]);
   const scorecards = getSalesScorecards(asms);
-  const liveCount = asms.filter((asm) => asm.source === "supabase").length;
-  const selectedPeriod = periodKey ?? scorecards[0]?.periodKey ?? periods[0]?.key ?? salesPeriods[0]?.key ?? "";
+  const selectedPeriod = periodKey ?? periods[0]?.key ?? salesPeriods[0]?.key ?? "";
 
   return {
     asms,
     scorecards,
-    liveCount,
-    seededCount: asms.length - liveCount,
+    liveCount: asms.length,
     periods,
     selectedPeriod,
   };

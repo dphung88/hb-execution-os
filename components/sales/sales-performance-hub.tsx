@@ -15,7 +15,6 @@ function getHealthTone(total: number) {
 type SalesPerformanceHubProps = {
   scorecards: Array<SalesAsmResolved & { periodLabel: string; scorecard: SalesAsmScorecard }>;
   liveCount: number;
-  seededCount: number;
   periods: SalesPeriodOption[];
   selectedPeriod: string;
   canSync: boolean;
@@ -26,7 +25,6 @@ type SalesPerformanceHubProps = {
 export function SalesPerformanceHub({
   scorecards,
   liveCount,
-  seededCount,
   periods,
   selectedPeriod,
   canSync,
@@ -36,7 +34,9 @@ export function SalesPerformanceHub({
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
-  const averageKpi = Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length);
+  const averageKpi = scorecards.length
+    ? Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length)
+    : 0;
   const selectedPeriodLabel = periods.find((period) => period.key === selectedPeriod)?.label ?? scorecards[0]?.periodLabel ?? "-";
 
   return (
@@ -55,7 +55,7 @@ export function SalesPerformanceHub({
               real key-SKU and clearstock targets, manager-entered soft inputs, and a detail view per ASM.
             </p>
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
-              Tracking period: {selectedPeriodLabel} · Live Supabase rows: {liveCount} · Seeded fallback rows: {seededCount}
+              Tracking period: {selectedPeriodLabel} · Live Supabase rows: {liveCount}
             </p>
             {syncStatus ? (
               <div
@@ -156,11 +156,11 @@ export function SalesPerformanceHub({
           </div>
 
           <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+            {scorecards.length ? (
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
                   <th className="px-4 py-4 font-medium">ASM</th>
-                  <th className="px-4 py-4 font-medium">Source</th>
                   <th className="px-4 py-4 font-medium">Revenue</th>
                   <th className="px-4 py-4 font-medium">ERP score</th>
                   <th className="px-4 py-4 font-medium">Manager KPI</th>
@@ -184,15 +184,6 @@ export function SalesPerformanceHub({
                         <div className="mt-1 text-xs text-slate-500">
                           {asm.id} · {asm.region}
                         </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            asm.source === "supabase" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {asm.source === "supabase" ? "Live" : "Seeded"}
-                        </span>
                       </td>
                       <td className="px-4 py-4">
                         <div className="font-medium text-slate-900">
@@ -222,6 +213,14 @@ export function SalesPerformanceHub({
                 })}
               </tbody>
             </table>
+            ) : (
+              <div className="px-6 py-14 text-center">
+                <p className="text-lg font-semibold text-slate-900">No Sales KPI data for this month yet.</p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Select another period or run ERP sync for the chosen month.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -243,9 +242,7 @@ export function SalesPerformanceHub({
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-slate-900">{asm.name}</p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Manager: {asm.manager} · {asm.source === "supabase" ? "Live data" : "Seeded review copy"}
-                      </p>
+                      <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
                     </div>
                     <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
                       Discipline {asm.scorecard.manualScore}/5
@@ -254,6 +251,11 @@ export function SalesPerformanceHub({
                   <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
                 </div>
               ))}
+              {!scorecards.length ? (
+                <div className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500">
+                  Manager review cards will appear after the selected period has live KPI rows.
+                </div>
+              ) : null}
             </div>
           </div>
 

@@ -65,7 +65,7 @@ export function SalesPerformanceDetail({ asm, selectedPeriod }: SalesPerformance
               {asm.id} · {asm.region} · Period {periodLabel}
             </p>
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
-              {asm.source === "supabase" ? "Live data from Supabase" : "Seeded fallback data"}
+              Live data from Supabase
               {asm.fromDate && asm.toDate ? ` · Sync window ${asm.fromDate} to ${asm.toDate}` : ""}
             </p>
           </div>
