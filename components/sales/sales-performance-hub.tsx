@@ -37,6 +37,9 @@ export function SalesPerformanceHub({
   const averageKpi = scorecards.length
     ? Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length)
     : 0;
+  const totalCustomers = scorecards.reduce((sum, asm) => sum + asm.newCustomersActual, 0);
+  const skuQualified = scorecards.filter((asm) => asm.scorecard.keySkuScore > 0).length;
+  const clearstockQualified = scorecards.filter((asm) => asm.scorecard.clearstockScore > 0).length;
   const selectedPeriodLabel = periods.find((period) => period.key === selectedPeriod)?.label ?? scorecards[0]?.periodLabel ?? "-";
 
   return (
@@ -131,8 +134,22 @@ export function SalesPerformanceHub({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Total actual revenue", value: `${totalRevenue.toLocaleString("en-US")}M`, note: "ERP revenue feed" },
-          { label: "Average KPI", value: `${averageKpi} pts`, note: "Total score / 100" },
-          { label: "Above 80% revenue", value: `${aboveEighty}/${scorecards.length}`, note: "Revenue threshold" },
+          { label: "Total new customers", value: `${totalCustomers}`, note: "Live monthly customer acquisition" },
+          { label: "Qualified on key SKU", value: `${skuQualified}/${scorecards.length}`, note: "HB031 + HB035 threshold" },
+          { label: "Qualified on clearstock", value: `${clearstockQualified}/${scorecards.length}`, note: "HB006 + HB034 threshold" },
+        ].map((card) => (
+          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
+            <p className="mt-2 text-sm text-slate-500">{card.note}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {[
+          { label: "Average total KPI", value: `${averageKpi} pts`, note: "Overall score out of 100" },
+          { label: "Above 80% revenue", value: `${aboveEighty}/${scorecards.length}`, note: "Revenue achievement threshold" },
           { label: "Projected KPI payout", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
@@ -162,8 +179,10 @@ export function SalesPerformanceHub({
                 <tr>
                   <th className="px-4 py-4 font-medium">ASM</th>
                   <th className="px-4 py-4 font-medium">Revenue</th>
-                  <th className="px-4 py-4 font-medium">ERP score</th>
-                  <th className="px-4 py-4 font-medium">Manager KPI</th>
+                  <th className="px-4 py-4 font-medium">New Customers</th>
+                  <th className="px-4 py-4 font-medium">Key SKU</th>
+                  <th className="px-4 py-4 font-medium">Clearstock</th>
+                  <th className="px-4 py-4 font-medium">Discipline</th>
                   <th className="px-4 py-4 font-medium">Total</th>
                   <th className="px-4 py-4 font-medium">KPI payout</th>
                   <th className="px-4 py-4 font-medium" />
@@ -171,12 +190,6 @@ export function SalesPerformanceHub({
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {scorecards.map((asm) => {
-                  const erpScore =
-                    asm.scorecard.revenueScore +
-                    asm.scorecard.customerScore +
-                    asm.scorecard.keySkuScore +
-                    asm.scorecard.clearstockScore;
-
                   return (
                     <tr key={asm.id}>
                       <td className="px-4 py-4">
@@ -189,10 +202,32 @@ export function SalesPerformanceHub({
                         <div className="font-medium text-slate-900">
                           {asm.revenueActual}/{asm.revenueTarget}M
                         </div>
-                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.revenuePct}% target</div>
+                        <div className="mt-1 text-xs text-slate-500">
+                          {asm.scorecard.revenueScore}/65 · {asm.scorecard.revenuePct}% target
+                        </div>
                       </td>
-                      <td className="px-4 py-4 text-slate-700">{erpScore} pts</td>
-                      <td className="px-4 py-4 text-slate-700">{asm.scorecard.manualScore}/5</td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-slate-900">
+                          {asm.newCustomersActual}/{asm.newCustomersTarget}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-slate-900">
+                          {asm.hb031}/{asm.hb035}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-slate-900">
+                          {asm.hb006}/{asm.hb034}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-slate-900">{asm.scorecard.manualScore}/5</div>
+                        <div className="mt-1 text-xs text-slate-500">Manager review</div>
+                      </td>
                       <td className="px-4 py-4">
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
                           {asm.scorecard.total} pts
@@ -231,8 +266,8 @@ export function SalesPerformanceHub({
                 <ShieldCheck className="h-5 w-5" />
               </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">Manager inputs</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Reporting and discipline overlay</h2>
+              <p className="text-sm font-medium text-brand-700">Manager review</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Reporting and discipline notes</h2>
             </div>
           </div>
 
@@ -258,36 +293,54 @@ export function SalesPerformanceHub({
               ) : null}
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-violet-100 p-3 text-violet-700">
-                <BarChart3 className="h-5 w-5" />
-              </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Real SKU targets</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Targets currently used in the legacy KPI site</h2>
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
+            <BarChart3 className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-brand-700">SKU KPI detail</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Placed directly under revenue tracking</h2>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 xl:grid-cols-2">
+          <div className="rounded-3xl bg-slate-50 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Key SKU KPI</p>
+            <div className="mt-4 space-y-3">
+              {Object.values(salesKpiProducts)
+                .filter((product) => product.category === "key")
+                .map((product) => (
+                  <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                    <p className="font-medium text-slate-900">
+                      {product.code} · {product.name}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Target {product.target} · Minimum {Math.round(product.minPct * 100)}%
+                    </p>
+                  </div>
+                ))}
             </div>
           </div>
 
-            <div className="mt-6 space-y-3">
-              {Object.values(salesKpiProducts).map((product) => (
-                <div key={product.code} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-slate-900">
-                        {product.code} · {product.name}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Target {product.target} · Threshold {Math.round(product.minPct * 100)}%
-                      </p>
-                    </div>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium uppercase tracking-[0.14em] text-slate-600">
-                      {product.category}
-                    </span>
+          <div className="rounded-3xl bg-slate-50 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Clearstock KPI</p>
+            <div className="mt-4 space-y-3">
+              {Object.values(salesKpiProducts)
+                .filter((product) => product.category === "clearstock")
+                .map((product) => (
+                  <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                    <p className="font-medium text-slate-900">
+                      {product.code} · {product.name}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Target {product.target} · Minimum {Math.round(product.minPct * 100)}%
+                    </p>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
