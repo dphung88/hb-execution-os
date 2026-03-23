@@ -24,10 +24,6 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
   const savedAsm = resolvedSearchParams?.saved;
 
   const supabase = hasSupabaseClientEnv() ? await createClient() : null;
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-
   const [{ data: targets, error: targetsError }, { data: reviews, error: reviewsError }, { data: actuals, error: actualsError }] =
     supabase
       ? await Promise.all([
@@ -108,15 +104,6 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
         ))}
       </section>
 
-      {!user ? (
-        <section className="rounded-3xl border border-amber-200 bg-amber-50/90 p-5 shadow-panel">
-          <p className="text-sm font-semibold text-amber-900">Sign in required for editing</p>
-          <p className="mt-2 text-sm text-amber-800">
-            You can review the monthly target matrix here, but saving targets requires a signed-in session.
-          </p>
-        </section>
-      ) : null}
-
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -151,16 +138,13 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                   <div className="min-w-[240px]">
                     <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
                     <p className="mt-1 text-sm text-slate-500">
-                      {asm.id} · {asm.region}
+                      {asm.id}
                     </p>
                     <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
-                      Actual revenue: {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)}M` : "Not synced"}
+                      Revenue: {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)}M` : "Not synced"}
                     </p>
                     <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
-                      Actual new customers: {actual?.kh_moi ?? "-"}
-                    </p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
-                      Manager review: {review ? "Saved" : "Pending"}
+                      Dealers code: {actual?.kh_moi ?? "-"}
                     </p>
                     {saved ? (
                       <span className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -169,14 +153,10 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                     ) : null}
                   </div>
 
-                  <div className="grid flex-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
+                  <div className="grid flex-1 gap-3 md:grid-cols-2 xl:grid-cols-8">
                     {[
                       { name: "revenue_target", label: "Revenue", value: target?.revenue_target ?? 500 },
-                      { name: "new_customers_target", label: "New customers", value: target?.new_customers_target ?? 10 },
-                      { name: "hb031_target", label: "HB031", value: target?.hb031_target ?? salesKpiProducts.HB031.target },
-                      { name: "hb035_target", label: "HB035", value: target?.hb035_target ?? salesKpiProducts.HB035.target },
-                      { name: "hb006_target", label: "HB006", value: target?.hb006_target ?? salesKpiProducts.HB006.target },
-                      { name: "hb034_target", label: "HB034", value: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                      { name: "new_customers_target", label: "Dealers code", value: target?.new_customers_target ?? 10 },
                     ].map((field) => (
                       <label key={field.name} className="block">
                         <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
@@ -188,12 +168,41 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         />
                       </label>
                     ))}
+
+                    {[
+                      { code: "HB031", qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                      { code: "HB035", qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                      { code: "HB006", qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                      { code: "HB034", qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                    ].map((field) => (
+                      <div key={field.qtyName} className="grid grid-cols-[1fr,1fr] gap-2">
+                        <label className="block">
+                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            {field.code === "HB031" || field.code === "HB035" ? "Key SKU code" : "Clearstock code"}
+                          </span>
+                          <input
+                            type="text"
+                            value={field.code}
+                            readOnly
+                            className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 outline-none"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Qty</span>
+                          <input
+                            type="number"
+                            name={field.qtyName}
+                            defaultValue={field.qtyValue}
+                            className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                          />
+                        </label>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="xl:w-[180px]">
                     <button
                       type="submit"
-                      disabled={!user}
                       className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
                       Save targets

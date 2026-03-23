@@ -4,23 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-
-async function requireUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/login?error=${encodeURIComponent("Please sign in to update Sales KPI settings.")}`);
-  }
-
-  return user;
-}
 
 export async function saveSalesTargetsAction(formData: FormData) {
-  const user = await requireUser();
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
   const admin = createAdminClient();
@@ -48,7 +33,7 @@ export async function saveSalesTargetsAction(formData: FormData) {
         discipline_score: 0,
         reporting_score: 0,
         manager_note: "",
-        reviewed_by: user.id,
+        reviewed_by: "vp.edisonyang.store",
         reviewed_at: new Date().toISOString(),
       },
       { onConflict: "asm_id,month", ignoreDuplicates: true }
@@ -60,7 +45,6 @@ export async function saveSalesTargetsAction(formData: FormData) {
 }
 
 export async function saveSalesReviewAction(formData: FormData) {
-  const user = await requireUser();
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
   const admin = createAdminClient();
@@ -72,7 +56,7 @@ export async function saveSalesReviewAction(formData: FormData) {
       discipline_score: Number(formData.get("discipline_score") ?? 0),
       reporting_score: Number(formData.get("reporting_score") ?? 0),
       manager_note: String(formData.get("manager_note") ?? ""),
-      reviewed_by: user.id,
+      reviewed_by: "vp.edisonyang.store",
       reviewed_at: new Date().toISOString(),
     },
     { onConflict: "asm_id,month" }

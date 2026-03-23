@@ -4,24 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-
-async function requireUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/login?error=${encodeURIComponent("Please sign in to manage monthly sales targets.")}`);
-  }
-
-  return user;
-}
 
 export async function saveSalesTargetRowAction(formData: FormData) {
-  await requireUser();
-
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
   const admin = createAdminClient();

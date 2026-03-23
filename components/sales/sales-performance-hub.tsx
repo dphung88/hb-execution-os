@@ -217,7 +217,7 @@ export function SalesPerformanceHub({
                 <tr>
                   <th className="px-4 py-4 font-medium">ASM</th>
                   <th className="px-4 py-4 font-medium">Revenue</th>
-                  <th className="px-4 py-4 font-medium">New Customers</th>
+                  <th className="px-4 py-4 font-medium">Dealers Code</th>
                   <th className="px-4 py-4 font-medium">Key SKU</th>
                   <th className="px-4 py-4 font-medium">Clearstock</th>
                   <th className="px-4 py-4 font-medium">Discipline</th>
@@ -232,9 +232,7 @@ export function SalesPerformanceHub({
                     <tr key={asm.id}>
                       <td className="px-4 py-4">
                         <div className="font-medium text-slate-900">{asm.name}</div>
-                        <div className="mt-1 text-xs text-slate-500">
-                          {asm.id} · {asm.region}
-                        </div>
+                        <div className="mt-1 text-xs text-slate-500">{asm.id}</div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="font-medium text-slate-900">

@@ -85,7 +85,7 @@ export function SalesPerformanceDetail({
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">{asm.name}</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              {asm.id} · {asm.region} · Period {periodLabel}
+              {asm.id} · Period {periodLabel}
             </p>
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
               Live data from Supabase
@@ -220,7 +220,7 @@ export function SalesPerformanceDetail({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
             { icon: Database, label: "Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
-            { icon: ClipboardCheck, label: "New customers", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
+            { icon: ClipboardCheck, label: "Dealers Code", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
             { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner" },
             {
               icon: BadgeDollarSign,
@@ -244,7 +244,7 @@ export function SalesPerformanceDetail({
           <div className="mt-6 space-y-4">
             {[
               { label: "3.1 Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% revenue attainment` },
-              { label: "3.2 New customers", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} new customers` },
+              { label: "3.2 Dealers Code", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} dealer codes` },
               { label: "3.3 Key SKU", value: `${scorecard.keySkuScore}/5`, detail: "Both HB031 and HB035 must reach at least 50%" },
               { label: "3.4 Clearstock", value: `${scorecard.clearstockScore}/10`, detail: "HB006 and HB034 are scored against the 80% threshold" },
               { label: "3.5 Discipline", value: `${scorecard.manualScore}/5`, detail: "Entered manually by the manager" }
