@@ -71,13 +71,6 @@ export function SalesPerformanceHub({
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
               Real ASM scorecards with KPI drill-down, not just a top-line dashboard.
             </h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              I have aligned this module to the structure of your existing Sales KPI site: real ASM IDs,
-              real key-SKU and clearstock targets, manager-entered soft inputs, and a detail view per ASM.
-            </p>
-            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
-              Tracking period: {selectedPeriodLabel} · Live Supabase rows: {liveCount}
-            </p>
             {syncStatus ? (
               <div
                 className={`mt-4 inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
@@ -193,15 +186,15 @@ export function SalesPerformanceHub({
           {scorecards.length ? (
             <table className="min-w-full table-fixed divide-y divide-slate-200 text-sm">
               <colgroup>
-                <col className="w-[13%]" />
-                <col className="w-[14%]" />
                 <col className="w-[12%]" />
-                <col className="w-[16%]" />
-                <col className="w-[16%]" />
+                <col className="w-[14%]" />
+                <col className="w-[11%]" />
+                <col className="w-[18%]" />
+                <col className="w-[18%]" />
                 <col className="w-[10%]" />
+                <col className="w-[7%]" />
                 <col className="w-[8%]" />
-                <col className="w-[8%]" />
-                <col className="w-[13%]" />
+                <col className="w-[12%]" />
               </colgroup>
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
@@ -239,14 +232,22 @@ export function SalesPerformanceHub({
                         <div className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="font-medium text-slate-900">
-                          {asm.keySkuTargets.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ")}
+                        <div className="space-y-1 font-medium text-slate-900">
+                          {asm.keySkuTargets.map((item) => (
+                            <div key={item.code} className="whitespace-nowrap">
+                              {item.code} {item.actual}/{item.target}
+                            </div>
+                          ))}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="font-medium text-slate-900">
-                          {asm.clearstockTargets.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ")}
+                        <div className="space-y-1 font-medium text-slate-900">
+                          {asm.clearstockTargets.map((item) => (
+                            <div key={item.code} className="whitespace-nowrap">
+                              {item.code} {item.actual}/{item.target}
+                            </div>
+                          ))}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</div>
                       </td>
@@ -255,7 +256,7 @@ export function SalesPerformanceHub({
                         <div className="mt-1 text-xs text-slate-500">Manager review</div>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
+                        <span className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
                           {asm.scorecard.total} pts
                         </span>
                       </td>
@@ -298,7 +299,7 @@ export function SalesPerformanceHub({
 
         <div className="mt-6 grid gap-4 xl:grid-cols-2">
           <div className="rounded-3xl bg-slate-50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Key SKU KPI</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">KEY SKU KPI</p>
             <div className="mt-4 space-y-3">
               {summaryKeySkuTargets.map((product) => (
                   <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
@@ -314,7 +315,7 @@ export function SalesPerformanceHub({
           </div>
 
           <div className="rounded-3xl bg-slate-50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Clearstock KPI</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">CLEARSTOCK KPI</p>
             <div className="mt-4 space-y-3">
               {summaryClearstockTargets.map((product) => (
                   <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
