@@ -160,20 +160,19 @@ export function SalesPerformanceHub({
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.18fr,0.82fr]">
-        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">ASM scorecards</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Built around the real ASM roster</h2>
-            </div>
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
+            <Users className="h-5 w-5" />
           </div>
+          <div>
+            <p className="text-sm font-medium text-brand-700">ASM scorecards</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Built around the real ASM roster</h2>
+          </div>
+        </div>
 
-          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-            {scorecards.length ? (
+        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+          {scorecards.length ? (
             <table className="min-w-full divide-y divide-slate-200 text-sm">
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
@@ -248,51 +247,14 @@ export function SalesPerformanceHub({
                 })}
               </tbody>
             </table>
-            ) : (
-              <div className="px-6 py-14 text-center">
-                <p className="text-lg font-semibold text-slate-900">No Sales KPI data for this month yet.</p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Select another period or run ERP sync for the chosen month.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Manager review</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Reporting and discipline notes</h2>
+          ) : (
+            <div className="px-6 py-14 text-center">
+              <p className="text-lg font-semibold text-slate-900">No Sales KPI data for this month yet.</p>
+              <p className="mt-2 text-sm text-slate-500">
+                Select another period or run ERP sync for the chosen month.
+              </p>
             </div>
-          </div>
-
-            <div className="mt-6 space-y-4">
-              {scorecards.slice(0, 5).map((asm) => (
-                <div key={asm.id} className="rounded-2xl bg-slate-50 px-4 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-slate-900">{asm.name}</p>
-                      <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
-                    </div>
-                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
-                      Discipline {asm.scorecard.manualScore}/5
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
-                </div>
-              ))}
-              {!scorecards.length ? (
-                <div className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500">
-                  Manager review cards will appear after the selected period has live KPI rows.
-                </div>
-              ) : null}
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -400,6 +362,40 @@ export function SalesPerformanceHub({
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-brand-700">Manager review</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Reporting and discipline notes</h2>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 xl:grid-cols-2">
+          {scorecards.slice(0, 6).map((asm) => (
+            <div key={asm.id} className="rounded-2xl bg-slate-50 px-4 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-medium text-slate-900">{asm.name}</p>
+                  <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
+                </div>
+                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
+                  Discipline {asm.scorecard.manualScore}/5
+                </span>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
+            </div>
+          ))}
+          {!scorecards.length ? (
+            <div className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500">
+              Manager review cards will appear after the selected period has live KPI rows.
+            </div>
+          ) : null}
         </div>
       </section>
     </div>
