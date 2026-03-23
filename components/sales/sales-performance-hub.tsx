@@ -191,10 +191,21 @@ export function SalesPerformanceHub({
 
         <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
           {scorecards.length ? (
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <table className="min-w-full table-fixed divide-y divide-slate-200 text-sm">
+              <colgroup>
+                <col className="w-[13%]" />
+                <col className="w-[14%]" />
+                <col className="w-[12%]" />
+                <col className="w-[16%]" />
+                <col className="w-[16%]" />
+                <col className="w-[10%]" />
+                <col className="w-[8%]" />
+                <col className="w-[8%]" />
+                <col className="w-[13%]" />
+              </colgroup>
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
-                  <th className="px-4 py-4 font-medium">ASM</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">ASM</th>
                   <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">SALES REVENUE</th>
                   <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DEALERS CODE</th>
                   <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KEY SKU</th>
@@ -280,7 +291,7 @@ export function SalesPerformanceHub({
             <BarChart3 className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">SKU KPI detail</p>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">SKU KPI DETAIL</p>
             <h2 className="text-2xl font-semibold text-slate-900">Placed directly under revenue tracking</h2>
           </div>
         </div>
@@ -326,7 +337,7 @@ export function SalesPerformanceHub({
             <Calculator className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Scoring logic</p>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">SCORING LOGIC</p>
             <h2 className="text-2xl font-semibold text-slate-900">Scoring logic by KPI</h2>
           </div>
         </div>
