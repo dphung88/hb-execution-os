@@ -26,6 +26,20 @@ function normalizeSkuCode(value: FormDataEntryValue | null, fallback: string) {
   return `HB${String(clamped).padStart(3, "0")}`;
 }
 
+function getErrorKey(message: string | null | undefined) {
+  const normalized = String(message ?? "").toLowerCase();
+
+  if (normalized.includes("schema cache") || normalized.includes("column")) {
+    return "missing-columns";
+  }
+
+  if (normalized.includes("row-level security")) {
+    return "rls-blocked";
+  }
+
+  return "save-failed";
+}
+
 export async function saveSalesTargetRowAction(formData: FormData) {
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
@@ -56,7 +70,7 @@ export async function saveSalesTargetRowAction(formData: FormData) {
   );
 
   if (error) {
-    redirect(`/sales-performance/targets?period=${period}&error=save-failed`);
+    redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}`);
   }
 
   revalidatePath("/sales-performance");

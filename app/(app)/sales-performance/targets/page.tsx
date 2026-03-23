@@ -122,7 +122,11 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
         <section className="rounded-3xl border border-rose-200 bg-rose-50/90 p-5 shadow-panel">
           <p className="text-sm font-semibold text-rose-900">Unable to save targets</p>
           <p className="mt-2 text-sm text-rose-800">
-            The write connection is not ready yet. I can finish this by opening public write access for these two Sales tables or by adding the Supabase service key on the deployment.
+            {errorState === "missing-columns"
+              ? "Supabase is missing the new SKU code columns in sales_monthly_targets, so the target row cannot be saved yet."
+              : errorState === "rls-blocked"
+                ? "Supabase row-level security is still blocking write access for this Sales table."
+                : "The write connection is not ready yet. I can finish this by opening public write access for these two Sales tables or by adding the Supabase service key on the deployment."}
           </p>
         </section>
       ) : null}
@@ -213,7 +217,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                   Code
                                 </span>
                                 <div className="mt-1 flex h-11 overflow-hidden rounded-2xl border border-slate-200 bg-white focus-within:border-brand-400">
-                                  <div className="flex w-[42%] items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
+                                  <div className="flex w-[84px] shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
                                     HB
                                   </div>
                                   <input
@@ -223,7 +227,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                     step="1"
                                     name={field.codeName}
                                     defaultValue={field.codeValue}
-                                    className="h-full w-[58%] bg-white px-4 text-sm text-slate-900 outline-none"
+                                    className="h-full min-w-0 flex-1 bg-white px-4 pr-10 text-left text-sm tabular-nums text-slate-900 outline-none"
                                   />
                                 </div>
                               </label>
@@ -256,7 +260,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                   Code
                                 </span>
                                 <div className="mt-1 flex h-11 overflow-hidden rounded-2xl border border-slate-200 bg-white focus-within:border-brand-400">
-                                  <div className="flex w-[42%] items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
+                                  <div className="flex w-[84px] shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
                                     HB
                                   </div>
                                   <input
@@ -266,7 +270,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                     step="1"
                                     name={field.codeName}
                                     defaultValue={field.codeValue}
-                                    className="h-full w-[58%] bg-white px-4 text-sm text-slate-900 outline-none"
+                                    className="h-full min-w-0 flex-1 bg-white px-4 pr-10 text-left text-sm tabular-nums text-slate-900 outline-none"
                                   />
                                 </div>
                               </label>
