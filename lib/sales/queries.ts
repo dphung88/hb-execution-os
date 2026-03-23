@@ -1,4 +1,5 @@
 import { demoSalesAsms, salesPeriods } from "@/lib/demo-data";
+import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { getSalesScorecards, type SalesAsm } from "@/lib/sales/scorecards";
 
@@ -111,11 +112,7 @@ function formatPeriodLabel(periodKey: string) {
 }
 
 export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
-  const hasSupabaseEnv =
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-  if (!hasSupabaseEnv) {
+  if (!hasSupabaseClientEnv()) {
     return [...salesPeriods]
       .map((period) => ({ key: period.key, label: formatPeriodLabel(period.key) }))
       .sort((a, b) => b.key.localeCompare(a.key));
@@ -147,11 +144,7 @@ export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
 }
 
 export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmResolved[]> {
-  const hasSupabaseEnv =
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-  if (!hasSupabaseEnv) {
+  if (!hasSupabaseClientEnv()) {
     return [];
   }
 
@@ -231,7 +224,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
 }
 
 export async function getSalesManagementFormData(asmId: string, periodKey: string) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  if (!hasSupabaseClientEnv()) {
     return { target: null, review: null };
   }
 

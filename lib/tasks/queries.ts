@@ -1,13 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { demoTasks } from "@/lib/demo-data";
+import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import type { TaskWithOwner } from "@/types/database";
 
 export async function getViewerContext() {
-  const hasSupabaseEnv =
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-  if (!hasSupabaseEnv) {
+  if (!hasSupabaseClientEnv()) {
     return {
       supabase: null,
       user: null,

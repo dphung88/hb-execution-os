@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 type CookieToSet = {
   name: string;
@@ -16,10 +17,16 @@ type CookieToSet = {
 
 export async function createClient() {
   const cookieStore = await cookies();
+  const url = getSupabaseUrl();
+  const publishableKey = getSupabasePublishableKey();
+
+  if (!url || !publishableKey) {
+    throw new Error("Missing Supabase client environment variables.");
+  }
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    publishableKey,
     {
       cookies: {
         getAll() {
