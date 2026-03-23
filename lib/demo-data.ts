@@ -609,6 +609,142 @@ export const salesScoringRules = [
   }
 ];
 
+export const marketingWorkbookContext = {
+  month: "April 2025",
+  salesRevenueTarget: 500,
+  actualSalesRevenue: 400,
+  expenseBudgetTarget: 200,
+  actualExpenseBudget: 45.7,
+  headcountPlanned: 20,
+  headcountActual: 8,
+  sourceFile: "Healthy Beauty KPIs Tracking 2025.xlsx",
+};
+
+export const marketingHeadcountPlan = [
+  { role: "Senior Manager", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
+  { role: "Junior Executive", estimated: 0, actual: 0, remaining: 0, owner: "" },
+  { role: "Digital Marketer", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
+  { role: "E-Com Operations", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
+  { role: "Media Editor", estimated: 1, actual: 0, remaining: -1, owner: "" },
+  { role: "Graphic Designer", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
+  { role: "Fresher AI Officer", estimated: 1, actual: 0, remaining: -1, owner: "" },
+];
+
+export const marketingResultsTracker = [
+  {
+    owner: "Digital Marketer #1",
+    metric: "Budget",
+    estimated: 170,
+    actual: 45.7,
+    remaining: 124.3,
+    ratio: 1,
+    kpiUnit: 6.54,
+    tasksCompleted: 0,
+  },
+  {
+    owner: "Digital Marketer #1",
+    metric: "Landing Page",
+    estimated: 60,
+    actual: 15,
+    remaining: 45,
+    ratio: 1,
+    kpiUnit: 2.31,
+    tasksCompleted: 0,
+  },
+  {
+    owner: "Digital Marketer #1",
+    metric: "Facebook",
+    estimated: 10,
+    actual: 0.3,
+    remaining: 9.7,
+    ratio: 1,
+    kpiUnit: 0.38,
+    tasksCompleted: 0,
+  },
+  {
+    owner: "E-Com Operations",
+    metric: "Budget",
+    estimated: 170,
+    actual: 16.8,
+    remaining: 153.2,
+    ratio: 1,
+    kpiUnit: 6.54,
+    tasksCompleted: 0,
+  },
+  {
+    owner: "E-Com Operations",
+    metric: "Landing Page",
+    estimated: 60,
+    actual: 0,
+    remaining: 60,
+    ratio: 1,
+    kpiUnit: 2.31,
+    tasksCompleted: 0,
+  },
+  {
+    owner: "E-Com Operations",
+    metric: "Facebook",
+    estimated: 10,
+    actual: 0,
+    remaining: 10,
+    ratio: 1,
+    kpiUnit: 0.38,
+    tasksCompleted: 0,
+  },
+];
+
+export const marketingTaskTracker = [
+  {
+    owner: "Content Creator #1",
+    requester: "Boss",
+    status: "Planned",
+    dueDate: "2025-03-28",
+    notes: "One active brief listed in the workbook for month setup.",
+  },
+  {
+    owner: "Content Creator #2",
+    requester: "Boss",
+    status: "Not Started",
+    dueDate: "2025-03-15",
+    notes: "Pipeline includes planned, in-progress, pending, under-review, failed, and completed states.",
+  },
+  {
+    owner: "Content Creator #2",
+    requester: "Manager",
+    status: "Planned",
+    dueDate: "2025-03-16",
+    notes: "Second queue item assigned from manager lane.",
+  },
+  {
+    owner: "Designer",
+    requester: "Manager",
+    status: "Planned",
+    dueDate: "2025-03-19",
+    notes: "Single planned task captured in the workbook snapshot.",
+  },
+  {
+    owner: "Editor",
+    requester: "Colleague",
+    status: "Failed",
+    dueDate: "2025-03-19",
+    notes: "Needs leadership visibility because the file shows a failed deliverable.",
+  },
+  {
+    owner: "AI Officer",
+    requester: "Boss",
+    status: "In Progress",
+    dueDate: "2025-03-19",
+    notes: "Active AI support task from the monthly tracker.",
+  },
+];
+
+export const marketingChannelSetup = [
+  { channel: "Facebook", budgetRatio: 0.05, actualRatio: 0.0066, budget: 10, actualBudget: 0.3, remainingBudget: 9.7 },
+  { channel: "Landing Page", budgetRatio: 0.3, actualRatio: 0.3282, budget: 60, actualBudget: 15, remainingBudget: 45 },
+  { channel: "Vision", budgetRatio: 0.05, actualRatio: 0.0788, budget: 10, actualBudget: 3.6, remainingBudget: 6.4 },
+  { channel: "Blackhair", budgetRatio: 0.1, actualRatio: 0.1597, budget: 20, actualBudget: 7.3, remainingBudget: 12.7 },
+];
+
 export const demoErpPipeline = [
   {
     step: "ERP pulls commercial data",
