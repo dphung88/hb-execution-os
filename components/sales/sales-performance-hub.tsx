@@ -134,10 +134,10 @@ export function SalesPerformanceHub({
 
             <div className="grid gap-4 sm:grid-cols-2">
               {[
-                { label: "ASM scorecards", value: `${scorecards.length} live` },
-                { label: "Current period", value: selectedPeriodLabel },
-                { label: "Scoring model", value: "Revenue + Dealers + SKU + Clearstock" },
-                { label: "Detail view", value: "Per ASM" }
+                { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
+                { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
+                { label: "SCORING MODEL", value: "SALES REVENUE + DEALERS + SKU + CLEARSTOCK" },
+                { label: "DETAIL VIEW", value: "PER ASM" }
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white/10 p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
@@ -151,10 +151,10 @@ export function SalesPerformanceHub({
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Total actual revenue", value: `${totalRevenue.toLocaleString("en-US")}M`, note: "ERP revenue feed" },
-          { label: "Total new customers", value: `${totalCustomers}`, note: "Live monthly customer acquisition" },
-          { label: "Qualified on key SKU", value: `${skuQualified}/${scorecards.length}`, note: "Based on configured SKU codes" },
-          { label: "Qualified on clearstock", value: `${clearstockQualified}/${scorecards.length}`, note: "Based on configured clearstock codes" },
+          { label: "TOTAL SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M`, note: "ERP sales execution feed" },
+          { label: "TOTAL DEALERS CODE", value: `${totalCustomers}`, note: "Live monthly dealer acquisition" },
+          { label: "QUALIFIED ON KEY SKU", value: `${skuQualified}/${scorecards.length}`, note: "Based on configured SKU codes" },
+          { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}`, note: "Based on configured clearstock codes" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
@@ -166,9 +166,9 @@ export function SalesPerformanceHub({
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {[
-          { label: "Average total KPI", value: `${averageKpi} pts`, note: "Overall score out of 100" },
-          { label: "Above 80% revenue", value: `${aboveEighty}/${scorecards.length}`, note: "Revenue achievement threshold" },
-          { label: "Projected KPI payout", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
+          { label: "AVERAGE TOTAL KPI", value: `${averageKpi} pts`, note: "Overall score out of 100" },
+          { label: "ABOVE 80% REVENUE", value: `${aboveEighty}/${scorecards.length}`, note: "Revenue achievement threshold" },
+          { label: "PROJECTED KPI PAYOUT", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
@@ -184,7 +184,7 @@ export function SalesPerformanceHub({
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">ASM scorecards</p>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">ASM SCORECARDS</p>
             <h2 className="text-2xl font-semibold text-slate-900">Built around the real ASM roster</h2>
           </div>
         </div>
@@ -195,13 +195,13 @@ export function SalesPerformanceHub({
               <thead className="bg-slate-50 text-left text-slate-500">
                 <tr>
                   <th className="px-4 py-4 font-medium">ASM</th>
-                  <th className="px-4 py-4 font-medium">Revenue</th>
-                  <th className="px-4 py-4 font-medium">Dealers Code</th>
-                  <th className="px-4 py-4 font-medium">Key SKU</th>
-                  <th className="px-4 py-4 font-medium">Clearstock</th>
-                  <th className="px-4 py-4 font-medium">Discipline</th>
-                  <th className="px-4 py-4 font-medium">Total</th>
-                  <th className="px-4 py-4 font-medium">KPI payout</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">SALES REVENUE</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DEALERS CODE</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KEY SKU</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">CLEARSTOCK</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DISCIPLINE</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">TOTAL</th>
+                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KPI PAYOUT</th>
                   <th className="px-4 py-4 font-medium" />
                 </tr>
               </thead>

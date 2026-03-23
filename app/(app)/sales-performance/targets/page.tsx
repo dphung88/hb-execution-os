@@ -122,7 +122,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-brand-700">Monthly target matrix</p>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">MONTHLY TARGET MATRIX</p>
             <h2 className="text-2xl font-semibold text-slate-900">Save targets row by row for the selected month</h2>
           </div>
           <Link
@@ -174,9 +174,9 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                       {[
                         {
                           name: "revenue_target",
-                          label: "Sales Revenue Target",
+                          label: "Sales Target",
                           value: target?.revenue_target ?? 500,
-                          note: "Unit: million VND. Example: 4,000 = 4 billion VND.",
+                          note: "Unit: million VND",
                         },
                         { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? 10 },
                       ].map((field) => (

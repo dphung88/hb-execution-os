@@ -117,7 +117,7 @@ export function SalesPerformanceDetail({
           <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-brand-700">Monthly targets</p>
+                <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">MONTHLY TARGETS</p>
                 <h2 className="text-2xl font-semibold text-slate-900">Set target values outside ERP</h2>
               </div>
               {saveStatus === "targets" ? (
@@ -133,10 +133,10 @@ export function SalesPerformanceDetail({
               {[
                 {
                   name: "revenue_target",
-                  label: "Sales Revenue Target",
+                  label: "Sales Target",
                   value: target?.revenue_target ?? asm.revenueTarget,
                   type: "number",
-                  note: "Unit: million VND. Example: 4,000 = 4 billion VND.",
+                  note: "Unit: million VND",
                 },
                 { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? asm.newCustomersTarget, type: "number" },
               ].map((field) => (
@@ -310,7 +310,7 @@ export function SalesPerformanceDetail({
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { icon: Database, label: "Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
+            { icon: Database, label: "SALES REVENUE", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
             { icon: ClipboardCheck, label: "Dealers Code", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
             { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner" },
             {
