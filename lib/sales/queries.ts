@@ -1,5 +1,6 @@
 import { demoSalesAsms, salesPeriods } from "@/lib/demo-data";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getSalesScorecards, type SalesAsm } from "@/lib/sales/scorecards";
 
 type KpiDataRow = {
@@ -27,6 +28,26 @@ export type SalesAsmResolved = SalesAsm & {
   toDate: string | null;
 };
 
+type SalesTargetRow = {
+  asm_id: string;
+  month: string;
+  revenue_target: number;
+  new_customers_target: number;
+  hb006_target: number;
+  hb034_target: number;
+  hb031_target: number;
+  hb035_target: number;
+};
+
+type SalesReviewRow = {
+  asm_id: string;
+  month: string;
+  discipline_score: number;
+  reporting_score: number;
+  manager_note: string | null;
+  reviewed_at: string | null;
+};
+
 export type SalesPeriodOption = {
   key: string;
   label: string;
@@ -43,22 +64,33 @@ function normalizeRevenueActual(actual: number | null, target: number) {
   return Number(actual);
 }
 
-function toResolvedAsm(baseAsm: SalesAsm, row: KpiDataRow): SalesAsmResolved {
-  const revenueTarget = Number(row.dt_target ?? baseAsm.revenueTarget);
-  const disciplineScore =
-    row.noiquy == null ? baseAsm.disciplineScore : Math.max(0, Math.min(5, Number(row.noiquy)));
+function toResolvedAsm(
+  baseAsm: SalesAsm,
+  row: KpiDataRow,
+  target?: SalesTargetRow,
+  review?: SalesReviewRow
+): SalesAsmResolved {
+  const revenueTarget = Number(target?.revenue_target ?? row.dt_target ?? baseAsm.revenueTarget);
+  const disciplineScore = Math.max(
+    0,
+    Math.min(5, Number(review?.discipline_score ?? row.noiquy ?? 0))
+  );
+  const reportingScore = Math.max(0, Math.min(5, Number(review?.reporting_score ?? 0)));
 
   return {
     ...baseAsm,
     periodKey: row.month ?? baseAsm.periodKey,
     revenueTarget,
     revenueActual: normalizeRevenueActual(row.dt_thuc_dat, revenueTarget),
-    newCustomersActual: Number(row.kh_moi ?? baseAsm.newCustomersActual),
+    newCustomersTarget: Number(target?.new_customers_target ?? baseAsm.newCustomersTarget),
+    newCustomersActual: Number(row.kh_moi ?? 0),
     hb006: Number(row.hb006 ?? baseAsm.hb006),
     hb034: Number(row.hb034 ?? baseAsm.hb034),
     hb031: Number(row.hb031 ?? baseAsm.hb031),
     hb035: Number(row.hb035 ?? baseAsm.hb035),
     disciplineScore,
+    reportingScore,
+    managerNote: review?.manager_note ?? "",
     sourceSyncedAt: row.source_synced_at ?? row.updated_at,
     fromDate: row.from_date,
     toDate: row.to_date,
@@ -116,22 +148,32 @@ export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
 }
 
 export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmResolved[]> {
-  const hasSupabaseEnv =
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const hasSupabaseEnv = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   if (!hasSupabaseEnv) {
     return [];
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("kpi_data")
-    .select(
-      "asm_id, month, dt_target, dt_thuc_dat, kh_moi, hb006, hb034, hb031, hb035, noiquy, total_kpi, luong, from_date, to_date, source_synced_at, updated_at"
-    )
-    .order("month", { ascending: false })
-    .order("updated_at", { ascending: false });
+  const supabase = createAdminClient();
+  const [kpiResult, targetResult, reviewResult] = await Promise.all([
+    supabase
+      .from("kpi_data")
+      .select(
+        "asm_id, month, dt_target, dt_thuc_dat, kh_moi, hb006, hb034, hb031, hb035, noiquy, total_kpi, luong, from_date, to_date, source_synced_at, updated_at"
+      )
+      .order("month", { ascending: false })
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("sales_monthly_targets")
+      .select(
+        "asm_id, month, revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target"
+      ),
+    supabase
+      .from("sales_manager_reviews")
+      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at"),
+  ]);
+
+  const { data, error } = kpiResult;
 
   if (error || !data?.length) {
     return [];
@@ -148,10 +190,20 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     }
   });
 
+  const targetsByAsm = new Map<string, SalesTargetRow>();
+  (targetResult.data ?? [])
+    .filter((row) => row.month === effectivePeriod)
+    .forEach((row) => targetsByAsm.set(row.asm_id, row));
+
+  const reviewsByAsm = new Map<string, SalesReviewRow>();
+  (reviewResult.data ?? [])
+    .filter((row) => row.month === effectivePeriod)
+    .forEach((row) => reviewsByAsm.set(row.asm_id, row));
+
   const resolved = demoSalesAsms
     .map((asm) => {
     const liveRow = latestByAsm.get(asm.id);
-    return liveRow ? toResolvedAsm(asm, liveRow) : null;
+    return liveRow ? toResolvedAsm(asm, liveRow, targetsByAsm.get(asm.id), reviewsByAsm.get(asm.id)) : null;
   })
     .filter((asm): asm is SalesAsmResolved => asm !== null);
 
@@ -175,4 +227,28 @@ export async function getSalesScorecardsData(periodKey?: string | null) {
 export async function getSalesAsmByIdResolved(id: string, periodKey?: string | null) {
   const asms = await getSalesAsms(periodKey);
   return asms.find((asm) => asm.id === id) ?? null;
+}
+
+export async function getSalesManagementFormData(asmId: string, periodKey: string) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { target: null, review: null };
+  }
+
+  const supabase = createAdminClient();
+  const [{ data: target }, { data: review }] = await Promise.all([
+    supabase
+      .from("sales_monthly_targets")
+      .select("revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target")
+      .eq("asm_id", asmId)
+      .eq("month", periodKey)
+      .maybeSingle(),
+    supabase
+      .from("sales_manager_reviews")
+      .select("discipline_score, reporting_score, manager_note")
+      .eq("asm_id", asmId)
+      .eq("month", periodKey)
+      .maybeSingle(),
+  ]);
+
+  return { target, review };
 }

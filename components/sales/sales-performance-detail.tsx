@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, BadgeDollarSign, ClipboardCheck, Database, UserCircle2 } from "lucide-react";
 
+import { saveSalesReviewAction, saveSalesTargetsAction } from "@/app/(app)/sales-performance/[id]/actions";
 import { salesKpiProducts } from "@/lib/demo-data";
 import type { SalesAsmResolved } from "@/lib/sales/queries";
 import { getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
@@ -8,13 +9,35 @@ import { getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
 type SalesPerformanceDetailProps = {
   asm: SalesAsmResolved;
   selectedPeriod: string;
+  canEdit: boolean;
+  target: {
+    revenue_target: number;
+    new_customers_target: number;
+    hb006_target: number;
+    hb034_target: number;
+    hb031_target: number;
+    hb035_target: number;
+  } | null;
+  review: {
+    discipline_score: number;
+    reporting_score: number;
+    manager_note: string | null;
+  } | null;
+  saveStatus?: string;
 };
 
 function getStatusColor(passed: boolean) {
   return passed ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50";
 }
 
-export function SalesPerformanceDetail({ asm, selectedPeriod }: SalesPerformanceDetailProps) {
+export function SalesPerformanceDetail({
+  asm,
+  selectedPeriod,
+  canEdit,
+  target,
+  review,
+  saveStatus,
+}: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
   const periodLabel = getSalesPeriodLabel(asm.periodKey);
 
@@ -87,6 +110,112 @@ export function SalesPerformanceDetail({ asm, selectedPeriod }: SalesPerformance
           </div>
         </div>
       </section>
+
+      {(canEdit || saveStatus) ? (
+        <section className="grid gap-6 xl:grid-cols-2">
+          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-brand-700">Monthly targets</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Set target values outside ERP</h2>
+              </div>
+              {saveStatus === "targets" ? (
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  Targets saved
+                </span>
+              ) : null}
+            </div>
+
+            <form action={saveSalesTargetsAction} className="mt-6 grid gap-4 md:grid-cols-2">
+              <input type="hidden" name="asm_id" value={asm.id} />
+              <input type="hidden" name="period" value={selectedPeriod} />
+              {[
+                { name: "revenue_target", label: "Revenue target", value: target?.revenue_target ?? asm.revenueTarget },
+                { name: "new_customers_target", label: "New customer target", value: target?.new_customers_target ?? asm.newCustomersTarget },
+                { name: "hb031_target", label: "HB031 target", value: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                { name: "hb035_target", label: "HB035 target", value: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                { name: "hb006_target", label: "HB006 target", value: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                { name: "hb034_target", label: "HB034 target", value: target?.hb034_target ?? salesKpiProducts.HB034.target },
+              ].map((field) => (
+                <label key={field.name} className="block">
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
+                  <input
+                    type="number"
+                    step="1"
+                    name={field.name}
+                    defaultValue={field.value}
+                    className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                  />
+                </label>
+              ))}
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 md:col-span-2"
+              >
+                Save monthly targets
+              </button>
+            </form>
+          </div>
+
+          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-brand-700">Manager review</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Save discipline and reporting notes</h2>
+              </div>
+              {saveStatus === "review" ? (
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  Review saved
+                </span>
+              ) : null}
+            </div>
+
+            <form action={saveSalesReviewAction} className="mt-6 space-y-4">
+              <input type="hidden" name="asm_id" value={asm.id} />
+              <input type="hidden" name="period" value={selectedPeriod} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Discipline score</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="5"
+                    name="discipline_score"
+                    defaultValue={review?.discipline_score ?? asm.disciplineScore}
+                    className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Reporting score</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="5"
+                    name="reporting_score"
+                    defaultValue={review?.reporting_score ?? asm.reportingScore}
+                    className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Manager note</span>
+                <textarea
+                  name="manager_note"
+                  defaultValue={review?.manager_note ?? asm.managerNote}
+                  rows={5}
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                />
+              </label>
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Save manager review
+              </button>
+            </form>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
