@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/sales-performance", label: "Sales KPI", icon: ChartColumnBig },
+  { href: "/sales-performance/targets", label: "Sales Targets", icon: ChartColumnBig },
   { href: "/tasks", label: "Tasks", icon: ClipboardList },
   { href: "/notifications", label: "Notifications", icon: BellRing },
   { href: "/briefs", label: "CEO Brief", icon: FileStack },
