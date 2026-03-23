@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, Calculator, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Calculator, Users } from "lucide-react";
 
 import { syncSalesPeriodAction } from "@/app/(app)/sales-performance/actions";
 import { salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
@@ -10,45 +10,6 @@ function getHealthTone(total: number) {
   if (total >= 80) return "text-emerald-700 bg-emerald-50";
   if (total >= 60) return "text-amber-700 bg-amber-50";
   return "text-rose-700 bg-rose-50";
-}
-
-function getAiReview(asm: SalesPerformanceHubProps["scorecards"][number]) {
-  const flags: string[] = [];
-
-  if (asm.scorecard.revenuePct >= 100) flags.push("revenue beat target");
-  else if (asm.scorecard.revenuePct >= 80) flags.push("revenue is on threshold");
-  else flags.push("revenue is under target");
-
-  if (asm.scorecard.customerScore >= 10) flags.push("customer acquisition is healthy");
-  else if (asm.newCustomersActual === 0) flags.push("new customer generation is weak");
-
-  if (asm.scorecard.keySkuScore === 5) flags.push("key SKU execution is qualified");
-  else flags.push("key SKU execution needs attention");
-
-  if (asm.scorecard.clearstockScore >= 5) flags.push("clearstock movement is acceptable");
-  else flags.push("clearstock movement is below threshold");
-
-  if (asm.scorecard.manualScore >= 4 && asm.scorecard.reportingScore >= 4) {
-    return {
-      tone: "strong",
-      title: "AI review: operating well",
-      summary: `${asm.name} is showing stable execution: ${flags.slice(0, 3).join(", ")}.`,
-    };
-  }
-
-  if (asm.scorecard.total >= 60) {
-    return {
-      tone: "watch",
-      title: "AI review: mixed performance",
-      summary: `${asm.name} is in a watch zone: ${flags.slice(0, 4).join(", ")}.`,
-    };
-  }
-
-  return {
-    tone: "risk",
-    title: "AI review: needs manager attention",
-    summary: `${asm.name} is at execution risk: ${flags.slice(0, 4).join(", ")}.`,
-  };
 }
 
 type SalesPerformanceHubProps = {
@@ -385,59 +346,6 @@ export function SalesPerformanceHub({
               </p>
             </div>
           ))}
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">Manager review</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Reporting and discipline notes</h2>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 xl:grid-cols-2">
-          {scorecards.slice(0, 6).map((asm) => (
-            <div key={asm.id} className="rounded-2xl bg-slate-50 px-4 py-4">
-              {(() => {
-                const aiReview = getAiReview(asm);
-                const toneClass =
-                  aiReview.tone === "strong"
-                    ? "bg-emerald-50 text-emerald-700"
-                    : aiReview.tone === "watch"
-                      ? "bg-amber-50 text-amber-700"
-                      : "bg-rose-50 text-rose-700";
-
-                return (
-                  <>
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-medium text-slate-900">{asm.name}</p>
-                  <p className="mt-1 text-xs text-slate-500">Manager: {asm.manager}</p>
-                </div>
-                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
-                  Discipline {asm.scorecard.manualScore}/5
-                </span>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
-              <div className={`mt-4 rounded-2xl px-4 py-3 ${toneClass}`}>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em]">AI review preview</p>
-                <p className="mt-2 text-sm font-semibold">{aiReview.title}</p>
-                <p className="mt-2 text-sm leading-6">{aiReview.summary}</p>
-              </div>
-                  </>
-                );
-              })()}
-            </div>
-          ))}
-          {!scorecards.length ? (
-            <div className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500">
-              Manager review cards will appear after the selected period has live KPI rows.
-            </div>
-          ) : null}
         </div>
       </section>
     </div>
