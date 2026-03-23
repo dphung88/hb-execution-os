@@ -307,7 +307,7 @@ export const demoSalesAsms = [
   {
     id: "NV0001",
     name: "Tran Thi Thanh Trang",
-    region: "Sales Admin",
+    region: "Nationwide",
     manager: "Tran Thi Thanh Trang",
     periodKey: "2026-05",
     revenueTarget: 4000,

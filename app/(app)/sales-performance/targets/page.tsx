@@ -150,6 +150,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                   <div>
                     <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
                     <p className="mt-1 text-sm text-slate-500">{asm.id}</p>
+                    <p className="mt-1 text-sm text-slate-500">{asm.region}</p>
                     <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
                       Sales Revenue:{" "}
                       {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)} million VND` : "Not synced"}
@@ -194,7 +195,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                             { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
                             { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid gap-2 sm:grid-cols-[1fr,120px]">
+                            <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                   Code
@@ -208,7 +209,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                               </label>
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                                  Qty
+                                  Quantity
                                 </span>
                                 <input
                                   type="number"
@@ -229,7 +230,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                             { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
                             { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid gap-2 sm:grid-cols-[1fr,120px]">
+                            <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                   Code
@@ -243,7 +244,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                               </label>
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                                  Qty
+                                  Quantity
                                 </span>
                                 <input
                                   type="number"
