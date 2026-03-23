@@ -5,6 +5,27 @@ import { redirect } from "next/navigation";
 
 import { createWriteClient } from "@/lib/supabase/write";
 
+function normalizeSkuCode(value: FormDataEntryValue | null, fallback: string) {
+  const raw = String(value ?? "").trim().toUpperCase();
+
+  if (!raw) {
+    return fallback;
+  }
+
+  if (/^\d{1,3}$/.test(raw)) {
+    return `HB${raw.padStart(3, "0")}`;
+  }
+
+  const digits = raw.replace(/^HB/i, "").replace(/\D/g, "");
+
+  if (!digits) {
+    return fallback;
+  }
+
+  const clamped = Math.max(1, Math.min(999, Number(digits)));
+  return `HB${String(clamped).padStart(3, "0")}`;
+}
+
 export async function saveSalesTargetRowAction(formData: FormData) {
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
@@ -22,10 +43,10 @@ export async function saveSalesTargetRowAction(formData: FormData) {
       month: period,
       revenue_target: Number(formData.get("revenue_target") ?? 0),
       new_customers_target: Number(formData.get("new_customers_target") ?? 0),
-      key_sku_code_1: String(formData.get("key_sku_code_1") ?? "HB031").toUpperCase(),
-      key_sku_code_2: String(formData.get("key_sku_code_2") ?? "HB035").toUpperCase(),
-      clearstock_code_1: String(formData.get("clearstock_code_1") ?? "HB006").toUpperCase(),
-      clearstock_code_2: String(formData.get("clearstock_code_2") ?? "HB034").toUpperCase(),
+      key_sku_code_1: normalizeSkuCode(formData.get("key_sku_code_1"), "HB031"),
+      key_sku_code_2: normalizeSkuCode(formData.get("key_sku_code_2"), "HB035"),
+      clearstock_code_1: normalizeSkuCode(formData.get("clearstock_code_1"), "HB006"),
+      clearstock_code_2: normalizeSkuCode(formData.get("clearstock_code_2"), "HB034"),
       hb006_target: Number(formData.get("hb006_target") ?? 229),
       hb034_target: Number(formData.get("hb034_target") ?? 161),
       hb031_target: Number(formData.get("hb031_target") ?? 243),

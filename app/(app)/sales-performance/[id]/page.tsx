@@ -10,6 +10,7 @@ type SalesPerformanceDetailPageProps = {
   searchParams?: Promise<{
     period?: string;
     saved?: string;
+    error?: string;
   }>;
 };
 
@@ -21,6 +22,7 @@ export default async function SalesPerformanceDetailPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const period = resolvedSearchParams?.period;
   const saved = resolvedSearchParams?.saved;
+  const error = resolvedSearchParams?.error;
   const asm = await getSalesAsmByIdResolved(id, period);
 
   if (!asm) {
@@ -37,6 +39,7 @@ export default async function SalesPerformanceDetailPage({
       target={management.target}
       review={management.review}
       saveStatus={saved}
+      errorStatus={error}
     />
   );
 }

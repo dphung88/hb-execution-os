@@ -80,7 +80,7 @@ export type SalesPeriodOption = {
 };
 
 function normalizeRevenueActual(actual: number | null, target: number) {
-  if (actual == null) return target;
+  if (actual == null) return 0;
 
   // If ERP writes raw VND while targets are still stored in millions, normalize for scoring/display.
   if (target <= 10000 && actual >= 1000000) {
@@ -318,7 +318,118 @@ export async function getSalesScorecardsData(periodKey?: string | null) {
 
 export async function getSalesAsmByIdResolved(id: string, periodKey?: string | null) {
   const asms = await getSalesAsms(periodKey);
-  return asms.find((asm) => asm.id === id) ?? null;
+  const resolved = asms.find((asm) => asm.id === id);
+
+  if (resolved) {
+    return resolved;
+  }
+
+  const baseAsm = demoSalesAsms.find((asm) => asm.id === id);
+
+  if (!baseAsm) {
+    return null;
+  }
+
+  const effectivePeriod = periodKey ?? baseAsm.periodKey;
+
+  if (!hasSupabaseClientEnv()) {
+    return {
+      ...baseAsm,
+      periodKey: effectivePeriod,
+      revenueActual: 0,
+      newCustomersActual: 0,
+      hb006: 0,
+      hb034: 0,
+      hb031: 0,
+      hb035: 0,
+      sourceSyncedAt: null,
+      fromDate: null,
+      toDate: null,
+      keySkuTargets: [
+        {
+          code: salesKpiProducts.HB031.code,
+          target: salesKpiProducts.HB031.target,
+          actual: 0,
+          minPct: salesKpiProducts.HB031.minPct,
+          name: salesKpiProducts.HB031.name,
+        },
+        {
+          code: salesKpiProducts.HB035.code,
+          target: salesKpiProducts.HB035.target,
+          actual: 0,
+          minPct: salesKpiProducts.HB035.minPct,
+          name: salesKpiProducts.HB035.name,
+        },
+      ],
+      clearstockTargets: [
+        {
+          code: salesKpiProducts.HB006.code,
+          target: salesKpiProducts.HB006.target,
+          actual: 0,
+          minPct: salesKpiProducts.HB006.minPct,
+          name: salesKpiProducts.HB006.name,
+        },
+        {
+          code: salesKpiProducts.HB034.code,
+          target: salesKpiProducts.HB034.target,
+          actual: 0,
+          minPct: salesKpiProducts.HB034.minPct,
+          name: salesKpiProducts.HB034.name,
+        },
+      ],
+    };
+  }
+
+  const supabase = await createClient();
+  const [{ data: target }, { data: review }, { data: breakdowns }] = await Promise.all([
+    supabase
+      .from("sales_monthly_targets")
+      .select("*")
+      .eq("asm_id", id)
+      .eq("month", effectivePeriod)
+      .maybeSingle(),
+    supabase
+      .from("sales_manager_reviews")
+      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at")
+      .eq("asm_id", id)
+      .eq("month", effectivePeriod)
+      .maybeSingle(),
+    supabase
+      .from("kpi_item_breakdowns")
+      .select("item_code, quantity")
+      .eq("asm_id", id)
+      .eq("month", effectivePeriod),
+  ]);
+
+  const breakdownsByCode = new Map<string, number>();
+  ((breakdowns as Pick<BreakdownRow, "item_code" | "quantity">[] | null) ?? []).forEach((row) => {
+    breakdownsByCode.set(String(row.item_code).toUpperCase(), Number(row.quantity ?? 0));
+  });
+
+  return toResolvedAsm(
+    { ...baseAsm, periodKey: effectivePeriod },
+    {
+      asm_id: id,
+      month: effectivePeriod,
+      dt_target: target?.revenue_target ?? baseAsm.revenueTarget,
+      dt_thuc_dat: 0,
+      kh_moi: 0,
+      hb006: 0,
+      hb034: 0,
+      hb031: 0,
+      hb035: 0,
+      noiquy: review?.discipline_score ?? 0,
+      total_kpi: null,
+      luong: null,
+      from_date: null,
+      to_date: null,
+      source_synced_at: null,
+      updated_at: null,
+    },
+    breakdownsByCode,
+    (target as SalesTargetRow | null) ?? undefined,
+    (review as SalesReviewRow | null) ?? undefined
+  );
 }
 
 export async function getSalesManagementFormData(asmId: string, periodKey: string) {
