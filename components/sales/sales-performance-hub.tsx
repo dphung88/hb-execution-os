@@ -12,6 +12,45 @@ function getHealthTone(total: number) {
   return "text-rose-700 bg-rose-50";
 }
 
+function getAiReview(asm: SalesPerformanceHubProps["scorecards"][number]) {
+  const flags: string[] = [];
+
+  if (asm.scorecard.revenuePct >= 100) flags.push("revenue beat target");
+  else if (asm.scorecard.revenuePct >= 80) flags.push("revenue is on threshold");
+  else flags.push("revenue is under target");
+
+  if (asm.scorecard.customerScore >= 10) flags.push("customer acquisition is healthy");
+  else if (asm.newCustomersActual === 0) flags.push("new customer generation is weak");
+
+  if (asm.scorecard.keySkuScore === 5) flags.push("key SKU execution is qualified");
+  else flags.push("key SKU execution needs attention");
+
+  if (asm.scorecard.clearstockScore >= 5) flags.push("clearstock movement is acceptable");
+  else flags.push("clearstock movement is below threshold");
+
+  if (asm.scorecard.manualScore >= 4 && asm.scorecard.reportingScore >= 4) {
+    return {
+      tone: "strong",
+      title: "AI review: operating well",
+      summary: `${asm.name} is showing stable execution: ${flags.slice(0, 3).join(", ")}.`,
+    };
+  }
+
+  if (asm.scorecard.total >= 60) {
+    return {
+      tone: "watch",
+      title: "AI review: mixed performance",
+      summary: `${asm.name} is in a watch zone: ${flags.slice(0, 4).join(", ")}.`,
+    };
+  }
+
+  return {
+    tone: "risk",
+    title: "AI review: needs manager attention",
+    summary: `${asm.name} is at execution risk: ${flags.slice(0, 4).join(", ")}.`,
+  };
+}
+
 type SalesPerformanceHubProps = {
   scorecards: Array<SalesAsmResolved & { periodLabel: string; scorecard: SalesAsmScorecard }>;
   liveCount: number;
@@ -315,11 +354,11 @@ export function SalesPerformanceHub({
           </div>
           <div>
             <p className="text-sm font-medium text-brand-700">Scoring logic</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Rule engine shell</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Scoring logic by KPI</h2>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 xl:grid-cols-3">
+        <div className="mt-6 grid gap-4 xl:grid-cols-5">
           {salesScoringRules.map((rule) => (
             <div key={rule.name} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
               <div className="flex items-center justify-between gap-3">
@@ -351,6 +390,17 @@ export function SalesPerformanceHub({
         <div className="mt-6 grid gap-4 xl:grid-cols-2">
           {scorecards.slice(0, 6).map((asm) => (
             <div key={asm.id} className="rounded-2xl bg-slate-50 px-4 py-4">
+              {(() => {
+                const aiReview = getAiReview(asm);
+                const toneClass =
+                  aiReview.tone === "strong"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : aiReview.tone === "watch"
+                      ? "bg-amber-50 text-amber-700"
+                      : "bg-rose-50 text-rose-700";
+
+                return (
+                  <>
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="font-medium text-slate-900">{asm.name}</p>
@@ -361,6 +411,14 @@ export function SalesPerformanceHub({
                 </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-slate-600">{asm.managerNote}</p>
+              <div className={`mt-4 rounded-2xl px-4 py-3 ${toneClass}`}>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em]">AI review preview</p>
+                <p className="mt-2 text-sm font-semibold">{aiReview.title}</p>
+                <p className="mt-2 text-sm leading-6">{aiReview.summary}</p>
+              </div>
+                  </>
+                );
+              })()}
             </div>
           ))}
           {!scorecards.length ? (

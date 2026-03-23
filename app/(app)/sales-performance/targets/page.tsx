@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { saveSalesTargetRowAction } from "@/app/(app)/sales-performance/targets/actions";
 import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 type SalesTargetsPageProps = {
@@ -23,30 +23,36 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
   const selectedPeriod = resolvedSearchParams?.period ?? salesPeriods[salesPeriods.length - 1]?.key ?? "2026-03";
   const savedAsm = resolvedSearchParams?.saved;
 
-  const supabase = await createClient();
+  const supabase = hasSupabaseClientEnv() ? await createClient() : null;
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
 
-  const admin = createAdminClient();
-  const [{ data: targets }, { data: reviews }, { data: actuals }] = await Promise.all([
-    admin
-      .from("sales_monthly_targets")
-      .select("asm_id, revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target")
-      .eq("month", selectedPeriod),
-    admin
-      .from("sales_manager_reviews")
-      .select("asm_id, discipline_score, reporting_score, reviewed_at")
-      .eq("month", selectedPeriod),
-    admin
-      .from("kpi_data")
-      .select("asm_id, dt_thuc_dat, kh_moi")
-      .eq("month", selectedPeriod),
-  ]);
+  const [{ data: targets, error: targetsError }, { data: reviews, error: reviewsError }, { data: actuals, error: actualsError }] =
+    supabase
+      ? await Promise.all([
+          supabase
+            .from("sales_monthly_targets")
+            .select("asm_id, revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target")
+            .eq("month", selectedPeriod),
+          supabase
+            .from("sales_manager_reviews")
+            .select("asm_id, discipline_score, reporting_score, reviewed_at")
+            .eq("month", selectedPeriod),
+          supabase
+            .from("kpi_data")
+            .select("asm_id, dt_thuc_dat, kh_moi")
+            .eq("month", selectedPeriod),
+        ])
+      : [
+          { data: null, error: null },
+          { data: null, error: null },
+          { data: null, error: null },
+        ];
 
-  const targetsByAsm = new Map((targets ?? []).map((row) => [row.asm_id, row]));
-  const reviewsByAsm = new Map((reviews ?? []).map((row) => [row.asm_id, row]));
-  const actualsByAsm = new Map((actuals ?? []).map((row) => [row.asm_id, row]));
+  const targetsByAsm = new Map((targetsError ? [] : targets ?? []).map((row) => [row.asm_id, row]));
+  const reviewsByAsm = new Map((reviewsError ? [] : reviews ?? []).map((row) => [row.asm_id, row]));
+  const actualsByAsm = new Map((actualsError ? [] : actuals ?? []).map((row) => [row.asm_id, row]));
 
   const targetCoverage = targets?.length ?? 0;
   const reviewCoverage = reviews?.length ?? 0;
@@ -101,6 +107,15 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
           </div>
         ))}
       </section>
+
+      {!user ? (
+        <section className="rounded-3xl border border-amber-200 bg-amber-50/90 p-5 shadow-panel">
+          <p className="text-sm font-semibold text-amber-900">Sign in required for editing</p>
+          <p className="mt-2 text-sm text-amber-800">
+            You can review the monthly target matrix here, but saving targets requires a signed-in session.
+          </p>
+        </section>
+      ) : null}
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
@@ -178,6 +193,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                   <div className="xl:w-[180px]">
                     <button
                       type="submit"
+                      disabled={!user}
                       className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
                       Save targets
