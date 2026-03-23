@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, Calculator, DatabaseZap, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Calculator, ShieldCheck, Users } from "lucide-react";
 
 import { syncSalesPeriodAction } from "@/app/(app)/sales-performance/actions";
-import { demoErpPipeline, salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
+import { salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
 
@@ -308,60 +308,32 @@ export function SalesPerformanceHub({
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
-        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-indigo-100 p-3 text-indigo-700">
-              <DatabaseZap className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">ERP pipeline</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Target integration flow</h2>
-            </div>
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
+            <Calculator className="h-5 w-5" />
           </div>
-
-          <div className="mt-6 space-y-4">
-            {demoErpPipeline.map((step, index) => (
-              <div key={step.step} className="flex gap-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
-                  {index + 1}
-                </div>
-                <div>
-                  <p className="font-medium text-slate-900">{step.step}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">{step.detail}</p>
-                </div>
-              </div>
-            ))}
+          <div>
+            <p className="text-sm font-medium text-brand-700">Scoring logic</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Rule engine shell</h2>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
-              <Calculator className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Scoring logic</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Rule engine shell</h2>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-4">
-            {salesScoringRules.map((rule) => (
-              <div key={rule.name} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{rule.name}</p>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
-                    {rule.score}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-500">{rule.description}</p>
-                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">
-                  Source: {rule.source}
-                </p>
+        <div className="mt-6 grid gap-4 xl:grid-cols-3">
+          {salesScoringRules.map((rule) => (
+            <div key={rule.name} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-medium text-slate-900">{rule.name}</p>
+                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
+                  {rule.score}
+                </span>
               </div>
-            ))}
-          </div>
+              <p className="mt-2 text-sm leading-6 text-slate-500">{rule.description}</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">
+                Source: {rule.source}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 

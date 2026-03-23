@@ -213,7 +213,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
 export async function getSalesScorecardsData(periodKey?: string | null) {
   const [asms, periods] = await Promise.all([getSalesAsms(periodKey), getAvailableSalesPeriods()]);
   const scorecards = getSalesScorecards(asms);
-  const selectedPeriod = periodKey ?? periods[0]?.key ?? salesPeriods[0]?.key ?? "";
+  const selectedPeriod = periodKey ?? asms[0]?.periodKey ?? periods[0]?.key ?? salesPeriods[0]?.key ?? "";
 
   return {
     asms,
