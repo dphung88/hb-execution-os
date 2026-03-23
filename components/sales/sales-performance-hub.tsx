@@ -80,6 +80,24 @@ export function SalesPerformanceHub({
   const skuQualified = scorecards.filter((asm) => asm.scorecard.keySkuScore > 0).length;
   const clearstockQualified = scorecards.filter((asm) => asm.scorecard.clearstockScore > 0).length;
   const selectedPeriodLabel = periods.find((period) => period.key === selectedPeriod)?.label ?? scorecards[0]?.periodLabel ?? "-";
+  const summaryKeySkuTargets = scorecards[0]?.keySkuTargets ?? Object.values(salesKpiProducts)
+    .filter((product) => product.category === "key")
+    .map((product) => ({
+      code: product.code,
+      name: product.name,
+      target: product.target,
+      minPct: product.minPct,
+      actual: 0,
+    }));
+  const summaryClearstockTargets = scorecards[0]?.clearstockTargets ?? Object.values(salesKpiProducts)
+    .filter((product) => product.category === "clearstock")
+    .map((product) => ({
+      code: product.code,
+      name: product.name,
+      target: product.target,
+      minPct: product.minPct,
+      actual: 0,
+    }));
 
   return (
     <div className="space-y-6">
@@ -157,7 +175,7 @@ export function SalesPerformanceHub({
               {[
                 { label: "ASM scorecards", value: `${scorecards.length} live` },
                 { label: "Current period", value: selectedPeriodLabel },
-                { label: "ERP-fed KPIs", value: "Revenue + SKU + Clearstock" },
+                { label: "Scoring model", value: "Revenue + Dealers + SKU + Clearstock" },
                 { label: "Detail view", value: "Per ASM" }
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white/10 p-4">
@@ -174,8 +192,8 @@ export function SalesPerformanceHub({
         {[
           { label: "Total actual revenue", value: `${totalRevenue.toLocaleString("en-US")}M`, note: "ERP revenue feed" },
           { label: "Total new customers", value: `${totalCustomers}`, note: "Live monthly customer acquisition" },
-          { label: "Qualified on key SKU", value: `${skuQualified}/${scorecards.length}`, note: "HB031 + HB035 threshold" },
-          { label: "Qualified on clearstock", value: `${clearstockQualified}/${scorecards.length}`, note: "HB006 + HB034 threshold" },
+          { label: "Qualified on key SKU", value: `${skuQualified}/${scorecards.length}`, note: "Based on configured SKU codes" },
+          { label: "Qualified on clearstock", value: `${clearstockQualified}/${scorecards.length}`, note: "Based on configured clearstock codes" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
@@ -250,13 +268,13 @@ export function SalesPerformanceHub({
                       </td>
                       <td className="px-4 py-4">
                         <div className="font-medium text-slate-900">
-                          {asm.hb031}/{asm.hb035}
+                          {asm.keySkuTargets.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ")}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="font-medium text-slate-900">
-                          {asm.hb006}/{asm.hb034}
+                          {asm.clearstockTargets.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ")}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</div>
                       </td>
@@ -288,7 +306,7 @@ export function SalesPerformanceHub({
             <div className="px-6 py-14 text-center">
               <p className="text-lg font-semibold text-slate-900">No Sales KPI data for this month yet.</p>
               <p className="mt-2 text-sm text-slate-500">
-                Select another period or run ERP sync for the chosen month.
+                Select another period with live data, then review targets and scoring from there.
               </p>
             </div>
           )}
@@ -310,9 +328,7 @@ export function SalesPerformanceHub({
           <div className="rounded-3xl bg-slate-50 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Key SKU KPI</p>
             <div className="mt-4 space-y-3">
-              {Object.values(salesKpiProducts)
-                .filter((product) => product.category === "key")
-                .map((product) => (
+              {summaryKeySkuTargets.map((product) => (
                   <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
                     <p className="font-medium text-slate-900">
                       {product.code} · {product.name}
@@ -328,9 +344,7 @@ export function SalesPerformanceHub({
           <div className="rounded-3xl bg-slate-50 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Clearstock KPI</p>
             <div className="mt-4 space-y-3">
-              {Object.values(salesKpiProducts)
-                .filter((product) => product.category === "clearstock")
-                .map((product) => (
+              {summaryClearstockTargets.map((product) => (
                   <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
                     <p className="font-medium text-slate-900">
                       {product.code} · {product.name}

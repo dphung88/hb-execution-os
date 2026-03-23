@@ -1,4 +1,4 @@
-import { demoSalesAsms, salesPeriods } from "@/lib/demo-data";
+import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
 import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { getSalesScorecards, type SalesAsm } from "@/lib/sales/scorecards";
@@ -26,13 +26,32 @@ export type SalesAsmResolved = SalesAsm & {
   sourceSyncedAt: string | null;
   fromDate: string | null;
   toDate: string | null;
+  keySkuTargets: Array<{
+    code: string;
+    target: number;
+    actual: number;
+    minPct: number;
+    name: string;
+  }>;
+  clearstockTargets: Array<{
+    code: string;
+    target: number;
+    actual: number;
+    minPct: number;
+    name: string;
+  }>;
 };
 
 type SalesTargetRow = {
+  [key: string]: unknown;
   asm_id: string;
   month: string;
   revenue_target: number;
   new_customers_target: number;
+  key_sku_code_1?: string | null;
+  key_sku_code_2?: string | null;
+  clearstock_code_1?: string | null;
+  clearstock_code_2?: string | null;
   hb006_target: number;
   hb034_target: number;
   hb031_target: number;
@@ -46,6 +65,13 @@ type SalesReviewRow = {
   reporting_score: number;
   manager_note: string | null;
   reviewed_at: string | null;
+};
+
+type BreakdownRow = {
+  asm_id: string;
+  month: string;
+  item_code: string;
+  quantity: number | null;
 };
 
 export type SalesPeriodOption = {
@@ -67,6 +93,7 @@ function normalizeRevenueActual(actual: number | null, target: number) {
 function toResolvedAsm(
   baseAsm: SalesAsm,
   row: KpiDataRow,
+  breakdownsByCode: Map<string, number>,
   target?: SalesTargetRow,
   review?: SalesReviewRow
 ): SalesAsmResolved {
@@ -76,6 +103,56 @@ function toResolvedAsm(
     Math.min(5, Number(review?.discipline_score ?? row.noiquy ?? 0))
   );
   const reportingScore = Math.max(0, Math.min(5, Number(review?.reporting_score ?? 0)));
+
+  const keySkuTargets = [
+    {
+      code: String(target?.key_sku_code_1 ?? "HB031").toUpperCase(),
+      target: Number(target?.hb031_target ?? salesKpiProducts.HB031.target),
+      minPct: salesKpiProducts.HB031.minPct,
+    },
+    {
+      code: String(target?.key_sku_code_2 ?? "HB035").toUpperCase(),
+      target: Number(target?.hb035_target ?? salesKpiProducts.HB035.target),
+      minPct: salesKpiProducts.HB035.minPct,
+    },
+  ].map((item) => ({
+    ...item,
+    actual:
+      breakdownsByCode.get(item.code) ??
+      (item.code === "HB031"
+        ? Number(row.hb031 ?? 0)
+        : item.code === "HB035"
+          ? Number(row.hb035 ?? 0)
+          : 0),
+    name:
+      Object.values(salesKpiProducts).find((product) => product.code === item.code)?.name ??
+      item.code,
+  }));
+
+  const clearstockTargets = [
+    {
+      code: String(target?.clearstock_code_1 ?? "HB006").toUpperCase(),
+      target: Number(target?.hb006_target ?? salesKpiProducts.HB006.target),
+      minPct: salesKpiProducts.HB006.minPct,
+    },
+    {
+      code: String(target?.clearstock_code_2 ?? "HB034").toUpperCase(),
+      target: Number(target?.hb034_target ?? salesKpiProducts.HB034.target),
+      minPct: salesKpiProducts.HB034.minPct,
+    },
+  ].map((item) => ({
+    ...item,
+    actual:
+      breakdownsByCode.get(item.code) ??
+      (item.code === "HB006"
+        ? Number(row.hb006 ?? 0)
+        : item.code === "HB034"
+          ? Number(row.hb034 ?? 0)
+          : 0),
+    name:
+      Object.values(salesKpiProducts).find((product) => product.code === item.code)?.name ??
+      item.code,
+  }));
 
   return {
     ...baseAsm,
@@ -94,6 +171,8 @@ function toResolvedAsm(
     sourceSyncedAt: row.source_synced_at ?? row.updated_at,
     fromDate: row.from_date,
     toDate: row.to_date,
+    keySkuTargets,
+    clearstockTargets,
   };
 }
 
@@ -159,9 +238,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
       .order("updated_at", { ascending: false }),
     supabase
       .from("sales_monthly_targets")
-      .select(
-        "asm_id, month, revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target"
-      ),
+      .select("*"),
     supabase
       .from("sales_manager_reviews")
       .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at"),
@@ -176,6 +253,12 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
   const latestMonth = data.find((row) => row.month)?.month ?? null;
   const effectivePeriod = periodKey ?? latestMonth;
   const monthRows = effectivePeriod ? data.filter((row) => row.month === effectivePeriod) : data;
+  const { data: breakdowns, error: breakdownsError } = effectivePeriod
+    ? await supabase
+        .from("kpi_item_breakdowns")
+        .select("asm_id, month, item_code, quantity")
+        .eq("month", effectivePeriod)
+    : { data: null, error: null };
   const latestByAsm = new Map<string, KpiDataRow>();
 
   monthRows.forEach((row) => {
@@ -194,10 +277,25 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     .filter((row) => row.month === effectivePeriod)
     .forEach((row) => reviewsByAsm.set(row.asm_id, row));
 
+  const breakdownsByAsm = new Map<string, Map<string, number>>();
+  (!breakdownsError ? (breakdowns as BreakdownRow[] | null) ?? [] : []).forEach((row) => {
+    const asmBreakdowns = breakdownsByAsm.get(row.asm_id) ?? new Map<string, number>();
+    asmBreakdowns.set(String(row.item_code).toUpperCase(), Number(row.quantity ?? 0));
+    breakdownsByAsm.set(row.asm_id, asmBreakdowns);
+  });
+
   const resolved = demoSalesAsms
     .map((asm) => {
     const liveRow = latestByAsm.get(asm.id);
-    return liveRow ? toResolvedAsm(asm, liveRow, targetsByAsm.get(asm.id), reviewsByAsm.get(asm.id)) : null;
+    return liveRow
+      ? toResolvedAsm(
+          asm,
+          liveRow,
+          breakdownsByAsm.get(asm.id) ?? new Map<string, number>(),
+          targetsByAsm.get(asm.id),
+          reviewsByAsm.get(asm.id)
+        )
+      : null;
   })
     .filter((asm): asm is SalesAsmResolved => asm !== null);
 
@@ -232,7 +330,7 @@ export async function getSalesManagementFormData(asmId: string, periodKey: strin
   const [{ data: target }, { data: review }] = await Promise.all([
     supabase
       .from("sales_monthly_targets")
-      .select("revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target")
+      .select("*")
       .eq("asm_id", asmId)
       .eq("month", periodKey)
       .maybeSingle(),

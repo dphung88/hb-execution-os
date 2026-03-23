@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowLeft, BadgeDollarSign, ClipboardCheck, Database, UserCircle2 } from "lucide-react";
 
 import { saveSalesReviewAction, saveSalesTargetsAction } from "@/app/(app)/sales-performance/[id]/actions";
-import { salesKpiProducts } from "@/lib/demo-data";
 import type { SalesAsmResolved } from "@/lib/sales/queries";
 import { getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
 
@@ -11,8 +10,13 @@ type SalesPerformanceDetailProps = {
   selectedPeriod: string;
   canEdit: boolean;
   target: {
+    [key: string]: unknown;
     revenue_target: number;
     new_customers_target: number;
+    key_sku_code_1?: string | null;
+    key_sku_code_2?: string | null;
+    clearstock_code_1?: string | null;
+    clearstock_code_2?: string | null;
     hb006_target: number;
     hb034_target: number;
     hb031_target: number;
@@ -40,32 +44,14 @@ export function SalesPerformanceDetail({
 }: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
   const periodLabel = getSalesPeriodLabel(asm.periodKey);
-
-  const keyChecks = [
-    {
-      ...salesKpiProducts.HB031,
-      actual: asm.hb031,
-      threshold: salesKpiProducts.HB031.target * salesKpiProducts.HB031.minPct
-    },
-    {
-      ...salesKpiProducts.HB035,
-      actual: asm.hb035,
-      threshold: salesKpiProducts.HB035.target * salesKpiProducts.HB035.minPct
-    }
-  ];
-
-  const clearChecks = [
-    {
-      ...salesKpiProducts.HB006,
-      actual: asm.hb006,
-      threshold: salesKpiProducts.HB006.target * salesKpiProducts.HB006.minPct
-    },
-    {
-      ...salesKpiProducts.HB034,
-      actual: asm.hb034,
-      threshold: salesKpiProducts.HB034.target * salesKpiProducts.HB034.minPct
-    }
-  ];
+  const keyChecks = asm.keySkuTargets.map((item) => ({
+    ...item,
+    threshold: item.target * item.minPct,
+  }));
+  const clearChecks = asm.clearstockTargets.map((item) => ({
+    ...item,
+    threshold: item.target * item.minPct,
+  }));
 
   return (
     <div className="space-y-6">
@@ -131,17 +117,21 @@ export function SalesPerformanceDetail({
               <input type="hidden" name="period" value={selectedPeriod} />
               {[
                 { name: "revenue_target", label: "Revenue target", value: target?.revenue_target ?? asm.revenueTarget },
-                { name: "new_customers_target", label: "New customer target", value: target?.new_customers_target ?? asm.newCustomersTarget },
-                { name: "hb031_target", label: "HB031 target", value: target?.hb031_target ?? salesKpiProducts.HB031.target },
-                { name: "hb035_target", label: "HB035 target", value: target?.hb035_target ?? salesKpiProducts.HB035.target },
-                { name: "hb006_target", label: "HB006 target", value: target?.hb006_target ?? salesKpiProducts.HB006.target },
-                { name: "hb034_target", label: "HB034 target", value: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                { name: "new_customers_target", label: "Dealers code target", value: target?.new_customers_target ?? asm.newCustomersTarget },
+                { name: "key_sku_code_1", label: "Key SKU code 1", value: String(target?.key_sku_code_1 ?? asm.keySkuTargets[0]?.code ?? "HB031") },
+                { name: "hb031_target", label: "Key SKU qty 1", value: target?.hb031_target ?? asm.keySkuTargets[0]?.target ?? 0 },
+                { name: "key_sku_code_2", label: "Key SKU code 2", value: String(target?.key_sku_code_2 ?? asm.keySkuTargets[1]?.code ?? "HB035") },
+                { name: "hb035_target", label: "Key SKU qty 2", value: target?.hb035_target ?? asm.keySkuTargets[1]?.target ?? 0 },
+                { name: "clearstock_code_1", label: "Clearstock code 1", value: String(target?.clearstock_code_1 ?? asm.clearstockTargets[0]?.code ?? "HB006") },
+                { name: "hb006_target", label: "Clearstock qty 1", value: target?.hb006_target ?? asm.clearstockTargets[0]?.target ?? 0 },
+                { name: "clearstock_code_2", label: "Clearstock code 2", value: String(target?.clearstock_code_2 ?? asm.clearstockTargets[1]?.code ?? "HB034") },
+                { name: "hb034_target", label: "Clearstock qty 2", value: target?.hb034_target ?? asm.clearstockTargets[1]?.target ?? 0 },
               ].map((field) => (
                 <label key={field.name} className="block">
                   <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
                   <input
-                    type="number"
-                    step="1"
+                    type={field.name.includes("code") ? "text" : "number"}
+                    step={field.name.includes("code") ? undefined : "1"}
                     name={field.name}
                     defaultValue={field.value}
                     className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
@@ -245,8 +235,8 @@ export function SalesPerformanceDetail({
             {[
               { label: "3.1 Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% revenue attainment` },
               { label: "3.2 Dealers Code", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} dealer codes` },
-              { label: "3.3 Key SKU", value: `${scorecard.keySkuScore}/5`, detail: "Both HB031 and HB035 must reach at least 50%" },
-              { label: "3.4 Clearstock", value: `${scorecard.clearstockScore}/10`, detail: "HB006 and HB034 are scored against the 80% threshold" },
+              { label: "3.3 Key SKU", value: `${scorecard.keySkuScore}/5`, detail: keyChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ") },
+              { label: "3.4 Clearstock", value: `${scorecard.clearstockScore}/10`, detail: clearChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ") },
               { label: "3.5 Discipline", value: `${scorecard.manualScore}/5`, detail: "Entered manually by the manager" }
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">

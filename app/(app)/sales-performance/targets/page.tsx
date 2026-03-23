@@ -31,7 +31,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       ? await Promise.all([
           supabase
             .from("sales_monthly_targets")
-            .select("asm_id, revenue_target, new_customers_target, hb006_target, hb034_target, hb031_target, hb035_target")
+            .select("*")
             .eq("month", selectedPeriod),
           supabase
             .from("sales_manager_reviews")
@@ -132,6 +132,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
         <div className="mt-6 space-y-4">
           {demoSalesAsms.map((asm) => {
             const target = targetsByAsm.get(asm.id);
+            const targetRow = target as Record<string, unknown> | undefined;
             const review = reviewsByAsm.get(asm.id);
             const actual = actualsByAsm.get(asm.id);
             const saved = savedAsm === asm.id;
@@ -185,22 +186,32 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
                         <div className="mt-3 grid gap-3">
                           {[
-                            { code: "HB031", qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
-                            { code: "HB035", qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                            { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                            { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid grid-cols-[120px,1fr] gap-2">
-                              <input
-                                type="text"
-                                value={field.code}
-                                readOnly
-                                className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 outline-none"
-                              />
-                              <input
-                                type="number"
-                                name={field.qtyName}
-                                defaultValue={field.qtyValue}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                              />
+                            <div key={field.qtyName} className="grid gap-2 sm:grid-cols-[1fr,120px]">
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                  Code
+                                </span>
+                                <input
+                                  type="text"
+                                  name={field.codeName}
+                                  defaultValue={field.codeValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold uppercase text-slate-700 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                  Qty
+                                </span>
+                                <input
+                                  type="number"
+                                  name={field.qtyName}
+                                  defaultValue={field.qtyValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
                             </div>
                           ))}
                         </div>
@@ -210,22 +221,32 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
                         <div className="mt-3 grid gap-3">
                           {[
-                            { code: "HB006", qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
-                            { code: "HB034", qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                            { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                            { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid grid-cols-[120px,1fr] gap-2">
-                              <input
-                                type="text"
-                                value={field.code}
-                                readOnly
-                                className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 outline-none"
-                              />
-                              <input
-                                type="number"
-                                name={field.qtyName}
-                                defaultValue={field.qtyValue}
-                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                              />
+                            <div key={field.qtyName} className="grid gap-2 sm:grid-cols-[1fr,120px]">
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                  Code
+                                </span>
+                                <input
+                                  type="text"
+                                  name={field.codeName}
+                                  defaultValue={field.codeValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold uppercase text-slate-700 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                  Qty
+                                </span>
+                                <input
+                                  type="number"
+                                  name={field.qtyName}
+                                  defaultValue={field.qtyValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
                             </div>
                           ))}
                         </div>

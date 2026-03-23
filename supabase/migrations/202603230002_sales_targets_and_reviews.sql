@@ -16,6 +16,10 @@ create table if not exists public.sales_monthly_targets (
   month text not null,
   revenue_target numeric not null default 0,
   new_customers_target integer not null default 0,
+  key_sku_code_1 text not null default 'HB031',
+  key_sku_code_2 text not null default 'HB035',
+  clearstock_code_1 text not null default 'HB006',
+  clearstock_code_2 text not null default 'HB034',
   hb006_target numeric not null default 229,
   hb034_target numeric not null default 161,
   hb031_target numeric not null default 243,
@@ -24,6 +28,12 @@ create table if not exists public.sales_monthly_targets (
   updated_at timestamptz not null default now(),
   unique (asm_id, month)
 );
+
+alter table if exists public.sales_monthly_targets
+  add column if not exists key_sku_code_1 text not null default 'HB031',
+  add column if not exists key_sku_code_2 text not null default 'HB035',
+  add column if not exists clearstock_code_1 text not null default 'HB006',
+  add column if not exists clearstock_code_2 text not null default 'HB034';
 
 create table if not exists public.sales_manager_reviews (
   id uuid primary key default gen_random_uuid(),
@@ -71,6 +81,46 @@ end $$;
 do $$
 begin
   if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_monthly_targets' and policyname = 'sales_monthly_targets_select_anon'
+  ) then
+    create policy "sales_monthly_targets_select_anon"
+      on public.sales_monthly_targets
+      for select
+      to anon
+      using (true);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_monthly_targets' and policyname = 'sales_monthly_targets_insert_anon'
+  ) then
+    create policy "sales_monthly_targets_insert_anon"
+      on public.sales_monthly_targets
+      for insert
+      to anon, authenticated
+      with check (true);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_monthly_targets' and policyname = 'sales_monthly_targets_update_anon'
+  ) then
+    create policy "sales_monthly_targets_update_anon"
+      on public.sales_monthly_targets
+      for update
+      to anon, authenticated
+      using (true)
+      with check (true);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
     select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_manager_reviews' and policyname = 'sales_manager_reviews_select_authenticated'
   ) then
     create policy "sales_manager_reviews_select_authenticated"
@@ -78,5 +128,45 @@ begin
       for select
       to authenticated
       using (true);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_manager_reviews' and policyname = 'sales_manager_reviews_select_anon'
+  ) then
+    create policy "sales_manager_reviews_select_anon"
+      on public.sales_manager_reviews
+      for select
+      to anon
+      using (true);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_manager_reviews' and policyname = 'sales_manager_reviews_insert_anon'
+  ) then
+    create policy "sales_manager_reviews_insert_anon"
+      on public.sales_manager_reviews
+      for insert
+      to anon, authenticated
+      with check (true);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies where schemaname = 'public' and tablename = 'sales_manager_reviews' and policyname = 'sales_manager_reviews_update_anon'
+  ) then
+    create policy "sales_manager_reviews_update_anon"
+      on public.sales_manager_reviews
+      for update
+      to anon, authenticated
+      using (true)
+      with check (true);
   end if;
 end $$;

@@ -1,6 +1,21 @@
 import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
 
-export type SalesAsm = (typeof demoSalesAsms)[number];
+export type SalesAsm = (typeof demoSalesAsms)[number] & {
+  keySkuTargets?: Array<{
+    code: string;
+    target: number;
+    actual: number;
+    minPct: number;
+    name: string;
+  }>;
+  clearstockTargets?: Array<{
+    code: string;
+    target: number;
+    actual: number;
+    minPct: number;
+    name: string;
+  }>;
+};
 export type SalesAsmScorecard = ReturnType<typeof getAsmScorecard>;
 
 export function getSalesPeriodLabel(periodKey: string) {
@@ -43,19 +58,55 @@ export function calculateCustomerScore(newCustomersActual: number) {
   return 0;
 }
 
-export function calculateKeySkuScore(hb031: number, hb035: number) {
-  const hb031Pass = hb031 >= salesKpiProducts.HB031.target * salesKpiProducts.HB031.minPct;
-  const hb035Pass = hb035 >= salesKpiProducts.HB035.target * salesKpiProducts.HB035.minPct;
+export function calculateKeySkuScore(targets: SalesAsm["keySkuTargets"], hb031: number, hb035: number) {
+  const configuredTargets = targets?.length
+    ? targets
+    : [
+        {
+          code: salesKpiProducts.HB031.code,
+          target: salesKpiProducts.HB031.target,
+          actual: hb031,
+          minPct: salesKpiProducts.HB031.minPct,
+          name: salesKpiProducts.HB031.name,
+        },
+        {
+          code: salesKpiProducts.HB035.code,
+          target: salesKpiProducts.HB035.target,
+          actual: hb035,
+          minPct: salesKpiProducts.HB035.minPct,
+          name: salesKpiProducts.HB035.name,
+        },
+      ];
 
-  return hb031Pass && hb035Pass ? 5 : 0;
+  return configuredTargets.every((item) => item.actual >= item.target * item.minPct) ? 5 : 0;
 }
 
-export function calculateClearstockScore(hb006: number, hb034: number) {
-  const hb006Pass = hb006 >= salesKpiProducts.HB006.target * salesKpiProducts.HB006.minPct;
-  const hb034Pass = hb034 >= salesKpiProducts.HB034.target * salesKpiProducts.HB034.minPct;
+export function calculateClearstockScore(targets: SalesAsm["clearstockTargets"], hb006: number, hb034: number) {
+  const configuredTargets = targets?.length
+    ? targets
+    : [
+        {
+          code: salesKpiProducts.HB006.code,
+          target: salesKpiProducts.HB006.target,
+          actual: hb006,
+          minPct: salesKpiProducts.HB006.minPct,
+          name: salesKpiProducts.HB006.name,
+        },
+        {
+          code: salesKpiProducts.HB034.code,
+          target: salesKpiProducts.HB034.target,
+          actual: hb034,
+          minPct: salesKpiProducts.HB034.minPct,
+          name: salesKpiProducts.HB034.name,
+        },
+      ];
 
-  if (hb006Pass && hb034Pass) return 10;
-  if (hb006Pass || hb034Pass) return 5;
+  const [first, second] = configuredTargets;
+  const firstPass = first ? first.actual >= first.target * first.minPct : false;
+  const secondPass = second ? second.actual >= second.target * second.minPct : false;
+
+  if (firstPass && secondPass) return 10;
+  if (firstPass || secondPass) return 5;
   return 0;
 }
 
@@ -63,8 +114,8 @@ export function getAsmScorecard(asm: SalesAsm) {
   const revenuePct = Math.round((asm.revenueActual / asm.revenueTarget) * 100);
   const revenueScore = calculateRevenueScore(revenuePct);
   const customerScore = calculateCustomerScore(asm.newCustomersActual);
-  const keySkuScore = calculateKeySkuScore(asm.hb031, asm.hb035);
-  const clearstockScore = calculateClearstockScore(asm.hb006, asm.hb034);
+  const keySkuScore = calculateKeySkuScore(asm.keySkuTargets, asm.hb031, asm.hb035);
+  const clearstockScore = calculateClearstockScore(asm.clearstockTargets, asm.hb006, asm.hb034);
   const manualScore = asm.disciplineScore;
   const total = revenueScore + customerScore + keySkuScore + clearstockScore + manualScore;
   const payout = calculateRevenuePayout(revenuePct, asm.revenueTarget);

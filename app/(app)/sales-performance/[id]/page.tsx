@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 
 import { SalesPerformanceDetail } from "@/components/sales/sales-performance-detail";
 import { getSalesAsmByIdResolved, getSalesManagementFormData } from "@/lib/sales/queries";
-import { createClient } from "@/lib/supabase/server";
 
 type SalesPerformanceDetailPageProps = {
   params: Promise<{
@@ -22,10 +21,6 @@ export default async function SalesPerformanceDetailPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const period = resolvedSearchParams?.period;
   const saved = resolvedSearchParams?.saved;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   const asm = await getSalesAsmByIdResolved(id, period);
 
   if (!asm) {
@@ -38,7 +33,7 @@ export default async function SalesPerformanceDetailPage({
     <SalesPerformanceDetail
       asm={asm}
       selectedPeriod={period ?? asm.periodKey}
-      canEdit={Boolean(user)}
+      canEdit
       target={management.target}
       review={management.review}
       saveStatus={saved}
