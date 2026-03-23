@@ -151,7 +151,8 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                     <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
                     <p className="mt-1 text-sm text-slate-500">{asm.id}</p>
                     <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
-                      Revenue: {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)}M` : "Not synced"}
+                      Sales Revenue:{" "}
+                      {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)} million VND` : "Not synced"}
                     </p>
                     <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
                       Dealers code: {actual?.kh_moi ?? "-"}
@@ -166,8 +167,12 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                   <div className="grid gap-4">
                     <div className="grid gap-3 md:grid-cols-2">
                       {[
-                        { name: "revenue_target", label: "Revenue", value: target?.revenue_target ?? 500 },
-                        { name: "new_customers_target", label: "Dealers code", value: target?.new_customers_target ?? 10 },
+                        {
+                          name: "revenue_target",
+                          label: "Sales Revenue (million VND)",
+                          value: target?.revenue_target ?? 500,
+                        },
+                        { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? 10 },
                       ].map((field) => (
                         <label key={field.name} className="block">
                           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
@@ -198,7 +203,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                   type="text"
                                   name={field.codeName}
                                   defaultValue={field.codeValue}
-                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold uppercase text-slate-700 outline-none transition focus:border-brand-400"
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-700 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                               <label className="block">
@@ -233,7 +238,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                   type="text"
                                   name={field.codeName}
                                   defaultValue={field.codeValue}
-                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold uppercase text-slate-700 outline-none transition focus:border-brand-400"
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-700 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                               <label className="block">
