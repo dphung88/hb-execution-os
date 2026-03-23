@@ -3,14 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createWriteClient } from "@/lib/supabase/write";
 
 export async function saveSalesTargetsAction(formData: FormData) {
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
-  const admin = createAdminClient();
+  let client;
 
-  await admin.from("sales_monthly_targets").upsert(
+  try {
+    client = createWriteClient();
+  } catch {
+    redirect(`/sales-performance/${asmId}?period=${period}&error=save-not-configured`);
+  }
+
+  const { error: targetError } = await client.from("sales_monthly_targets").upsert(
     {
       asm_id: asmId,
       month: period,
@@ -24,7 +30,11 @@ export async function saveSalesTargetsAction(formData: FormData) {
     { onConflict: "asm_id,month" }
   );
 
-  await admin
+  if (targetError) {
+    redirect(`/sales-performance/${asmId}?period=${period}&error=target-save-failed`);
+  }
+
+  await client
     .from("sales_manager_reviews")
     .upsert(
       {
@@ -47,9 +57,15 @@ export async function saveSalesTargetsAction(formData: FormData) {
 export async function saveSalesReviewAction(formData: FormData) {
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
-  const admin = createAdminClient();
+  let client;
 
-  await admin.from("sales_manager_reviews").upsert(
+  try {
+    client = createWriteClient();
+  } catch {
+    redirect(`/sales-performance/${asmId}?period=${period}&error=save-not-configured`);
+  }
+
+  const { error } = await client.from("sales_manager_reviews").upsert(
     {
       asm_id: asmId,
       month: period,
@@ -61,6 +77,10 @@ export async function saveSalesReviewAction(formData: FormData) {
     },
     { onConflict: "asm_id,month" }
   );
+
+  if (error) {
+    redirect(`/sales-performance/${asmId}?period=${period}&error=review-save-failed`);
+  }
 
   revalidatePath(`/sales-performance/${asmId}`);
   revalidatePath("/sales-performance");

@@ -3,14 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createWriteClient } from "@/lib/supabase/write";
 
 export async function saveSalesTargetRowAction(formData: FormData) {
   const asmId = String(formData.get("asm_id") ?? "");
   const period = String(formData.get("period") ?? "");
-  const admin = createAdminClient();
+  let client;
 
-  await admin.from("sales_monthly_targets").upsert(
+  try {
+    client = createWriteClient();
+  } catch {
+    redirect(`/sales-performance/targets?period=${period}&error=save-not-configured`);
+  }
+
+  const { error } = await client.from("sales_monthly_targets").upsert(
     {
       asm_id: asmId,
       month: period,
@@ -23,6 +29,10 @@ export async function saveSalesTargetRowAction(formData: FormData) {
     },
     { onConflict: "asm_id,month" }
   );
+
+  if (error) {
+    redirect(`/sales-performance/targets?period=${period}&error=save-failed`);
+  }
 
   revalidatePath("/sales-performance");
   revalidatePath("/sales-performance/targets");

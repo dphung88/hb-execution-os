@@ -9,6 +9,7 @@ type SalesTargetsPageProps = {
   searchParams?: Promise<{
     period?: string;
     saved?: string;
+    error?: string;
   }>;
 };
 
@@ -22,6 +23,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const selectedPeriod = resolvedSearchParams?.period ?? salesPeriods[salesPeriods.length - 1]?.key ?? "2026-03";
   const savedAsm = resolvedSearchParams?.saved;
+  const errorState = resolvedSearchParams?.error;
 
   const supabase = hasSupabaseClientEnv() ? await createClient() : null;
   const [{ data: targets, error: targetsError }, { data: reviews, error: reviewsError }, { data: actuals, error: actualsError }] =
@@ -104,6 +106,15 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
         ))}
       </section>
 
+      {errorState ? (
+        <section className="rounded-3xl border border-rose-200 bg-rose-50/90 p-5 shadow-panel">
+          <p className="text-sm font-semibold text-rose-900">Unable to save targets</p>
+          <p className="mt-2 text-sm text-rose-800">
+            The write connection is not ready yet. I can finish this by opening public write access for these two Sales tables or by adding the Supabase service key on the deployment.
+          </p>
+        </section>
+      ) : null}
+
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -134,12 +145,10 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                 <input type="hidden" name="asm_id" value={asm.id} />
                 <input type="hidden" name="period" value={selectedPeriod} />
 
-                <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                  <div className="min-w-[240px]">
+                <div className="grid gap-4 xl:grid-cols-[220px,1fr,180px] xl:items-start">
+                  <div>
                     <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {asm.id}
-                    </p>
+                    <p className="mt-1 text-sm text-slate-500">{asm.id}</p>
                     <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
                       Revenue: {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)}M` : "Not synced"}
                     </p>
@@ -153,51 +162,75 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                     ) : null}
                   </div>
 
-                  <div className="grid flex-1 gap-3 md:grid-cols-2 xl:grid-cols-8">
-                    {[
-                      { name: "revenue_target", label: "Revenue", value: target?.revenue_target ?? 500 },
-                      { name: "new_customers_target", label: "Dealers code", value: target?.new_customers_target ?? 10 },
-                    ].map((field) => (
-                      <label key={field.name} className="block">
-                        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
-                        <input
-                          type="number"
-                          name={field.name}
-                          defaultValue={field.value}
-                          className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                        />
-                      </label>
-                    ))}
-
-                    {[
-                      { code: "HB031", qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
-                      { code: "HB035", qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
-                      { code: "HB006", qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
-                      { code: "HB034", qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
-                    ].map((field) => (
-                      <div key={field.qtyName} className="grid grid-cols-[1fr,1fr] gap-2">
-                        <label className="block">
-                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            {field.code === "HB031" || field.code === "HB035" ? "Key SKU code" : "Clearstock code"}
-                          </span>
-                          <input
-                            type="text"
-                            value={field.code}
-                            readOnly
-                            className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 outline-none"
-                          />
-                        </label>
-                        <label className="block">
-                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Qty</span>
+                  <div className="grid gap-4">
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {[
+                        { name: "revenue_target", label: "Revenue", value: target?.revenue_target ?? 500 },
+                        { name: "new_customers_target", label: "Dealers code", value: target?.new_customers_target ?? 10 },
+                      ].map((field) => (
+                        <label key={field.name} className="block">
+                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
                           <input
                             type="number"
-                            name={field.qtyName}
-                            defaultValue={field.qtyValue}
+                            name={field.name}
+                            defaultValue={field.value}
                             className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                           />
                         </label>
+                      ))}
+                    </div>
+
+                    <div className="grid gap-3 xl:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
+                        <div className="mt-3 grid gap-3">
+                          {[
+                            { code: "HB031", qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                            { code: "HB035", qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                          ].map((field) => (
+                            <div key={field.qtyName} className="grid grid-cols-[120px,1fr] gap-2">
+                              <input
+                                type="text"
+                                value={field.code}
+                                readOnly
+                                className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 outline-none"
+                              />
+                              <input
+                                type="number"
+                                name={field.qtyName}
+                                defaultValue={field.qtyValue}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
+                        <div className="mt-3 grid gap-3">
+                          {[
+                            { code: "HB006", qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                            { code: "HB034", qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                          ].map((field) => (
+                            <div key={field.qtyName} className="grid grid-cols-[120px,1fr] gap-2">
+                              <input
+                                type="text"
+                                value={field.code}
+                                readOnly
+                                className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-slate-700 outline-none"
+                              />
+                              <input
+                                type="number"
+                                name={field.qtyName}
+                                defaultValue={field.qtyValue}
+                                className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="xl:w-[180px]">
