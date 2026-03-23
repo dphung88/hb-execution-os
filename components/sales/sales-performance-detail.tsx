@@ -35,18 +35,6 @@ function getStatusColor(passed: boolean) {
   return passed ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50";
 }
 
-function getSkuSuffix(value: unknown, fallback: number) {
-  const raw = String(value ?? "").toUpperCase();
-  const digits = raw.replace(/^HB/i, "").replace(/\D/g, "");
-  const resolved = Number(digits || fallback);
-
-  if (Number.isNaN(resolved)) {
-    return fallback;
-  }
-
-  return Math.max(1, Math.min(999, resolved));
-}
-
 export function SalesPerformanceDetail({
   asm,
   selectedPeriod,
@@ -143,7 +131,13 @@ export function SalesPerformanceDetail({
               <input type="hidden" name="asm_id" value={asm.id} />
               <input type="hidden" name="period" value={selectedPeriod} />
               {[
-                { name: "revenue_target", label: "Sales Revenue (million VND)", value: target?.revenue_target ?? asm.revenueTarget, type: "number" },
+                {
+                  name: "revenue_target",
+                  label: "Sales Revenue Target",
+                  value: target?.revenue_target ?? asm.revenueTarget,
+                  type: "number",
+                  note: "Unit: million VND. Example: 4,000 = 4 billion VND.",
+                },
                 { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? asm.newCustomersTarget, type: "number" },
               ].map((field) => (
                 <label key={field.name} className="block">
@@ -155,6 +149,9 @@ export function SalesPerformanceDetail({
                     defaultValue={field.value}
                     className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                   />
+                  {"note" in field ? (
+                    <span className="mt-2 block text-xs text-slate-500">{field.note}</span>
+                  ) : null}
                 </label>
               ))}
               <div className="md:col-span-2 grid gap-4 lg:grid-cols-2">
@@ -164,13 +161,13 @@ export function SalesPerformanceDetail({
                     {[
                       {
                         codeName: "key_sku_code_1",
-                        codeValue: getSkuSuffix(target?.key_sku_code_1 ?? asm.keySkuTargets[0]?.code ?? "HB031", 31),
+                        codeValue: String(target?.key_sku_code_1 ?? asm.keySkuTargets[0]?.code ?? "HB031"),
                         qtyName: "hb031_target",
                         qtyValue: target?.hb031_target ?? asm.keySkuTargets[0]?.target ?? 0,
                       },
                       {
                         codeName: "key_sku_code_2",
-                        codeValue: getSkuSuffix(target?.key_sku_code_2 ?? asm.keySkuTargets[1]?.code ?? "HB035", 35),
+                        codeValue: String(target?.key_sku_code_2 ?? asm.keySkuTargets[1]?.code ?? "HB035"),
                         qtyName: "hb035_target",
                         qtyValue: target?.hb035_target ?? asm.keySkuTargets[1]?.target ?? 0,
                       },
@@ -178,20 +175,12 @@ export function SalesPerformanceDetail({
                       <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
                         <label className="block">
                           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
-                          <div className="mt-1 flex h-11 overflow-hidden rounded-2xl border border-slate-200 bg-white focus-within:border-brand-400">
-                            <div className="flex w-[84px] shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
-                              HB
-                            </div>
-                            <input
-                              type="number"
-                              min="1"
-                              max="999"
-                              step="1"
-                              name={field.codeName}
-                              defaultValue={field.codeValue}
-                              className="sku-code-input h-full min-w-0 flex-1 bg-white px-4 text-left text-sm tabular-nums text-slate-900 outline-none"
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            name={field.codeName}
+                            defaultValue={field.codeValue}
+                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                          />
                         </label>
                         <label className="block">
                           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
@@ -214,13 +203,13 @@ export function SalesPerformanceDetail({
                     {[
                       {
                         codeName: "clearstock_code_1",
-                        codeValue: getSkuSuffix(target?.clearstock_code_1 ?? asm.clearstockTargets[0]?.code ?? "HB006", 6),
+                        codeValue: String(target?.clearstock_code_1 ?? asm.clearstockTargets[0]?.code ?? "HB006"),
                         qtyName: "hb006_target",
                         qtyValue: target?.hb006_target ?? asm.clearstockTargets[0]?.target ?? 0,
                       },
                       {
                         codeName: "clearstock_code_2",
-                        codeValue: getSkuSuffix(target?.clearstock_code_2 ?? asm.clearstockTargets[1]?.code ?? "HB034", 34),
+                        codeValue: String(target?.clearstock_code_2 ?? asm.clearstockTargets[1]?.code ?? "HB034"),
                         qtyName: "hb034_target",
                         qtyValue: target?.hb034_target ?? asm.clearstockTargets[1]?.target ?? 0,
                       },
@@ -228,20 +217,12 @@ export function SalesPerformanceDetail({
                       <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
                         <label className="block">
                           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
-                          <div className="mt-1 flex h-11 overflow-hidden rounded-2xl border border-slate-200 bg-white focus-within:border-brand-400">
-                            <div className="flex w-[84px] shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
-                              HB
-                            </div>
-                            <input
-                              type="number"
-                              min="1"
-                              max="999"
-                              step="1"
-                              name={field.codeName}
-                              defaultValue={field.codeValue}
-                              className="sku-code-input h-full min-w-0 flex-1 bg-white px-4 text-left text-sm tabular-nums text-slate-900 outline-none"
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            name={field.codeName}
+                            defaultValue={field.codeValue}
+                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                          />
                         </label>
                         <label className="block">
                           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>

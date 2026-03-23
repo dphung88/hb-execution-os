@@ -13,18 +13,6 @@ type SalesTargetsPageProps = {
   }>;
 };
 
-function getSkuSuffix(value: unknown, fallback: number) {
-  const raw = String(value ?? "").toUpperCase();
-  const digits = raw.replace(/^HB/i, "").replace(/\D/g, "");
-  const resolved = Number(digits || fallback);
-
-  if (Number.isNaN(resolved)) {
-    return fallback;
-  }
-
-  return Math.max(1, Math.min(999, resolved));
-}
-
 function periodLabel(period: string) {
   const [year, month] = period.split("-");
   const d = new Date(Number(year), Number(month) - 1, 1);
@@ -186,8 +174,9 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                       {[
                         {
                           name: "revenue_target",
-                          label: "Sales Revenue (million VND)",
+                          label: "Sales Revenue Target",
                           value: target?.revenue_target ?? 500,
+                          note: "Unit: million VND. Example: 4,000 = 4 billion VND.",
                         },
                         { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? 10 },
                       ].map((field) => (
@@ -199,6 +188,9 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                             defaultValue={field.value}
                             className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                           />
+                          {"note" in field ? (
+                            <span className="mt-2 block text-xs text-slate-500">{field.note}</span>
+                          ) : null}
                         </label>
                       ))}
                     </div>
@@ -208,28 +200,20 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
                         <div className="mt-3 grid gap-3">
                           {[
-                            { codeName: "key_sku_code_1", codeValue: getSkuSuffix(targetRow?.key_sku_code_1, 31), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
-                            { codeName: "key_sku_code_2", codeValue: getSkuSuffix(targetRow?.key_sku_code_2, 35), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                            { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                            { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
                           ].map((field) => (
                             <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                   Code
                                 </span>
-                                <div className="mt-1 flex h-11 overflow-hidden rounded-2xl border border-slate-200 bg-white focus-within:border-brand-400">
-                                  <div className="flex w-[84px] shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
-                                    HB
-                                  </div>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max="999"
-                                    step="1"
-                                    name={field.codeName}
-                                    defaultValue={field.codeValue}
-                                    className="sku-code-input h-full min-w-0 flex-1 bg-white px-4 text-left text-sm tabular-nums text-slate-900 outline-none"
-                                  />
-                                </div>
+                                <input
+                                  type="text"
+                                  name={field.codeName}
+                                  defaultValue={field.codeValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                                />
                               </label>
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
@@ -251,28 +235,20 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
                         <div className="mt-3 grid gap-3">
                           {[
-                            { codeName: "clearstock_code_1", codeValue: getSkuSuffix(targetRow?.clearstock_code_1, 6), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
-                            { codeName: "clearstock_code_2", codeValue: getSkuSuffix(targetRow?.clearstock_code_2, 34), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                            { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                            { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
                           ].map((field) => (
                             <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                   Code
                                 </span>
-                                <div className="mt-1 flex h-11 overflow-hidden rounded-2xl border border-slate-200 bg-white focus-within:border-brand-400">
-                                  <div className="flex w-[84px] shrink-0 items-center justify-center border-r border-slate-200 bg-slate-50 text-sm font-medium text-slate-600">
-                                    HB
-                                  </div>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max="999"
-                                    step="1"
-                                    name={field.codeName}
-                                    defaultValue={field.codeValue}
-                                    className="sku-code-input h-full min-w-0 flex-1 bg-white px-4 text-left text-sm tabular-nums text-slate-900 outline-none"
-                                  />
-                                </div>
+                                <input
+                                  type="text"
+                                  name={field.codeName}
+                                  defaultValue={field.codeValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                                />
                               </label>
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
