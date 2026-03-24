@@ -300,17 +300,18 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
             </span>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white">
-            <div className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-              <div>Task</div>
-              <div>Status</div>
-              <div>Due date</div>
-              <div>Progress</div>
-              <div>Result note</div>
-              <div className="text-right">Action</div>
-            </div>
+          <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white">
+            <div className="min-w-[980px]">
+              <div className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <div>Task</div>
+                <div>Status</div>
+                <div>Due date</div>
+                <div>Progress</div>
+                <div>Result note</div>
+                <div className="text-right">Action</div>
+              </div>
 
-            <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100">
               {filteredTasks.map((task) => (
                 <form
                   key={task.id}
@@ -385,6 +386,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               {!filteredTasks.length ? (
                 <div className="px-5 py-8 text-center text-sm text-slate-500">No Marketing tasks matched the current filters.</div>
               ) : null}
+              </div>
             </div>
           </div>
         </div>
