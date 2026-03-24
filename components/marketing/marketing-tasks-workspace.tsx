@@ -42,6 +42,10 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
     return ownerMatches && statusMatches && requesterMatches;
   });
 
+  const plannedTasks = filteredTasks.filter((task) => normalize(task.status) === "planned").length;
+  const inProgressTasks = filteredTasks.filter((task) => normalize(task.status) === "in progress").length;
+  const notStartedTasks = filteredTasks.filter((task) => normalize(task.status) === "not started").length;
+  const failedTasks = filteredTasks.filter((task) => normalize(task.status) === "failed").length;
   const overdueTasks = filteredTasks.filter((task) => new Date(task.dueDate) < new Date("2025-03-20") && task.status !== "Completed");
   const activeTasks = filteredTasks.filter((task) => !["Completed", "Failed"].includes(task.status));
   const reviewerGroups = Array.from(
@@ -108,10 +112,10 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Filtered tasks", value: String(filteredTasks.length), note: "Current task view" },
-          { label: "Active tasks", value: String(activeTasks.length), note: "Not completed or failed" },
-          { label: "Overdue tasks", value: String(overdueTasks.length), note: "Past due and still open" },
-          { label: "Requester lanes", value: String(reviewerGroups.length), note: "Boss, Manager, Colleague" },
+          { label: "Planned", value: String(plannedTasks), note: "Queued for execution" },
+          { label: "In progress", value: String(inProgressTasks), note: "Currently being worked" },
+          { label: "Not started", value: String(notStartedTasks), note: "Assigned but untouched" },
+          { label: "Failed", value: String(failedTasks), note: "Tasks needing reset" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
