@@ -51,7 +51,10 @@ const links: Array<SingleLink | GroupLink> = [
     label: "Marketing Team",
     icon: Megaphone,
     match: "/marketing-performance",
-    children: [{ href: "/marketing-performance", label: "Marketing KPI" }],
+    children: [
+      { href: "/marketing-performance", label: "Marketing Dashboard" },
+      { href: "/marketing-performance/tasks", label: "Marketing Tasks" },
+    ],
   },
   { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
   { type: "single", href: "/notifications", label: "Notifications", icon: BellRing },

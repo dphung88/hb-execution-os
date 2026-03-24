@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BarChart3, BriefcaseBusiness, CheckSquare, Megaphone } from "lucide-react";
 
 import {
@@ -8,14 +9,7 @@ import {
   marketingWorkbookContext,
 } from "@/lib/demo-data";
 
-function toneClass(status: string) {
-  const normalized = status.toLowerCase();
-  if (normalized.includes("completed")) return "bg-emerald-50 text-emerald-700";
-  if (normalized.includes("progress")) return "bg-sky-50 text-sky-700";
-  if (normalized.includes("planned") || normalized.includes("pending")) return "bg-amber-50 text-amber-700";
-  if (normalized.includes("failed")) return "bg-rose-50 text-rose-700";
-  return "bg-slate-100 text-slate-700";
-}
+import { marketingToneClass as toneClass } from "./marketing-shared";
 
 export function MarketingTeamHub() {
   return (
@@ -35,6 +29,20 @@ export function MarketingTeamHub() {
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
               Source: {marketingWorkbookContext.sourceFile} · Period: {marketingWorkbookContext.month}
             </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                href="/marketing-performance/tasks"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+              >
+                Open Marketing Tasks
+              </Link>
+              <Link
+                href="/marketing-performance"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+              >
+                Dashboard overview
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
