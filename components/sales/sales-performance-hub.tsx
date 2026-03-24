@@ -143,8 +143,8 @@ export function SalesPerformanceHub({
           {[
             { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
             { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
-            { label: "SCORING MODEL", value: "SALES REVENUE\nDEALERS CODE\nKEY SKU\nCLEARSTOCK" },
-            { label: "DETAIL VIEW", value: "PER ASM" },
+            { label: "AVERAGE TOTAL KPI", value: `${averageKpi} PTS` },
+            { label: "ABOVE 80% REVENUE", value: `${aboveEighty}/${scorecards.length}` },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
               <p className={darkCardLabelClass}>{item.label}</p>
@@ -169,10 +169,8 @@ export function SalesPerformanceHub({
         ))}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
         {[
-          { label: "AVERAGE TOTAL KPI", value: `${averageKpi} pts`, note: "Overall score out of 100" },
-          { label: "ABOVE 80% REVENUE", value: `${aboveEighty}/${scorecards.length}`, note: "Revenue achievement threshold" },
           { label: "PROJECTED KPI PAYOUT", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
@@ -181,6 +179,11 @@ export function SalesPerformanceHub({
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
         ))}
+        <div className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
+          <p className={lightCardLabelClass}>KPI COVERAGE</p>
+          <p className="mt-3 text-3xl font-semibold text-slate-950">{scorecards.length ? "LIVE" : "NO DATA"}</p>
+          <p className="mt-2 text-sm text-slate-500">Sales scorecards are calculated from ERP actuals and target setup.</p>
+        </div>
       </section>
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
