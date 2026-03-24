@@ -160,30 +160,58 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
             </div>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
-            <div className="min-w-[680px]">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
-                  <tr>
-                    <th className="px-4 py-4 font-medium">KPI</th>
-                    <th className="px-4 py-4 font-medium">Target</th>
-                    <th className="px-4 py-4 font-medium">Actual</th>
-                    <th className="px-4 py-4 font-medium">Ratio</th>
-                    <th className="px-4 py-4 font-medium">Weight</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {teamKpis.map((row) => (
-                    <tr key={row.name}>
-                      <td className="px-4 py-4 font-medium text-slate-900">{row.name}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.target}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.actual}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.ratio}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.weight}</td>
+          <div className="mt-6 rounded-3xl border border-slate-200">
+            <div className="divide-y divide-slate-100 bg-white md:hidden">
+              {teamKpis.map((row) => (
+                <div key={row.name} className="space-y-3 px-4 py-4">
+                  <p className="text-base font-semibold text-slate-900">{row.name}</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
+                      <p className="mt-1 text-slate-700">{row.target}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                      <p className="mt-1 text-slate-700">{row.actual}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Ratio</p>
+                      <p className="mt-1 text-slate-700">{row.ratio}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Weight</p>
+                      <p className="mt-1 text-slate-700">{row.weight}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
+              <div className="min-w-[680px]">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                  <thead className="bg-slate-50 text-left text-slate-500">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">KPI</th>
+                      <th className="px-4 py-4 font-medium">Target</th>
+                      <th className="px-4 py-4 font-medium">Actual</th>
+                      <th className="px-4 py-4 font-medium">Ratio</th>
+                      <th className="px-4 py-4 font-medium">Weight</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {teamKpis.map((row) => (
+                      <tr key={row.name}>
+                        <td className="px-4 py-4 font-medium text-slate-900">{row.name}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.target}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.actual}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.ratio}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.weight}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -222,38 +250,78 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
             </div>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
-            <div className="min-w-[920px]">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
-                  <tr>
-                    <th className="px-4 py-4 font-medium">Owner</th>
-                    <th className="px-4 py-4 font-medium">Target</th>
-                    <th className="px-4 py-4 font-medium">Actual</th>
-                    <th className="px-4 py-4 font-medium">Ratio</th>
-                    <th className="px-4 py-4 font-medium">Outcome</th>
-                    <th className="px-4 py-4 font-medium">Execution</th>
-                    <th className="px-4 py-4 font-medium">Task Completion</th>
-                    <th className="px-4 py-4 font-medium">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {personKpiRows.map((row) => (
-                    <tr key={row.owner}>
-                      <td className="px-4 py-4 font-medium text-slate-900">{row.owner}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.targetTotal.toFixed(1)}M</td>
-                      <td className="px-4 py-4 text-slate-700">{row.actualTotal.toFixed(1)}M</td>
-                      <td className="px-4 py-4 text-slate-700">{percent(row.ratio)}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.outcomeScore}/60</td>
-                      <td className="px-4 py-4 text-slate-700">{row.executionScore}/40</td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {percent(row.completionRate)}{row.overdueTasks ? ` · ${row.overdueTasks} overdue` : ""}
-                      </td>
-                      <td className="px-4 py-4 font-semibold text-slate-900">{row.totalScore}/100</td>
+          <div className="mt-6 rounded-3xl border border-slate-200">
+            <div className="divide-y divide-slate-100 bg-white md:hidden">
+              {personKpiRows.map((row) => (
+                <div key={row.owner} className="space-y-3 px-4 py-4">
+                  <p className="text-base font-semibold text-slate-900">{row.owner}</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
+                      <p className="mt-1 text-slate-700">{row.targetTotal.toFixed(1)}M</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                      <p className="mt-1 text-slate-700">{row.actualTotal.toFixed(1)}M</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Ratio</p>
+                      <p className="mt-1 text-slate-700">{percent(row.ratio)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Outcome</p>
+                      <p className="mt-1 text-slate-700">{row.outcomeScore}/60</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Execution</p>
+                      <p className="mt-1 text-slate-700">{row.executionScore}/40</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Task Completion</p>
+                      <p className="mt-1 text-slate-700">{percent(row.completionRate)}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Total</p>
+                      <p className="mt-1 font-semibold text-slate-900">{row.totalScore}/100{row.overdueTasks ? ` · ${row.overdueTasks} overdue` : ""}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
+              <div className="min-w-[920px]">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                  <thead className="bg-slate-50 text-left text-slate-500">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">Owner</th>
+                      <th className="px-4 py-4 font-medium">Target</th>
+                      <th className="px-4 py-4 font-medium">Actual</th>
+                      <th className="px-4 py-4 font-medium">Ratio</th>
+                      <th className="px-4 py-4 font-medium">Outcome</th>
+                      <th className="px-4 py-4 font-medium">Execution</th>
+                      <th className="px-4 py-4 font-medium">Task Completion</th>
+                      <th className="px-4 py-4 font-medium">Total</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {personKpiRows.map((row) => (
+                      <tr key={row.owner}>
+                        <td className="px-4 py-4 font-medium text-slate-900">{row.owner}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.targetTotal.toFixed(1)}M</td>
+                        <td className="px-4 py-4 text-slate-700">{row.actualTotal.toFixed(1)}M</td>
+                        <td className="px-4 py-4 text-slate-700">{percent(row.ratio)}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.outcomeScore}/60</td>
+                        <td className="px-4 py-4 text-slate-700">{row.executionScore}/40</td>
+                        <td className="px-4 py-4 text-slate-700">
+                          {percent(row.completionRate)}{row.overdueTasks ? ` · ${row.overdueTasks} overdue` : ""}
+                        </td>
+                        <td className="px-4 py-4 font-semibold text-slate-900">{row.totalScore}/100</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

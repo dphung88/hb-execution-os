@@ -107,32 +107,60 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
-          <div className="min-w-[720px]">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-left text-slate-500">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Role</th>
-                  <th className="px-4 py-4 font-medium">Estimated</th>
-                  <th className="px-4 py-4 font-medium">Actual</th>
-                  <th className="px-4 py-4 font-medium">Remaining</th>
-                  <th className="px-4 py-4 font-medium">Owner slot</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {marketingHeadcountPlan.map((row) => (
-                  <tr key={row.role}>
-                    <td className="px-4 py-4 font-medium text-slate-900">{row.role}</td>
-                    <td className="px-4 py-4 text-slate-700">{row.estimated}</td>
-                    <td className="px-4 py-4 text-slate-700">{row.actual}</td>
-                    <td className={`px-4 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
-                      {row.remaining}
-                    </td>
-                    <td className="px-4 py-4 text-slate-700">{row.owner || "-"}</td>
+        <div className="mt-6 rounded-3xl border border-slate-200">
+          <div className="divide-y divide-slate-100 bg-white md:hidden">
+            {marketingHeadcountPlan.map((row) => (
+              <div key={row.role} className="space-y-3 px-4 py-4">
+                <p className="text-base font-semibold text-slate-900">{row.role}</p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Estimated</p>
+                    <p className="mt-1 text-slate-700">{row.estimated}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                    <p className="mt-1 text-slate-700">{row.actual}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
+                    <p className={`mt-1 ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>{row.remaining}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Owner slot</p>
+                    <p className="mt-1 text-slate-700">{row.owner || "-"}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
+            <div className="min-w-[720px]">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead className="bg-slate-50 text-left text-slate-500">
+                  <tr>
+                    <th className="px-4 py-4 font-medium">Role</th>
+                    <th className="px-4 py-4 font-medium">Estimated</th>
+                    <th className="px-4 py-4 font-medium">Actual</th>
+                    <th className="px-4 py-4 font-medium">Remaining</th>
+                    <th className="px-4 py-4 font-medium">Owner slot</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {marketingHeadcountPlan.map((row) => (
+                    <tr key={row.role}>
+                      <td className="px-4 py-4 font-medium text-slate-900">{row.role}</td>
+                      <td className="px-4 py-4 text-slate-700">{row.estimated}</td>
+                      <td className="px-4 py-4 text-slate-700">{row.actual}</td>
+                      <td className={`px-4 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
+                        {row.remaining}
+                      </td>
+                      <td className="px-4 py-4 text-slate-700">{row.owner || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -149,32 +177,61 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             </div>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
-            <div className="min-w-[760px]">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
-                  <tr>
-                    <th className="px-4 py-4 font-medium">Owner</th>
-                    <th className="px-4 py-4 font-medium">Metric</th>
-                    <th className="px-4 py-4 font-medium">Estimated</th>
-                    <th className="px-4 py-4 font-medium">Actual</th>
-                    <th className="px-4 py-4 font-medium">Remaining</th>
-                    <th className="px-4 py-4 font-medium">KPI unit</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {marketingResultsTracker.map((row) => (
-                    <tr key={`${row.owner}-${row.metric}`}>
-                      <td className="px-4 py-4 font-medium text-slate-900">{row.owner}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.metric}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.estimated}M</td>
-                      <td className="px-4 py-4 text-slate-700">{row.actual}M</td>
-                      <td className="px-4 py-4 text-slate-700">{row.remaining}M</td>
-                      <td className="px-4 py-4 text-slate-700">{row.kpiUnit.toFixed(2)}M</td>
+          <div className="mt-6 rounded-3xl border border-slate-200">
+            <div className="divide-y divide-slate-100 bg-white md:hidden">
+              {marketingResultsTracker.map((row) => (
+                <div key={`${row.owner}-${row.metric}`} className="space-y-3 px-4 py-4">
+                  <p className="text-base font-semibold text-slate-900">{row.owner}</p>
+                  <p className="text-sm text-slate-600">{row.metric}</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Estimated</p>
+                      <p className="mt-1 text-slate-700">{row.estimated}M</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                      <p className="mt-1 text-slate-700">{row.actual}M</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
+                      <p className="mt-1 text-slate-700">{row.remaining}M</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Unit</p>
+                      <p className="mt-1 text-slate-700">{row.kpiUnit.toFixed(2)}M</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
+              <div className="min-w-[760px]">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                  <thead className="bg-slate-50 text-left text-slate-500">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">Owner</th>
+                      <th className="px-4 py-4 font-medium">Metric</th>
+                      <th className="px-4 py-4 font-medium">Estimated</th>
+                      <th className="px-4 py-4 font-medium">Actual</th>
+                      <th className="px-4 py-4 font-medium">Remaining</th>
+                      <th className="px-4 py-4 font-medium">KPI unit</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {marketingResultsTracker.map((row) => (
+                      <tr key={`${row.owner}-${row.metric}`}>
+                        <td className="px-4 py-4 font-medium text-slate-900">{row.owner}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.metric}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.estimated}M</td>
+                        <td className="px-4 py-4 text-slate-700">{row.actual}M</td>
+                        <td className="px-4 py-4 text-slate-700">{row.remaining}M</td>
+                        <td className="px-4 py-4 text-slate-700">{row.kpiUnit.toFixed(2)}M</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -219,34 +276,64 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
-          <div className="min-w-[760px]">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-left text-slate-500">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Owner</th>
-                  <th className="px-4 py-4 font-medium">Requester</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Due date</th>
-                  <th className="px-4 py-4 font-medium">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {tasks.map((task) => (
-                  <tr key={task.id}>
-                    <td className="px-4 py-4 font-medium text-slate-900">{task.owner}</td>
-                    <td className="px-4 py-4 text-slate-700">{task.requester}</td>
-                    <td className="px-4 py-4">
-                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${toneClass(task.status)}`}>
-                        {task.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-slate-700">{task.dueDate}</td>
-                    <td className="px-4 py-4 text-slate-600">{task.notes}</td>
+        <div className="mt-6 rounded-3xl border border-slate-200">
+          <div className="divide-y divide-slate-100 bg-white md:hidden">
+            {tasks.map((task) => (
+              <div key={task.id} className="space-y-3 px-4 py-4">
+                <p className="text-base font-semibold text-slate-900">{task.owner}</p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Requester</p>
+                    <p className="mt-1 text-slate-700">{task.requester}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Status</p>
+                    <span className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${toneClass(task.status)}`}>
+                      {task.status}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Due date</p>
+                    <p className="mt-1 text-slate-700">{task.dueDate}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Notes</p>
+                    <p className="mt-1 text-slate-600">{task.notes}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
+            <div className="min-w-[760px]">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead className="bg-slate-50 text-left text-slate-500">
+                  <tr>
+                    <th className="px-4 py-4 font-medium">Owner</th>
+                    <th className="px-4 py-4 font-medium">Requester</th>
+                    <th className="px-4 py-4 font-medium">Status</th>
+                    <th className="px-4 py-4 font-medium">Due date</th>
+                    <th className="px-4 py-4 font-medium">Notes</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {tasks.map((task) => (
+                    <tr key={task.id}>
+                      <td className="px-4 py-4 font-medium text-slate-900">{task.owner}</td>
+                      <td className="px-4 py-4 text-slate-700">{task.requester}</td>
+                      <td className="px-4 py-4">
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${toneClass(task.status)}`}>
+                          {task.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-slate-700">{task.dueDate}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>

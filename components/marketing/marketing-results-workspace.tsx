@@ -89,30 +89,58 @@ export function MarketingResultsWorkspace() {
                   </span>
                 </div>
 
-                <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-                  <div className="min-w-[640px]">
-                    <table className="min-w-full divide-y divide-slate-200 text-sm">
-                      <thead className="bg-slate-50 text-left text-slate-500">
-                        <tr>
-                          <th className="px-4 py-3 font-medium">Metric</th>
-                          <th className="px-4 py-3 font-medium">Target</th>
-                          <th className="px-4 py-3 font-medium">Actual</th>
-                          <th className="px-4 py-3 font-medium">Remaining</th>
-                          <th className="px-4 py-3 font-medium">KPI Unit</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {rows.map((row) => (
-                          <tr key={`${owner}-${row.metric}`}>
-                            <td className="px-4 py-3 font-medium text-slate-900">{row.metric}</td>
-                            <td className="px-4 py-3 text-slate-700">{row.estimated}M</td>
-                            <td className="px-4 py-3 text-slate-700">{row.actual}M</td>
-                            <td className="px-4 py-3 text-slate-700">{row.remaining}M</td>
-                            <td className="px-4 py-3 text-slate-700">{row.kpiUnit.toFixed(2)}M</td>
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-white">
+                  <div className="divide-y divide-slate-100 md:hidden">
+                    {rows.map((row) => (
+                      <div key={`${owner}-${row.metric}`} className="space-y-3 px-4 py-4">
+                        <p className="text-base font-semibold text-slate-900">{row.metric}</p>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
+                            <p className="mt-1 text-slate-700">{row.estimated}M</p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                            <p className="mt-1 text-slate-700">{row.actual}M</p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
+                            <p className="mt-1 text-slate-700">{row.remaining}M</p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Unit</p>
+                            <p className="mt-1 text-slate-700">{row.kpiUnit.toFixed(2)}M</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="hidden overflow-x-auto md:block">
+                    <div className="min-w-[640px]">
+                      <table className="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead className="bg-slate-50 text-left text-slate-500">
+                          <tr>
+                            <th className="px-4 py-3 font-medium">Metric</th>
+                            <th className="px-4 py-3 font-medium">Target</th>
+                            <th className="px-4 py-3 font-medium">Actual</th>
+                            <th className="px-4 py-3 font-medium">Remaining</th>
+                            <th className="px-4 py-3 font-medium">KPI Unit</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {rows.map((row) => (
+                            <tr key={`${owner}-${row.metric}`}>
+                              <td className="px-4 py-3 font-medium text-slate-900">{row.metric}</td>
+                              <td className="px-4 py-3 text-slate-700">{row.estimated}M</td>
+                              <td className="px-4 py-3 text-slate-700">{row.actual}M</td>
+                              <td className="px-4 py-3 text-slate-700">{row.remaining}M</td>
+                              <td className="px-4 py-3 text-slate-700">{row.kpiUnit.toFixed(2)}M</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
