@@ -169,7 +169,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
+      <section className="space-y-6">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">

@@ -85,7 +85,7 @@ export function SalesPerformanceHub({
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
 
-            <div className="mt-5 flex flex-wrap items-end gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 href={`/sales-performance/targets?period=${selectedPeriod}`}
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
@@ -95,17 +95,17 @@ export function SalesPerformanceHub({
 
               <form
                 method="get"
-                className="flex max-w-[520px] flex-1 flex-wrap items-end gap-3 min-[480px]:min-w-[360px]"
+                className="flex flex-wrap items-center gap-3"
               >
-                <div className="min-w-[190px] flex-1">
-                  <label htmlFor="period" className={darkCardLabelClass}>
+                <div className="min-w-[180px]">
+                  <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
                     Tracking period
                   </label>
                   <select
                     id="period"
                     name="period"
                     defaultValue={selectedPeriod}
-                    className="mt-2 h-11 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                    className="h-11 w-[190px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
                   >
                     {periods.map((period) => (
                       <option key={period.key} value={period.key} className="text-slate-900">
