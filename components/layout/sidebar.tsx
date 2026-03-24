@@ -42,7 +42,7 @@ const links: Array<SingleLink | GroupLink> = [
     icon: ChartColumnBig,
     match: "/sales-performance",
     children: [
-      { href: "/sales-performance", label: "Sales KPI" },
+      { href: "/sales-performance", label: "Sales Dashboard" },
       { href: "/sales-performance/targets", label: "Sales Targets" },
     ],
   },
