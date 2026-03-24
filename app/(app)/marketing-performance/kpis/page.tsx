@@ -1,8 +1,5 @@
-import { MarketingKpisWorkspace } from "@/components/marketing/marketing-kpis-workspace";
-import { loadMarketingTasks } from "@/lib/marketing/tasks";
+import { redirect } from "next/navigation";
 
-export default async function MarketingKpisPage() {
-  const { tasks } = await loadMarketingTasks();
-
-  return <MarketingKpisWorkspace tasks={tasks} />;
+export default function MarketingKpisPage() {
+  redirect("/marketing-performance/results");
 }
