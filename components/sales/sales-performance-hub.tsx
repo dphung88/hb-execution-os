@@ -64,8 +64,8 @@ export function SalesPerformanceHub({
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.08fr),minmax(360px,0.92fr)] xl:items-start">
-          <div>
+        <div className="grid gap-8 xl:grid-cols-4 xl:items-start">
+          <div className="min-w-0 xl:col-span-2">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className={heroLabelClass}>Sales Dashboard</p>
               {syncStatus ? (
@@ -85,7 +85,7 @@ export function SalesPerformanceHub({
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3 xl:flex-nowrap">
               <Link
                 href={`/sales-performance/targets?period=${selectedPeriod}`}
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
@@ -95,9 +95,9 @@ export function SalesPerformanceHub({
 
               <form
                 method="get"
-                className="flex flex-wrap items-center gap-3"
+                className="flex flex-wrap items-center gap-3 xl:flex-nowrap"
               >
-                <div className="w-[180px] xl:w-[170px]">
+                <div className="w-[180px] xl:w-[160px]">
                   <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
                     Tracking period
                   </label>
@@ -116,7 +116,7 @@ export function SalesPerformanceHub({
                 </div>
                 <button
                   type="submit"
-                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                  className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
                 >
                   Apply period
                 </button>
@@ -124,7 +124,7 @@ export function SalesPerformanceHub({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 xl:col-span-2">
             {[
               { label: "Sales revenue", value: `${totalRevenue.toLocaleString("en-US")}M` },
               { label: "Projected payout", value: `${totalPayout.toLocaleString("en-US")}M` },
