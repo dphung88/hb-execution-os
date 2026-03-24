@@ -50,9 +50,8 @@ export const appNavLinks: NavLinkItem[] = [
     icon: Megaphone,
     match: "/marketing-performance",
     children: [
-      { href: "/marketing-performance", label: "Marketing Dashboard" },
+      { href: "/marketing-performance/results", label: "Results" },
       { href: "/marketing-performance/tasks", label: "Marketing Tasks" },
-      { href: "/marketing-performance/results", label: "Marketing Results" },
       { href: "/marketing-performance/kpis", label: "Marketing KPIs" },
     ],
   },

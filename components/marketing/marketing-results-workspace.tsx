@@ -31,7 +31,7 @@ export function MarketingResultsWorkspace() {
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className={heroLabelClass}>Marketing Results</p>
+            <p className={heroLabelClass}>Results</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
               Department revenue, budget, and channel results in one place.
             </h1>
@@ -39,10 +39,10 @@ export function MarketingResultsWorkspace() {
 
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/marketing-performance"
+              href="/marketing-performance/results"
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
             >
-              Back to Marketing Dashboard
+              Results overview
             </Link>
             <Link
               href="/marketing-performance/tasks"

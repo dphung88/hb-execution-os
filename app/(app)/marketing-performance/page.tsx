@@ -1,8 +1,5 @@
-import { MarketingTeamHub } from "@/components/marketing/marketing-team-hub";
-import { loadMarketingTasks } from "@/lib/marketing/tasks";
+import { redirect } from "next/navigation";
 
-export default async function MarketingPerformancePage() {
-  const { tasks } = await loadMarketingTasks();
-
-  return <MarketingTeamHub tasks={tasks} />;
+export default function MarketingPerformancePage() {
+  redirect("/marketing-performance/results");
 }
