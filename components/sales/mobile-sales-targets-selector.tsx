@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type MobileSalesTargetRow = {
   id: string;
   name: string;
   region: string;
-  revenueActualLabel: string;
-  dealersActualLabel: string;
   saved: boolean;
   target: {
     revenue_target: number;
@@ -39,26 +37,11 @@ export function MobileSalesTargetsSelector({
 }: MobileSalesTargetsSelectorProps) {
   const [selectedAsmId, setSelectedAsmId] = useState(initialAsmId);
   const [selectorOpen, setSelectorOpen] = useState(false);
-  const detailRef = useRef<HTMLDivElement | null>(null);
-  const hasMountedRef = useRef(false);
 
   useEffect(() => {
     setSelectedAsmId(initialAsmId);
     setSelectorOpen(false);
   }, [initialAsmId]);
-
-  useEffect(() => {
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 60);
-
-    return () => window.clearTimeout(timer);
-  }, [selectedAsmId]);
 
   const selectedAsm = asms.find((asm) => asm.id === selectedAsmId) ?? asms[0];
 
@@ -111,7 +94,7 @@ export function MobileSalesTargetsSelector({
         ) : null}
       </div>
 
-      <div ref={detailRef} className="mt-6 space-y-4 scroll-mt-6 md:hidden">
+      <div className="mt-6 space-y-4 md:hidden">
         <form
           action={saveAction}
           className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
@@ -124,12 +107,6 @@ export function MobileSalesTargetsSelector({
               <p className="text-lg font-semibold text-slate-900">{selectedAsm.name}</p>
               <p className="mt-1 text-sm text-slate-500">{selectedAsm.id}</p>
               <p className="mt-1 text-sm text-slate-500">{selectedAsm.region}</p>
-              <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
-                Sales Revenue: {selectedAsm.revenueActualLabel}
-              </p>
-              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
-                Dealers code: {selectedAsm.dealersActualLabel}
-              </p>
               {selectedAsm.saved ? (
                 <span className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                   Row saved
