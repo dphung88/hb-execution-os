@@ -29,16 +29,11 @@ export function SalesPerformanceHub({
   syncMessage,
 }: SalesPerformanceHubProps) {
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
-  const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
   const asmKpiSeventy = scorecards.filter((asm) => asm.scorecard.total >= 70).length;
-  const averageKpi = scorecards.length
-    ? Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length)
-    : 0;
   const totalCustomers = scorecards.reduce((sum, asm) => sum + asm.newCustomersActual, 0);
   const skuQualified = scorecards.filter((asm) => asm.scorecard.keySkuScore > 0).length;
   const clearstockQualified = scorecards.filter((asm) => asm.scorecard.clearstockScore > 0).length;
-  const selectedPeriodLabel = periods.find((period) => period.key === selectedPeriod)?.label ?? scorecards[0]?.periodLabel ?? "-";
   const summaryKeySkuTargets = scorecards[0]?.keySkuTargets ?? Object.values(salesKpiProducts)
     .filter((product) => product.category === "key")
     .map((product) => ({
@@ -129,47 +124,17 @@ export function SalesPerformanceHub({
             {[
               { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
               { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
-              { label: "ASM ACTIVE", value: `${liveCount}` },
+              { label: "TOTAL DEALERS CODE", value: `${totalCustomers}` },
+              { label: "QUALIFIED ON KEY SKU", value: `${skuQualified}/${scorecards.length}` },
+              { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}` },
               { label: "ASM KPI SCORE >= 70%", value: `${asmKpiSeventy}/${scorecards.length}` },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
+              <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[126px]">
                 <p className={darkCardLabelClass}>{item.label}</p>
                 <p className={darkCardValueClass}>{item.value}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: "TOTAL SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M`, note: "ERP sales execution feed" },
-          { label: "TOTAL DEALERS CODE", value: `${totalCustomers}`, note: "Live monthly dealer acquisition" },
-          { label: "QUALIFIED ON KEY SKU", value: `${skuQualified}/${scorecards.length}`, note: "Based on configured SKU codes" },
-          { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}`, note: "Based on configured clearstock codes" },
-        ].map((card) => (
-          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className={lightCardLabelClass}>{card.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
-            <p className="mt-2 text-sm text-slate-500">{card.note}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
-        {[
-          { label: "PROJECTED KPI PAYOUT", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
-        ].map((card) => (
-          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className={lightCardLabelClass}>{card.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
-            <p className="mt-2 text-sm text-slate-500">{card.note}</p>
-          </div>
-        ))}
-        <div className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-          <p className={lightCardLabelClass}>KPI COVERAGE</p>
-          <p className="mt-3 text-3xl font-semibold text-slate-950">{scorecards.length ? "LIVE" : "NO DATA"}</p>
-          <p className="mt-2 text-sm text-slate-500">Sales scorecards are calculated from ERP actuals and target setup.</p>
         </div>
       </section>
 
