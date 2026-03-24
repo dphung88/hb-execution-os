@@ -63,17 +63,14 @@ export function SalesPerformanceHub({
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-[1.18fr,0.82fr] xl:items-center">
-          <div className="flex min-h-[360px] flex-col justify-center xl:pr-6">
+        <div className="space-y-6">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">
               Sales Performance
             </p>
-            <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight xl:text-[4rem] xl:leading-[1.02]">
-              Real ASM scorecards with KPI drill-down, not just a top-line dashboard.
-            </h1>
             {syncStatus ? (
               <div
-                className={`mt-4 inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
+                className={`inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
                   syncStatus === "success"
                     ? "bg-emerald-400/20 text-emerald-200"
                     : "bg-rose-400/20 text-rose-200"
@@ -84,12 +81,16 @@ export function SalesPerformanceHub({
             ) : null}
           </div>
 
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur xl:self-stretch">
-            <div className="mb-5 rounded-2xl border border-white/10 bg-black/10 p-4">
+          <h1 className="max-w-6xl text-3xl font-semibold tracking-tight xl:text-[3.25rem] xl:leading-[1.05]">
+            Real ASM scorecards with KPI drill-down, not just a top-line dashboard.
+          </h1>
+
+          <div className="grid gap-4 xl:grid-cols-[1.2fr,1fr]">
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 backdrop-blur">
               <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
                 Tracking period
               </label>
-              <div className="mt-3 flex flex-col gap-3 xl:flex-row">
+              <div className="mt-3 flex flex-col gap-3 lg:flex-row">
                 <form method="get" className="flex flex-1 flex-col gap-3 sm:flex-row">
                   <select
                     id="period"
