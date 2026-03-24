@@ -63,12 +63,12 @@ export function SalesPerformanceHub({
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
-          <div>
+        <div className="grid gap-8 xl:grid-cols-[1.18fr,0.82fr] xl:items-center">
+          <div className="flex min-h-[360px] flex-col justify-center xl:pr-6">
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">
               Sales Performance
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight xl:text-[4rem] xl:leading-[1.02]">
               Real ASM scorecards with KPI drill-down, not just a top-line dashboard.
             </h1>
             {syncStatus ? (
@@ -84,7 +84,7 @@ export function SalesPerformanceHub({
             ) : null}
           </div>
 
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur xl:self-stretch">
             <div className="mb-5 rounded-2xl border border-white/10 bg-black/10 p-4">
               <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
                 Tracking period
