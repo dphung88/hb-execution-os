@@ -38,11 +38,13 @@ export function MobileSalesTargetsSelector({
   saveAction,
 }: MobileSalesTargetsSelectorProps) {
   const [selectedAsmId, setSelectedAsmId] = useState(initialAsmId);
+  const [selectorOpen, setSelectorOpen] = useState(false);
   const detailRef = useRef<HTMLDivElement | null>(null);
   const hasMountedRef = useRef(false);
 
   useEffect(() => {
     setSelectedAsmId(initialAsmId);
+    setSelectorOpen(false);
   }, [initialAsmId]);
 
   useEffect(() => {
@@ -67,23 +69,46 @@ export function MobileSalesTargetsSelector({
   return (
     <>
       <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 md:hidden">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">ASM selector</p>
-        <div className="mt-3 grid gap-2">
-          {asms.map((asm) => (
-            <button
-              key={asm.id}
-              type="button"
-              onClick={() => setSelectedAsmId(asm.id)}
-              className={`rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                selectedAsmId === asm.id
-                  ? "bg-slate-950 text-white"
-                  : "border border-slate-200 bg-white text-slate-700"
-              }`}
-            >
-              {asm.name} · {asm.id}
-            </button>
-          ))}
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">ASM selector</p>
+          <button
+            type="button"
+            onClick={() => setSelectorOpen((open) => !open)}
+            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600"
+          >
+            {selectorOpen ? "Hide list" : "Change ASM"}
+          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setSelectorOpen((open) => !open)}
+          className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 transition"
+        >
+          {selectedAsm.name} · {selectedAsm.id}
+        </button>
+
+        {selectorOpen ? (
+          <div className="mt-3 grid gap-2">
+            {asms.map((asm) => (
+              <button
+                key={asm.id}
+                type="button"
+                onClick={() => {
+                  setSelectedAsmId(asm.id);
+                  setSelectorOpen(false);
+                }}
+                className={`rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
+                  selectedAsmId === asm.id
+                    ? "bg-slate-950 text-white"
+                    : "border border-slate-200 bg-white text-slate-700"
+                }`}
+              >
+                {asm.name} · {asm.id}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div ref={detailRef} className="mt-6 space-y-4 scroll-mt-6 md:hidden">
