@@ -54,6 +54,7 @@ const links: Array<SingleLink | GroupLink> = [
     children: [
       { href: "/marketing-performance", label: "Marketing Dashboard" },
       { href: "/marketing-performance/tasks", label: "Marketing Tasks" },
+      { href: "/marketing-performance/results", label: "Marketing Results" },
     ],
   },
   { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },

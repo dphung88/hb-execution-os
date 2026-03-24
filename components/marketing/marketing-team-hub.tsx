@@ -19,22 +19,20 @@ export function MarketingTeamHub() {
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Marketing Team</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-              KPI setup, task tracking, and results from the real workbook structure.
+              Marketing execution, KPI ownership, and department results.
             </h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-              This module is mapped from the Marketing workbook you shared. It follows the same
-              operating structure: action plan, dashboard results, and role-based task tracking by
-              owner.
-            </p>
-            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
-              Source: {marketingWorkbookContext.sourceFile} · Period: {marketingWorkbookContext.month}
-            </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href="/marketing-performance/tasks"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
               >
                 Open Marketing Tasks
+              </Link>
+              <Link
+                href="/marketing-performance/results"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+              >
+                Open Marketing Results
               </Link>
               <Link
                 href="/marketing-performance"
