@@ -31,6 +31,7 @@ export function SalesPerformanceHub({
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const totalPayout = scorecards.reduce((sum, asm) => sum + asm.scorecard.payout, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
+  const asmKpiSeventy = scorecards.filter((asm) => asm.scorecard.total >= 70).length;
   const averageKpi = scorecards.length
     ? Math.round(scorecards.reduce((sum, asm) => sum + asm.scorecard.total, 0) / scorecards.length)
     : 0;
@@ -127,9 +128,9 @@ export function SalesPerformanceHub({
           <div className="grid gap-4 sm:grid-cols-2 xl:col-span-2">
             {[
               { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
-              { label: "PROJECTED PAYOUT", value: `${totalPayout.toLocaleString("en-US")}M` },
-              { label: "KEY SKU COVERAGE", value: `${skuQualified}/${scorecards.length}` },
-              { label: "LIVE DATA ROWS", value: `${liveCount}` },
+              { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
+              { label: "ASM ACTIVE", value: `${liveCount}` },
+              { label: "ASM KPI SCORE >= 70%", value: `${asmKpiSeventy}/${scorecards.length}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
                 <p className={darkCardLabelClass}>{item.label}</p>
@@ -137,20 +138,6 @@ export function SalesPerformanceHub({
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
-            { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
-            { label: "AVERAGE KPI SCORE", value: `${averageKpi} PTS` },
-            { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
-          ].map((item) => (
-            <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
-              <p className={darkCardLabelClass}>{item.label}</p>
-              <p className="mt-3 whitespace-pre-line text-[1.9rem] font-semibold leading-tight text-white">{item.value}</p>
-            </div>
-          ))}
         </div>
       </section>
 
