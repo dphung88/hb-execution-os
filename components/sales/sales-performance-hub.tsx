@@ -131,7 +131,7 @@ export function SalesPerformanceHub({
               { label: "Qualified key SKU", value: `${skuQualified}/${scorecards.length}` },
               { label: "Live rows", value: `${liveCount}` },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl bg-white/10 p-4">
+              <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
                 <p className={darkCardLabelClass}>{item.label}</p>
                 <p className={darkCardValueClass}>{item.value}</p>
               </div>
@@ -146,7 +146,7 @@ export function SalesPerformanceHub({
             { label: "SCORING MODEL", value: "SALES REVENUE\nDEALERS CODE\nKEY SKU\nCLEARSTOCK" },
             { label: "DETAIL VIEW", value: "PER ASM" },
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl bg-white/10 p-4">
+            <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
               <p className={darkCardLabelClass}>{item.label}</p>
               <p className="mt-3 whitespace-pre-line text-[1.9rem] font-semibold leading-tight text-white">{item.value}</p>
             </div>
