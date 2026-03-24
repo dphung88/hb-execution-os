@@ -190,7 +190,7 @@ export function SalesPerformanceHub({
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+        <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
           {scorecards.length ? (
             <>
               <div className="divide-y divide-slate-100 bg-white md:hidden">
@@ -258,15 +258,15 @@ export function SalesPerformanceHub({
 
               <table className="hidden min-w-full table-fixed divide-y divide-slate-200 text-sm md:table">
                 <colgroup>
-                  <col className="w-[12%]" />
+                  <col className="w-[11%]" />
                   <col className="w-[14%]" />
                   <col className="w-[11%]" />
-                  <col className="w-[18%]" />
-                  <col className="w-[18%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[16%]" />
                   <col className="w-[10%]" />
-                  <col className="w-[7%]" />
                   <col className="w-[8%]" />
-                  <col className="w-[12%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[6%]" />
                 </colgroup>
                 <thead className="bg-slate-50 text-left text-slate-500">
                   <tr>
@@ -336,7 +336,7 @@ export function SalesPerformanceHub({
                         <td className="px-4 py-4 text-right">
                           <Link
                             href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
-                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                            className="inline-flex whitespace-nowrap items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
                           >
                             View detail
                             <ArrowRight className="h-3.5 w-3.5" />
