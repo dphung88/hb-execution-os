@@ -300,9 +300,9 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
             </span>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white">
-            <div className="min-w-[980px]">
-              <div className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white md:overflow-hidden">
+              <div className="min-w-[980px] md:min-w-0">
+                <div className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 md:grid-cols-[minmax(160px,1fr)_minmax(112px,0.62fr)_100px_96px_minmax(160px,0.92fr)_84px] md:gap-3 md:px-4 md:text-[11px] md:tracking-[0.12em] xl:grid-cols-[minmax(190px,1.08fr)_minmax(126px,0.68fr)_110px_104px_minmax(180px,0.96fr)_92px] xl:gap-4 xl:px-5 xl:text-xs">
                 <div>Task</div>
                 <div>Status</div>
                 <div>Due date</div>
@@ -316,21 +316,21 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                   <form
                     key={task.id}
                     action={updateMarketingTaskAction}
-                    className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] items-start gap-4 px-5 py-4"
+                    className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] items-start gap-4 px-5 py-4 md:grid-cols-[minmax(160px,1fr)_minmax(112px,0.62fr)_100px_96px_minmax(160px,0.92fr)_84px] md:gap-3 md:px-4 xl:grid-cols-[minmax(190px,1.08fr)_minmax(126px,0.68fr)_110px_104px_minmax(180px,0.96fr)_92px] xl:gap-4 xl:px-5"
                   >
                     <input type="hidden" name="task_id" value={task.id} />
                     <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
 
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{task.title}</p>
-                      <p className="mt-2 text-sm text-slate-600">
+                      <p className="text-sm font-semibold leading-6 text-slate-900 md:text-[12px] md:leading-5">{task.title}</p>
+                      <p className="mt-2 text-sm text-slate-600 md:text-[12px]">
                         {task.owner} · {task.requester}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 md:px-2 md:py-0.5 md:text-[10px]">
                           Priority {task.priority}
                         </span>
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${marketingToneClass(task.status)}`}>
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold md:px-2 md:py-0.5 md:text-[10px] ${marketingToneClass(task.status)}`}>
                           {task.status}
                         </span>
                       </div>
@@ -340,7 +340,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                       <select
                         name="status"
                         defaultValue={task.status}
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
                       >
                         {statuses.map((status) => (
                           <option key={status} value={status}>
@@ -350,7 +350,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                       </select>
                     </div>
 
-                    <div className="pt-2 text-sm text-slate-700">{task.dueDate || "-"}</div>
+                    <div className="pt-2 text-sm text-slate-700 md:text-[12px]">{task.dueDate || "-"}</div>
 
                     <div>
                       <input
@@ -359,7 +359,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                         defaultValue={task.progressPercent}
                         min={0}
                         max={100}
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
                       />
                     </div>
 
@@ -367,15 +367,15 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                       <input
                         name="result_note"
                         defaultValue={task.notes}
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
                       />
-                      <p className="mt-2 text-xs text-slate-500">{task.fileLink ? "File link attached" : "No file link yet"}</p>
+                      <p className="mt-2 text-xs text-slate-500 md:text-[10px]">{task.fileLink ? "File link attached" : "No file link yet"}</p>
                     </div>
 
                     <div className="flex justify-end">
                       <button
                         type="submit"
-                        className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                        className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 md:h-9 md:px-3 md:text-[12px]"
                       >
                         Save
                       </button>
