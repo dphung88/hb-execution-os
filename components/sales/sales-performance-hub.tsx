@@ -75,8 +75,7 @@ export function SalesPerformanceHub({
                 </div>
               ) : null}
             </div>
-
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight">
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
           </div>
@@ -93,7 +92,7 @@ export function SalesPerformanceHub({
               method="get"
               className="flex flex-wrap items-center gap-3 xl:flex-nowrap"
             >
-              <div className="w-[180px] xl:w-[160px]">
+              <div className="w-[170px] xl:w-[170px]">
                 <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
                   Tracking period
                 </label>
@@ -120,7 +119,7 @@ export function SalesPerformanceHub({
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[
             { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
             { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
