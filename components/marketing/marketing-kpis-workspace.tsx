@@ -7,12 +7,14 @@ import {
   marketingTaskTracker,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
+import { getMarketingExecutionScore, getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 
 function percent(value: number) {
   return `${(value * 100).toFixed(0)}%`;
 }
 
 export function MarketingKpisWorkspace() {
+  const executionSummary = getMarketingTeamExecutionSummary();
   const personKpiRows = Array.from(
     marketingResultsTracker
       .reduce((map, row) => {
@@ -36,13 +38,16 @@ export function MarketingKpisWorkspace() {
   ).map((row) => {
     const ratio = row.targetTotal ? row.actualTotal / row.targetTotal : 0;
     const outcomeScore = Math.min(60, Math.round(ratio * 60));
-    const executionScore = Math.min(40, row.taskCount * 10);
+    const execution = getMarketingExecutionScore(row.owner);
+    const executionScore = execution.executionScore;
     const totalScore = outcomeScore + executionScore;
 
     return {
       ...row,
       ratio,
       outcomeScore,
+      completionRate: execution.completionRate,
+      overdueTasks: execution.overdueTasks,
       executionScore,
       totalScore,
     };
@@ -73,12 +78,8 @@ export function MarketingKpisWorkspace() {
     {
       name: "TASK EXECUTION",
       target: `${marketingTaskTracker.length}`,
-      actual: `${marketingTaskTracker.filter((task) => task.status === "Completed").length}`,
-      ratio: percent(
-        marketingTaskTracker.length
-          ? marketingTaskTracker.filter((task) => task.status === "Completed").length / marketingTaskTracker.length
-          : 0
-      ),
+      actual: `${executionSummary.completedTasks}`,
+      ratio: percent(executionSummary.totalTasks ? executionSummary.completedTasks / executionSummary.totalTasks : 0),
       weight: "25%",
     },
   ];
@@ -224,6 +225,7 @@ export function MarketingKpisWorkspace() {
                   <th className="px-4 py-4 font-medium">Ratio</th>
                   <th className="px-4 py-4 font-medium">Outcome</th>
                   <th className="px-4 py-4 font-medium">Execution</th>
+                  <th className="px-4 py-4 font-medium">Task Completion</th>
                   <th className="px-4 py-4 font-medium">Total</th>
                 </tr>
               </thead>
@@ -236,6 +238,9 @@ export function MarketingKpisWorkspace() {
                     <td className="px-4 py-4 text-slate-700">{percent(row.ratio)}</td>
                     <td className="px-4 py-4 text-slate-700">{row.outcomeScore}/60</td>
                     <td className="px-4 py-4 text-slate-700">{row.executionScore}/40</td>
+                    <td className="px-4 py-4 text-slate-700">
+                      {percent(row.completionRate)}{row.overdueTasks ? ` · ${row.overdueTasks} overdue` : ""}
+                    </td>
                     <td className="px-4 py-4 font-semibold text-slate-900">{row.totalScore}/100</td>
                   </tr>
                 ))}
@@ -259,7 +264,7 @@ export function MarketingKpisWorkspace() {
             <div className="mt-6 space-y-3">
               {[
                 "Outcome KPI should come from revenue, budget, platform, and role output.",
-                "Execution KPI should come from task completion, overdue control, and delivery discipline.",
+                "Execution KPI now comes directly from task status quality, completion rate, and overdue penalties.",
                 "Recommended weighting: 60% outcome and 40% execution.",
                 "Monthly final score should combine both before any incentive logic is added.",
               ].map((line) => (
@@ -286,6 +291,7 @@ export function MarketingKpisWorkspace() {
                 `Marketing results rows: ${marketingResultsTracker.length}`,
                 `Headcount setup rows: ${marketingHeadcountPlan.length}`,
                 `Task execution rows: ${marketingTaskTracker.length}`,
+                `Average execution score: ${executionSummary.averageExecutionScore}/40`,
               ].map((line) => (
                 <div key={line} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
                   {line}

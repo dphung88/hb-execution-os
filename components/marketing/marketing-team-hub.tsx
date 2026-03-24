@@ -8,10 +8,12 @@ import {
   marketingTaskTracker,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
+import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 
 import { marketingToneClass as toneClass } from "./marketing-shared";
 
 export function MarketingTeamHub() {
+  const executionSummary = getMarketingTeamExecutionSummary();
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
@@ -79,7 +81,7 @@ export function MarketingTeamHub() {
           {
             label: "Open marketing tasks",
             value: `${marketingTaskTracker.filter((task) => task.status !== "Completed").length}`,
-            note: "Tracked from role sheets",
+            note: `Execution score average ${executionSummary.averageExecutionScore}/40`,
           },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">

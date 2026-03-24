@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
 
 import { marketingTaskTracker } from "@/lib/demo-data";
+import { getMarketingExecutionScore } from "@/lib/marketing/execution";
 
 import { marketingToneClass } from "./marketing-shared";
 
@@ -88,6 +89,12 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
             >
               Back to Marketing Dashboard
+            </Link>
+            <Link
+              href="/marketing-performance/kpis"
+              className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+            >
+              Open Marketing KPIs
             </Link>
           </div>
         </div>
@@ -270,9 +277,14 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
                       {row.total} task{row.total > 1 ? "s" : ""}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-slate-500">
-                    Active {row.active} · Completed {row.completed}
-                  </p>
+                  {(() => {
+                    const execution = getMarketingExecutionScore(row.owner);
+                    return (
+                      <p className="mt-2 text-sm text-slate-500">
+                        Active {row.active} · Completed {row.completed} · Execution {execution.executionScore}/40
+                      </p>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
