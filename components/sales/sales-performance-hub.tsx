@@ -56,14 +56,18 @@ export function SalesPerformanceHub({
       minPct: product.minPct,
       actual: 0,
     }));
+  const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
+  const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
+  const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
+  const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
 
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.08fr),minmax(360px,0.92fr)] xl:items-start">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Sales Dashboard</p>
+              <p className={heroLabelClass}>Sales Dashboard</p>
               {syncStatus ? (
                 <div
                   className={`inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
@@ -91,10 +95,10 @@ export function SalesPerformanceHub({
 
               <form
                 method="get"
-                className="flex flex-1 flex-wrap items-end gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur min-[480px]:min-w-[360px]"
+                className="flex max-w-[520px] flex-1 flex-wrap items-end gap-3 min-[480px]:min-w-[360px]"
               >
                 <div className="min-w-[190px] flex-1">
-                  <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+                  <label htmlFor="period" className={darkCardLabelClass}>
                     Tracking period
                   </label>
                   <select
@@ -128,8 +132,8 @@ export function SalesPerformanceHub({
               { label: "Live rows", value: `${liveCount}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
-                <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
+                <p className={darkCardLabelClass}>{item.label}</p>
+                <p className={darkCardValueClass}>{item.value}</p>
               </div>
             ))}
           </div>
@@ -143,8 +147,8 @@ export function SalesPerformanceHub({
             { label: "DETAIL VIEW", value: "PER ASM" },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
-              <p className="mt-3 whitespace-pre-line text-2xl font-semibold text-white">{item.value}</p>
+              <p className={darkCardLabelClass}>{item.label}</p>
+              <p className="mt-3 whitespace-pre-line text-[1.9rem] font-semibold leading-tight text-white">{item.value}</p>
             </div>
           ))}
         </div>
@@ -158,7 +162,7 @@ export function SalesPerformanceHub({
           { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}`, note: "Based on configured clearstock codes" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className={lightCardLabelClass}>{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
@@ -172,7 +176,7 @@ export function SalesPerformanceHub({
           { label: "PROJECTED KPI PAYOUT", value: `${totalPayout.toLocaleString("en-US")}M`, note: "Based on the original formula" }
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className={lightCardLabelClass}>{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>

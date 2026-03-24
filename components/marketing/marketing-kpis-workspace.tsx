@@ -20,6 +20,8 @@ type MarketingKpisWorkspaceProps = {
 export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspaceProps) {
   const effectiveTasks = tasks.length ? tasks : [];
   const executionSummary = getMarketingTeamExecutionSummary(effectiveTasks);
+  const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
+  const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   const personKpiRows = Array.from(
     marketingResultsTracker
       .reduce((map, row) => {
@@ -110,7 +112,7 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Marketing KPIs</p>
+            <p className={heroLabelClass}>Marketing KPIs</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
               Person KPI and team KPI scoring in one Marketing layer.
             </h1>
@@ -141,7 +143,7 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
           { label: "TASK INPUTS", value: String(effectiveTasks.length), note: "Execution feed into KPI" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className={lightCardLabelClass}>{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>

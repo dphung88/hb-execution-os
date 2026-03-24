@@ -18,12 +18,16 @@ type MarketingTeamHubProps = {
 
 export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
   const executionSummary = getMarketingTeamExecutionSummary(tasks);
+  const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
+  const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
+  const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
+  const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Marketing Team</p>
+            <p className={heroLabelClass}>Marketing Team</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
               Marketing execution, KPI ownership, and department results.
             </h1>
@@ -57,8 +61,8 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
               { label: "Headcount setup", value: `${marketingWorkbookContext.headcountActual}/${marketingWorkbookContext.headcountPlanned}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
-                <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
+                <p className={darkCardLabelClass}>{item.label}</p>
+                <p className={darkCardValueClass}>{item.value}</p>
               </div>
             ))}
           </div>
@@ -89,7 +93,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
           },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className={lightCardLabelClass}>{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>

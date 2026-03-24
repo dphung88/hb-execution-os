@@ -15,6 +15,8 @@ function toPercent(value: number) {
 export function MarketingResultsWorkspace() {
   const revenueGap = marketingWorkbookContext.salesRevenueTarget - marketingWorkbookContext.actualSalesRevenue;
   const budgetRemaining = marketingWorkbookContext.expenseBudgetTarget - marketingWorkbookContext.actualExpenseBudget;
+  const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
+  const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   const groupedResults = Array.from(
     marketingResultsTracker.reduce((map, row) => {
       const list = map.get(row.owner) ?? [];
@@ -29,7 +31,7 @@ export function MarketingResultsWorkspace() {
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Marketing Results</p>
+            <p className={heroLabelClass}>Marketing Results</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
               Department revenue, budget, and channel results in one place.
             </h1>
@@ -60,7 +62,7 @@ export function MarketingResultsWorkspace() {
           { label: "BUDGET REMAINING", value: `${budgetRemaining.toFixed(1)}M`, note: "Available marketing budget" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className={lightCardLabelClass}>{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
