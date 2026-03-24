@@ -121,15 +121,6 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
         ))}
       </section>
 
-      {source === "demo" ? (
-        <section className="rounded-3xl border border-amber-200 bg-amber-50/90 p-5 shadow-panel">
-          <p className="text-sm font-semibold text-amber-900">Marketing tasks are still in demo mode</p>
-          <p className="mt-2 text-sm text-amber-800">
-            The page is ready for live task entry, but Supabase is still falling back to demo rows. Run the Marketing migration first if you want tasks to persist.
-          </p>
-        </section>
-      ) : null}
-
       {savedState ? (
         <section className="rounded-3xl border border-emerald-200 bg-emerald-50/90 p-5 shadow-panel">
           <p className="text-sm font-semibold text-emerald-900">Task saved</p>
@@ -289,34 +280,53 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
 
       <section className="grid gap-6 xl:grid-cols-[1.15fr,0.85fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
-              <FolderKanban className="h-5 w-5" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
+                <FolderKanban className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-brand-700">TASK BOARD</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Execution tracker by owner</h2>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">TASK BOARD</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Execution tracker by owner</h2>
-            </div>
+
+            <span
+              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                source === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+              }`}
+            >
+              {source === "live" ? "LIVE TASK SOURCE" : "DEMO TASK SOURCE"}
+            </span>
           </div>
 
-          <div className="mt-6 space-y-4">
-            {filteredTasks.map((task) => (
-              <form
-                key={task.id}
-                action={updateMarketingTaskAction}
-                className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
-              >
-                <input type="hidden" name="task_id" value={task.id} />
-                <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
+          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white">
+            <div className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <div>Task</div>
+              <div>Status</div>
+              <div>Due date</div>
+              <div>Progress</div>
+              <div>Result note</div>
+              <div className="text-right">Action</div>
+            </div>
 
-                <div className="grid gap-4 xl:grid-cols-[1.15fr,0.75fr,0.75fr,0.75fr]">
+            <div className="divide-y divide-slate-100">
+              {filteredTasks.map((task) => (
+                <form
+                  key={task.id}
+                  action={updateMarketingTaskAction}
+                  className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] items-start gap-4 px-5 py-4"
+                >
+                  <input type="hidden" name="task_id" value={task.id} />
+                  <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
+
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{task.title}</p>
                     <p className="mt-2 text-sm text-slate-600">
                       {task.owner} · {task.requester}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                         Priority {task.priority}
                       </span>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${marketingToneClass(task.status)}`}>
@@ -325,12 +335,11 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                     </div>
                   </div>
 
-                  <label className="block">
-                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Status</span>
+                  <div>
                     <select
                       name="status"
                       defaultValue={task.status}
-                      className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                     >
                       {statuses.map((status) => (
                         <option key={status} value={status}>
@@ -338,49 +347,45 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                         </option>
                       ))}
                     </select>
-                    <p className="mt-2 text-xs text-slate-500">Due date: {task.dueDate || "-"}</p>
-                  </label>
+                  </div>
 
-                  <label className="block">
-                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Progress %</span>
+                  <div className="pt-2 text-sm text-slate-700">{task.dueDate || "-"}</div>
+
+                  <div>
                     <input
                       type="number"
                       name="progress_percent"
                       defaultValue={task.progressPercent}
                       min={0}
                       max={100}
-                      className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      name="result_note"
+                      defaultValue={task.notes}
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                     />
                     <p className="mt-2 text-xs text-slate-500">{task.fileLink ? "File link attached" : "No file link yet"}</p>
-                  </label>
-
-                  <div className="flex flex-col justify-between gap-3">
-                    <label className="block">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Result note</span>
-                      <input
-                        name="result_note"
-                        defaultValue={task.notes}
-                        className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                      />
-                    </label>
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-                      >
-                        Save task
-                      </button>
-                    </div>
                   </div>
-                </div>
-              </form>
-            ))}
 
-            {!filteredTasks.length ? (
-              <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-                No Marketing tasks matched the current filters.
-              </div>
-            ) : null}
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </form>
+              ))}
+
+              {!filteredTasks.length ? (
+                <div className="px-5 py-8 text-center text-sm text-slate-500">No Marketing tasks matched the current filters.</div>
+              ) : null}
+            </div>
           </div>
         </div>
 
