@@ -97,7 +97,7 @@ export function SalesPerformanceHub({
                 method="get"
                 className="flex flex-wrap items-center gap-3"
               >
-                <div className="min-w-[180px]">
+                <div className="w-[180px] xl:w-[170px]">
                   <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
                     Tracking period
                   </label>
@@ -105,7 +105,7 @@ export function SalesPerformanceHub({
                     id="period"
                     name="period"
                     defaultValue={selectedPeriod}
-                    className="h-11 w-[190px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                    className="h-11 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
                   >
                     {periods.map((period) => (
                       <option key={period.key} value={period.key} className="text-slate-900">
