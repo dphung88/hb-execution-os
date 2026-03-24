@@ -2,6 +2,7 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,28 +21,46 @@ export async function Topbar() {
   }
 
   return (
-    <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/80 px-5 py-4 shadow-panel backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm text-slate-500">
-          {user ? "Welcome back" : "Preview mode"}
-        </p>
-        <h2 className="text-lg font-semibold text-slate-900">
-          {user?.email ?? "Public executive demo"}
-        </h2>
-      </div>
+    <div className="space-y-4">
+      <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/80 px-5 py-4 shadow-panel backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm text-slate-500">
+            {user ? "Welcome back" : "Preview mode"}
+          </p>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {user?.email ?? "Public executive demo"}
+          </h2>
+        </div>
 
-      {user ? (
-        <form action={signOut}>
-          <Button variant="secondary" className="gap-2">
-            Sign out
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </form>
-      ) : (
-        <Link href="/preview">
-          <Button variant="secondary" className="w-full sm:w-auto">Preview story</Button>
-        </Link>
-      )}
-    </header>
+        {user ? (
+          <form action={signOut} className="hidden md:block">
+            <Button variant="secondary" className="gap-2">
+              Sign out
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <Link href="/preview" className="hidden md:block">
+            <Button variant="secondary" className="w-full sm:w-auto">Preview story</Button>
+          </Link>
+        )}
+      </header>
+
+      <div className="flex items-center justify-between gap-3 md:hidden">
+        <MobileNav />
+        {user ? (
+          <form action={signOut}>
+            <Button variant="secondary" className="gap-2">
+              Sign out
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <Link href="/preview">
+            <Button variant="secondary">Preview story</Button>
+          </Link>
+        )}
+      </div>
+    </div>
   );
 }

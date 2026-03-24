@@ -2,68 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ComponentType } from "react";
-import {
-  BellRing,
-  ChartColumnBig,
-  ClipboardList,
-  Eye,
-  FileStack,
-  LayoutDashboard,
-  Megaphone,
-  Mic
-} from "lucide-react";
 
+import { appNavLinks } from "@/components/layout/nav-config";
 import { cn } from "@/lib/utils";
-
-type SingleLink = {
-  type: "single";
-  href: string;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-};
-
-type GroupLink = {
-  type: "group";
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  match: string;
-  children: Array<{
-    href: string;
-    label: string;
-  }>;
-};
-
-const links: Array<SingleLink | GroupLink> = [
-  { type: "single", href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  {
-    type: "group",
-    label: "Sales Team",
-    icon: ChartColumnBig,
-    match: "/sales-performance",
-    children: [
-      { href: "/sales-performance", label: "Sales Dashboard" },
-      { href: "/sales-performance/targets", label: "Sales Targets" },
-    ],
-  },
-  {
-    type: "group",
-    label: "Marketing Team",
-    icon: Megaphone,
-    match: "/marketing-performance",
-    children: [
-      { href: "/marketing-performance", label: "Marketing Dashboard" },
-      { href: "/marketing-performance/tasks", label: "Marketing Tasks" },
-      { href: "/marketing-performance/results", label: "Marketing Results" },
-      { href: "/marketing-performance/kpis", label: "Marketing KPIs" },
-    ],
-  },
-  { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
-  { type: "single", href: "/notifications", label: "Notifications", icon: BellRing },
-  { type: "single", href: "/briefs", label: "CEO Brief", icon: FileStack },
-  { type: "single", href: "/meetings", label: "Meetings", icon: Mic },
-  { type: "single", href: "/preview", label: "Preview", icon: Eye }
-];
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -83,7 +24,7 @@ export function Sidebar() {
       </div>
 
       <nav className="space-y-2">
-        {links.map((item) => {
+        {appNavLinks.map((item) => {
           if (item.type === "group") {
             const activeGroup = pathname.startsWith(item.match);
 
