@@ -20,7 +20,7 @@ export async function Topbar() {
   }
 
   return (
-    <header className="flex items-center justify-between rounded-3xl border border-white/70 bg-white/80 px-5 py-4 shadow-panel backdrop-blur">
+    <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/80 px-5 py-4 shadow-panel backdrop-blur sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-sm text-slate-500">
           {user ? "Welcome back" : "Preview mode"}
@@ -39,7 +39,7 @@ export async function Topbar() {
         </form>
       ) : (
         <Link href="/preview">
-          <Button variant="secondary">Preview story</Button>
+          <Button variant="secondary" className="w-full sm:w-auto">Preview story</Button>
         </Link>
       )}
     </header>
