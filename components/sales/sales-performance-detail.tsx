@@ -76,8 +76,7 @@ export function SalesPerformanceDetail({
               {asm.id} · Period {periodLabel}
             </p>
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
-              Live data from Supabase
-              {asm.fromDate && asm.toDate ? ` · Sync window ${asm.fromDate} to ${asm.toDate}` : ""}
+              Active territory · {asm.region || "Nationwide"}
             </p>
           </div>
 
