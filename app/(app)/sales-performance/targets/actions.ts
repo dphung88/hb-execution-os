@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { demoSalesAsms } from "@/lib/demo-data";
 import { createWriteClient } from "@/lib/supabase/write";
 
 function normalizeSkuCode(value: FormDataEntryValue | null, fallback: string) {
@@ -76,4 +77,53 @@ export async function saveSalesTargetRowAction(formData: FormData) {
   revalidatePath("/sales-performance");
   revalidatePath("/sales-performance/targets");
   redirect(`/sales-performance/targets?period=${period}&saved=${asmId}`);
+}
+
+export async function saveSalesTargetDefaultsAction(formData: FormData) {
+  const period = String(formData.get("period") ?? "");
+  let client;
+
+  try {
+    client = createWriteClient();
+  } catch {
+    redirect(`/sales-performance/targets?period=${period}&error=save-not-configured`);
+  }
+
+  const revenueTarget = Number(formData.get("revenue_target") ?? 0);
+  const newCustomersTarget = Number(formData.get("new_customers_target") ?? 0);
+  const keySkuCode1 = normalizeSkuCode(formData.get("key_sku_code_1"), "HB031");
+  const keySkuCode2 = normalizeSkuCode(formData.get("key_sku_code_2"), "HB035");
+  const clearstockCode1 = normalizeSkuCode(formData.get("clearstock_code_1"), "HB006");
+  const clearstockCode2 = normalizeSkuCode(formData.get("clearstock_code_2"), "HB034");
+  const hb031Target = Number(formData.get("hb031_target") ?? 243);
+  const hb035Target = Number(formData.get("hb035_target") ?? 203);
+  const hb006Target = Number(formData.get("hb006_target") ?? 229);
+  const hb034Target = Number(formData.get("hb034_target") ?? 161);
+
+  const rows = demoSalesAsms.map((asm) => ({
+    asm_id: asm.id,
+    month: period,
+    revenue_target: asm.id === "NV0001" ? 4000 : revenueTarget,
+    new_customers_target: newCustomersTarget,
+    key_sku_code_1: keySkuCode1,
+    key_sku_code_2: keySkuCode2,
+    clearstock_code_1: clearstockCode1,
+    clearstock_code_2: clearstockCode2,
+    hb031_target: hb031Target,
+    hb035_target: hb035Target,
+    hb006_target: hb006Target,
+    hb034_target: hb034Target,
+  }));
+
+  const { error } = await client.from("sales_monthly_targets").upsert(rows, {
+    onConflict: "asm_id,month",
+  });
+
+  if (error) {
+    redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}`);
+  }
+
+  revalidatePath("/sales-performance");
+  revalidatePath("/sales-performance/targets");
+  redirect(`/sales-performance/targets?period=${period}&saved=all`);
 }

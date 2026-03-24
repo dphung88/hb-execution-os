@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-import { saveSalesTargetRowAction } from "@/app/(app)/sales-performance/targets/actions";
+import {
+  saveSalesTargetDefaultsAction,
+  saveSalesTargetRowAction,
+} from "@/app/(app)/sales-performance/targets/actions";
 import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
 import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -54,6 +57,19 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
 
   const targetCoverage = targets?.length ?? 0;
   const reviewCoverage = reviews?.length ?? 0;
+  const bulkSaved = savedAsm === "all";
+  const baselineTarget = {
+    revenueTarget: 500,
+    newCustomersTarget: 10,
+    keySkuCode1: "HB031",
+    keySkuCode2: "HB035",
+    clearstockCode1: "HB006",
+    clearstockCode2: "HB034",
+    hb031Target: salesKpiProducts.HB031.target,
+    hb035Target: salesKpiProducts.HB035.target,
+    hb006Target: salesKpiProducts.HB006.target,
+    hb034Target: salesKpiProducts.HB034.target,
+  };
 
   return (
     <div className="space-y-6">
@@ -106,6 +122,15 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
         ))}
       </section>
 
+      {bulkSaved ? (
+        <section className="rounded-3xl border border-emerald-200 bg-emerald-50/90 p-5 shadow-panel">
+          <p className="text-sm font-semibold text-emerald-900">Baseline targets applied</p>
+          <p className="mt-2 text-sm text-emerald-800">
+            The selected month now has one shared target setup across the full ASM roster. Use the row-level forms below only for exceptions.
+          </p>
+        </section>
+      ) : null}
+
       {errorState ? (
         <section className="rounded-3xl border border-rose-200 bg-rose-50/90 p-5 shadow-panel">
           <p className="text-sm font-semibold text-rose-900">Unable to save targets</p>
@@ -120,10 +145,146 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       ) : null}
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">BULK TARGET SETUP</p>
+          <h2 className="text-2xl font-semibold text-slate-900">Apply one baseline target setup to all ASM</h2>
+          <p className="text-sm leading-6 text-slate-500">
+            Use this once per month when the core Sales Target, Dealers Code, Key SKU, and Clearstock targets are mostly identical. Then adjust only the exceptional ASM rows below.
+          </p>
+        </div>
+
+        <form action={saveSalesTargetDefaultsAction} className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+          <input type="hidden" name="period" value={selectedPeriod} />
+
+          <div className="grid gap-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                {
+                  name: "revenue_target",
+                  label: "Sales Target",
+                  value: baselineTarget.revenueTarget,
+                  note: "Unit: million VND",
+                },
+                {
+                  name: "new_customers_target",
+                  label: "Dealers Code",
+                  value: baselineTarget.newCustomersTarget,
+                },
+              ].map((field) => (
+                <label key={field.name} className="block">
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
+                  <input
+                    type="number"
+                    name={field.name}
+                    defaultValue={field.value}
+                    className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                  />
+                  {"note" in field ? <span className="mt-2 block text-xs text-slate-500">{field.note}</span> : null}
+                </label>
+              ))}
+            </div>
+
+            <div className="grid gap-3 xl:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
+                <div className="mt-3 grid gap-3">
+                  {[
+                    {
+                      codeName: "key_sku_code_1",
+                      codeValue: baselineTarget.keySkuCode1,
+                      qtyName: "hb031_target",
+                      qtyValue: baselineTarget.hb031Target,
+                    },
+                    {
+                      codeName: "key_sku_code_2",
+                      codeValue: baselineTarget.keySkuCode2,
+                      qtyName: "hb035_target",
+                      qtyValue: baselineTarget.hb035Target,
+                    },
+                  ].map((field) => (
+                    <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
+                        <input
+                          type="text"
+                          name={field.codeName}
+                          defaultValue={field.codeValue}
+                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
+                        <input
+                          type="number"
+                          name={field.qtyName}
+                          defaultValue={field.qtyValue}
+                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
+                <div className="mt-3 grid gap-3">
+                  {[
+                    {
+                      codeName: "clearstock_code_1",
+                      codeValue: baselineTarget.clearstockCode1,
+                      qtyName: "hb006_target",
+                      qtyValue: baselineTarget.hb006Target,
+                    },
+                    {
+                      codeName: "clearstock_code_2",
+                      codeValue: baselineTarget.clearstockCode2,
+                      qtyName: "hb034_target",
+                      qtyValue: baselineTarget.hb034Target,
+                    },
+                  ].map((field) => (
+                    <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
+                        <input
+                          type="text"
+                          name={field.codeName}
+                          defaultValue={field.codeValue}
+                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
+                        <input
+                          type="number"
+                          name={field.qtyName}
+                          defaultValue={field.qtyValue}
+                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Apply to all ASM
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">MONTHLY TARGET MATRIX</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Save targets row by row for the selected month</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Adjust target rows only for exceptions</h2>
           </div>
           <Link
             href={`/sales-performance?period=${selectedPeriod}`}
