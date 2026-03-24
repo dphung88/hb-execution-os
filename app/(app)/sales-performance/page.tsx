@@ -1,6 +1,5 @@
 import { SalesPerformanceHub } from "@/components/sales/sales-performance-hub";
 import { getSalesScorecardsData } from "@/lib/sales/queries";
-import { createClient } from "@/lib/supabase/server";
 
 type SalesPerformancePageProps = {
   searchParams?: Promise<{
@@ -13,11 +12,6 @@ type SalesPerformancePageProps = {
 };
 
 export default async function SalesPerformancePage({ searchParams }: SalesPerformancePageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const period = resolvedSearchParams?.period;
   const sync = resolvedSearchParams?.sync;
@@ -41,7 +35,6 @@ export default async function SalesPerformancePage({ searchParams }: SalesPerfor
       liveCount={liveCount}
       periods={periods}
       selectedPeriod={selectedPeriod}
-      canSync={Boolean(user)}
       syncStatus={sync}
       syncMessage={syncMessage}
     />

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, Calculator, Users } from "lucide-react";
 
-import { syncSalesPeriodAction } from "@/app/(app)/sales-performance/actions";
 import { salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
@@ -17,7 +16,6 @@ type SalesPerformanceHubProps = {
   liveCount: number;
   periods: SalesPeriodOption[];
   selectedPeriod: string;
-  canSync: boolean;
   syncStatus?: string;
   syncMessage?: string;
 };
@@ -27,7 +25,6 @@ export function SalesPerformanceHub({
   liveCount,
   periods,
   selectedPeriod,
-  canSync,
   syncStatus,
   syncMessage,
 }: SalesPerformanceHubProps) {
@@ -84,7 +81,7 @@ export function SalesPerformanceHub({
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
 
-            <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+            <div className="mt-5 flex flex-wrap gap-3">
               <div className="flex flex-wrap gap-3">
                 <Link
                   href={`/sales-performance/targets?period=${selectedPeriod}`}
@@ -99,33 +96,33 @@ export function SalesPerformanceHub({
                   Dashboard overview
                 </Link>
               </div>
+            </div>
 
-              <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 backdrop-blur xl:min-w-[360px]">
-                <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
-                  Tracking period
-                </label>
-                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                  <form method="get" className="flex flex-1 flex-col gap-3 sm:flex-row">
-                    <select
-                      id="period"
-                      name="period"
-                      defaultValue={selectedPeriod}
-                      className="h-11 min-w-[220px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
-                    >
-                      {periods.map((period) => (
-                        <option key={period.key} value={period.key} className="text-slate-900">
-                          {period.label}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="submit"
-                      className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-                    >
-                      Apply period
-                    </button>
-                  </form>
-                </div>
+            <div className="mt-5 rounded-[1.5rem] border border-white/10 bg-white/5 p-4 backdrop-blur max-w-[520px]">
+              <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+                Tracking period
+              </label>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <form method="get" className="flex flex-1 flex-col gap-3 sm:flex-row">
+                  <select
+                    id="period"
+                    name="period"
+                    defaultValue={selectedPeriod}
+                    className="h-11 min-w-[220px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                  >
+                    {periods.map((period) => (
+                      <option key={period.key} value={period.key} className="text-slate-900">
+                        {period.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                  >
+                    Apply period
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -145,44 +142,18 @@ export function SalesPerformanceHub({
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 xl:grid-cols-[1.1fr,0.9fr]">
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 backdrop-blur">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Sync controls</p>
-                <p className="mt-2 text-2xl font-semibold text-white">Pull the selected month into the dashboard</p>
-              </div>
-              {canSync ? (
-                <form action={syncSalesPeriodAction}>
-                  <input type="hidden" name="period" value={selectedPeriod} />
-                  <button
-                    type="submit"
-                    className="inline-flex h-11 items-center justify-center rounded-2xl border border-emerald-300/30 bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
-                  >
-                    Sync all ASM in month
-                  </button>
-                </form>
-              ) : (
-                <div className="rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
-                  Sign in to sync
-                </div>
-              )}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
+            { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
+            { label: "SCORING MODEL", value: "SALES REVENUE\nDEALERS CODE\nKEY SKU\nCLEARSTOCK" },
+            { label: "DETAIL VIEW", value: "PER ASM" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl bg-white/10 p-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
+              <p className="mt-3 whitespace-pre-line text-2xl font-semibold text-white">{item.value}</p>
             </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
-              { label: "DETAIL VIEW", value: "PER ASM" },
-              { label: "SCORING MODEL", value: "SALES REVENUE\nDEALERS CODE\nKEY SKU\nCLEARSTOCK" },
-              { label: "TARGET SETUP", value: "SALES TARGETS" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
-                <p className="mt-3 whitespace-pre-line text-2xl font-semibold text-white">{item.value}</p>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </section>
 
