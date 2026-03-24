@@ -1,6 +1,7 @@
 import { marketingTaskTracker } from "@/lib/demo-data";
+import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
-type MarketingTask = (typeof marketingTaskTracker)[number];
+type MarketingTask = Pick<MarketingTaskRecord, "owner" | "status" | "dueDate">;
 
 const EXECUTION_REFERENCE_DATE = new Date("2025-03-20T00:00:00.000Z");
 
@@ -21,14 +22,22 @@ function isOverdue(task: MarketingTask) {
   return new Date(task.dueDate) < EXECUTION_REFERENCE_DATE && task.status !== "Completed";
 }
 
-export function getMarketingTasksByOwner(owner: string) {
-  return marketingTaskTracker.filter((task) => task.owner === owner);
+function getDefaultTasks(): MarketingTask[] {
+  return marketingTaskTracker.map((task) => ({
+    owner: task.owner,
+    status: task.status,
+    dueDate: task.dueDate,
+  }));
 }
 
-export function getMarketingExecutionScore(owner: string) {
-  const tasks = getMarketingTasksByOwner(owner);
+export function getMarketingTasksByOwner(owner: string, tasks: MarketingTask[] = getDefaultTasks()) {
+  return tasks.filter((task) => task.owner === owner);
+}
 
-  if (!tasks.length) {
+export function getMarketingExecutionScore(owner: string, tasks: MarketingTask[] = getDefaultTasks()) {
+  const scopedTasks = getMarketingTasksByOwner(owner, tasks);
+
+  if (!scopedTasks.length) {
     return {
       totalTasks: 0,
       completedTasks: 0,
@@ -39,16 +48,16 @@ export function getMarketingExecutionScore(owner: string) {
     };
   }
 
-  const completedTasks = tasks.filter((task) => task.status === "Completed").length;
-  const overdueTasks = tasks.filter(isOverdue).length;
-  const completionRate = completedTasks / tasks.length;
-  const statusAverage = tasks.reduce((sum, task) => sum + statusWeight(task.status), 0) / tasks.length;
+  const completedTasks = scopedTasks.filter((task) => task.status === "Completed").length;
+  const overdueTasks = scopedTasks.filter(isOverdue).length;
+  const completionRate = completedTasks / scopedTasks.length;
+  const statusAverage = scopedTasks.reduce((sum, task) => sum + statusWeight(task.status), 0) / scopedTasks.length;
   const overduePenalty = overdueTasks * 0.08;
   const executionRatio = Math.max(0, Math.min(1, statusAverage - overduePenalty));
   const executionScore = Math.round(executionRatio * 40);
 
   return {
-    totalTasks: tasks.length,
+    totalTasks: scopedTasks.length,
     completedTasks,
     overdueTasks,
     completionRate,
@@ -57,11 +66,11 @@ export function getMarketingExecutionScore(owner: string) {
   };
 }
 
-export function getMarketingTeamExecutionSummary() {
-  const owners = Array.from(new Set(marketingTaskTracker.map((task) => task.owner)));
+export function getMarketingTeamExecutionSummary(tasks: MarketingTask[] = getDefaultTasks()) {
+  const owners = Array.from(new Set(tasks.map((task) => task.owner)));
   const ownerRows = owners.map((owner) => ({
     owner,
-    ...getMarketingExecutionScore(owner),
+    ...getMarketingExecutionScore(owner, tasks),
   }));
 
   const averageExecutionScore = ownerRows.length
@@ -71,7 +80,7 @@ export function getMarketingTeamExecutionSummary() {
   return {
     owners: ownerRows,
     averageExecutionScore,
-    completedTasks: marketingTaskTracker.filter((task) => task.status === "Completed").length,
-    totalTasks: marketingTaskTracker.length,
+    completedTasks: tasks.filter((task) => task.status === "Completed").length,
+    totalTasks: tasks.length,
   };
 }

@@ -5,15 +5,19 @@ import {
   marketingChannelSetup,
   marketingHeadcountPlan,
   marketingResultsTracker,
-  marketingTaskTracker,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
 import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
+import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
 import { marketingToneClass as toneClass } from "./marketing-shared";
 
-export function MarketingTeamHub() {
-  const executionSummary = getMarketingTeamExecutionSummary();
+type MarketingTeamHubProps = {
+  tasks?: MarketingTaskRecord[];
+};
+
+export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
+  const executionSummary = getMarketingTeamExecutionSummary(tasks);
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
@@ -80,7 +84,7 @@ export function MarketingTeamHub() {
           },
           {
             label: "Open marketing tasks",
-            value: `${marketingTaskTracker.filter((task) => task.status !== "Completed").length}`,
+            value: `${tasks.filter((task) => task.status !== "Completed").length}`,
             note: `Execution score average ${executionSummary.averageExecutionScore}/40`,
           },
         ].map((card) => (
@@ -223,8 +227,8 @@ export function MarketingTeamHub() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {marketingTaskTracker.map((task) => (
-                <tr key={`${task.owner}-${task.dueDate}-${task.status}`}>
+              {tasks.map((task) => (
+                <tr key={task.id}>
                   <td className="px-4 py-4 font-medium text-slate-900">{task.owner}</td>
                   <td className="px-4 py-4 text-slate-700">{task.requester}</td>
                   <td className="px-4 py-4">

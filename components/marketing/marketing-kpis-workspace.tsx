@@ -4,17 +4,22 @@ import { BriefcaseBusiness, CheckCircle2, Gauge, Users } from "lucide-react";
 import {
   marketingHeadcountPlan,
   marketingResultsTracker,
-  marketingTaskTracker,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
+import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 import { getMarketingExecutionScore, getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 
 function percent(value: number) {
   return `${(value * 100).toFixed(0)}%`;
 }
 
-export function MarketingKpisWorkspace() {
-  const executionSummary = getMarketingTeamExecutionSummary();
+type MarketingKpisWorkspaceProps = {
+  tasks?: MarketingTaskRecord[];
+};
+
+export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspaceProps) {
+  const effectiveTasks = tasks.length ? tasks : [];
+  const executionSummary = getMarketingTeamExecutionSummary(effectiveTasks);
   const personKpiRows = Array.from(
     marketingResultsTracker
       .reduce((map, row) => {
@@ -23,7 +28,7 @@ export function MarketingKpisWorkspace() {
           targetTotal: 0,
           actualTotal: 0,
           remainingTotal: 0,
-          taskCount: marketingTaskTracker.filter((task) => task.owner === row.owner).length,
+          taskCount: effectiveTasks.filter((task) => task.owner === row.owner).length,
           metricCount: 0,
         };
 
@@ -38,7 +43,7 @@ export function MarketingKpisWorkspace() {
   ).map((row) => {
     const ratio = row.targetTotal ? row.actualTotal / row.targetTotal : 0;
     const outcomeScore = Math.min(60, Math.round(ratio * 60));
-    const execution = getMarketingExecutionScore(row.owner);
+    const execution = getMarketingExecutionScore(row.owner, effectiveTasks);
     const executionScore = execution.executionScore;
     const totalScore = outcomeScore + executionScore;
 
@@ -77,7 +82,7 @@ export function MarketingKpisWorkspace() {
     },
     {
       name: "TASK EXECUTION",
-      target: `${marketingTaskTracker.length}`,
+      target: `${effectiveTasks.length}`,
       actual: `${executionSummary.completedTasks}`,
       ratio: percent(executionSummary.totalTasks ? executionSummary.completedTasks / executionSummary.totalTasks : 0),
       weight: "25%",
@@ -133,7 +138,7 @@ export function MarketingKpisWorkspace() {
           { label: "TEAM KPI BLOCKS", value: String(teamKpis.length), note: "Department scoring categories" },
           { label: "PERSON KPI ROWS", value: String(personKpiRows.length), note: "Owner score roll-ups" },
           { label: "ROLE SETUPS", value: String(roleKpiSetup.length), note: "Role-specific KPI logic" },
-          { label: "TASK INPUTS", value: String(marketingTaskTracker.length), note: "Execution feed into KPI" },
+          { label: "TASK INPUTS", value: String(effectiveTasks.length), note: "Execution feed into KPI" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
@@ -290,7 +295,7 @@ export function MarketingKpisWorkspace() {
               {[
                 `Marketing results rows: ${marketingResultsTracker.length}`,
                 `Headcount setup rows: ${marketingHeadcountPlan.length}`,
-                `Task execution rows: ${marketingTaskTracker.length}`,
+                `Task execution rows: ${effectiveTasks.length}`,
                 `Average execution score: ${executionSummary.averageExecutionScore}/40`,
               ].map((line) => (
                 <div key={line} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">

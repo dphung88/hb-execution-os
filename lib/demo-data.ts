@@ -610,6 +610,7 @@ export const salesScoringRules = [
 ];
 
 export const marketingWorkbookContext = {
+  monthKey: "2025-04",
   month: "April 2025",
   salesRevenueTarget: 500,
   actualSalesRevenue: 400,

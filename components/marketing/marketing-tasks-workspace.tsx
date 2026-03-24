@@ -1,16 +1,22 @@
 import Link from "next/link";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
 
-import { marketingTaskTracker } from "@/lib/demo-data";
+import { createMarketingTaskAction, updateMarketingTaskAction } from "@/app/(app)/marketing-performance/tasks/actions";
+import { marketingWorkbookContext } from "@/lib/demo-data";
 import { getMarketingExecutionScore } from "@/lib/marketing/execution";
+import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
 import { marketingToneClass } from "./marketing-shared";
 
 type MarketingTasksWorkspaceProps = {
+  tasks: MarketingTaskRecord[];
+  source: "live" | "demo";
   searchParams?: {
     owner?: string;
     status?: string;
     requester?: string;
+    saved?: string;
+    error?: string;
   };
 };
 
@@ -18,16 +24,18 @@ function normalize(value: string) {
   return value.trim().toLowerCase();
 }
 
-export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspaceProps) {
+export function MarketingTasksWorkspace({ tasks, source, searchParams }: MarketingTasksWorkspaceProps) {
   const ownerFilter = searchParams?.owner ?? "all";
   const statusFilter = searchParams?.status ?? "all";
   const requesterFilter = searchParams?.requester ?? "all";
+  const savedState = searchParams?.saved;
+  const errorState = searchParams?.error;
 
-  const owners = Array.from(new Set(marketingTaskTracker.map((task) => task.owner))).sort();
-  const statuses = Array.from(new Set(marketingTaskTracker.map((task) => task.status))).sort();
-  const requesters = Array.from(new Set(marketingTaskTracker.map((task) => task.requester))).sort();
+  const owners = Array.from(new Set(tasks.map((task) => task.owner))).sort();
+  const statuses = Array.from(new Set(tasks.map((task) => task.status))).sort();
+  const requesters = Array.from(new Set(tasks.map((task) => task.requester))).sort();
 
-  const filteredTasks = marketingTaskTracker.filter((task) => {
+  const filteredTasks = tasks.filter((task) => {
     const ownerMatches = ownerFilter === "all" || normalize(task.owner) === normalize(ownerFilter);
     const statusMatches = statusFilter === "all" || normalize(task.status) === normalize(statusFilter);
     const requesterMatches = requesterFilter === "all" || normalize(task.requester) === normalize(requesterFilter);
@@ -60,7 +68,7 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
         existing.total += 1;
         if (!["Completed", "Failed"].includes(task.status)) existing.active += 1;
         if (task.status === "Completed") existing.completed += 1;
-        existing.progressRaw += 0;
+        existing.progressRaw += task.progressPercent;
         map.set(task.owner, existing);
         return map;
       }, new Map<string, { owner: string; total: number; active: number; completed: number; avgProgress: number; progressRaw: number }>())
@@ -77,9 +85,7 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
               Daily task workspace for the Marketing team.
             </h1>
             <p className="mt-4 text-sm leading-7 text-slate-300">
-              This page turns the executive task tracker into one working board for owners, requesters,
-              deadlines, and delivery notes. The goal is simple: track each person clearly, then feed
-              execution back into monthly KPI scoring.
+      Create and update Marketing tasks in one place, then let completion quality feed directly into KPI execution scoring.
             </p>
           </div>
 
@@ -113,6 +119,103 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
         ))}
+      </section>
+
+      {source === "demo" ? (
+        <section className="rounded-3xl border border-amber-200 bg-amber-50/90 p-5 shadow-panel">
+          <p className="text-sm font-semibold text-amber-900">Marketing tasks are still in demo mode</p>
+          <p className="mt-2 text-sm text-amber-800">
+            The page is ready for live task entry, but Supabase is still falling back to demo rows. Run the Marketing migration first if you want tasks to persist.
+          </p>
+        </section>
+      ) : null}
+
+      {savedState ? (
+        <section className="rounded-3xl border border-emerald-200 bg-emerald-50/90 p-5 shadow-panel">
+          <p className="text-sm font-semibold text-emerald-900">Task saved</p>
+          <p className="mt-2 text-sm text-emerald-800">
+            {savedState === "create" ? "A new Marketing task has been created." : "The Marketing task update has been saved."}
+          </p>
+        </section>
+      ) : null}
+
+      {errorState ? (
+        <section className="rounded-3xl border border-rose-200 bg-rose-50/90 p-5 shadow-panel">
+          <p className="text-sm font-semibold text-rose-900">Task save failed</p>
+          <p className="mt-2 text-sm text-rose-800">
+            {errorState === "missing-table"
+              ? "Supabase is missing the marketing_tasks table or required columns."
+              : errorState === "rls-blocked"
+                ? "Supabase row-level security is still blocking Marketing task writes."
+                : "The write connection is not ready yet for Marketing tasks."}
+          </p>
+        </section>
+      ) : null}
+
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
+            <CheckSquare className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-brand-700">NEW TASK</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Create a Marketing task directly on the web</h2>
+          </div>
+        </div>
+
+        <form action={createMarketingTaskAction} className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <input type="hidden" name="month_key" value={marketingWorkbookContext.monthKey} />
+
+          <label className="block xl:col-span-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Task name</span>
+            <input name="task_name" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Owner</span>
+            <select name="owner_name" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
+              {owners.map((owner) => <option key={owner} value={owner}>{owner}</option>)}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Requester</span>
+            <select name="request_source" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
+              {requesters.map((requester) => <option key={requester} value={requester}>{requester}</option>)}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Status</span>
+            <select name="status" defaultValue="Planned" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
+              {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Priority</span>
+            <select name="priority" defaultValue="Medium" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
+              {["Low", "Medium", "High", "Critical"].map((priority) => <option key={priority} value={priority}>{priority}</option>)}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Due date</span>
+            <input type="date" name="due_date" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Progress %</span>
+            <input type="number" name="progress_percent" defaultValue={0} min={0} max={100} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+          </label>
+          <label className="block xl:col-span-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Result note</span>
+            <input name="result_note" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">File link</span>
+            <input name="file_link" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+          </label>
+          <div className="xl:col-span-3 flex justify-end">
+            <button type="submit" className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800">
+              Create task
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
@@ -196,33 +299,88 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50 text-left text-slate-500">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Owner</th>
-                  <th className="px-4 py-4 font-medium">Requester</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Due date</th>
-                  <th className="px-4 py-4 font-medium">Result note</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {filteredTasks.map((task) => (
-                  <tr key={`${task.owner}-${task.dueDate}-${task.status}-${task.requester}`}>
-                    <td className="px-4 py-4 font-medium text-slate-900">{task.owner}</td>
-                    <td className="px-4 py-4 text-slate-700">{task.requester}</td>
-                    <td className="px-4 py-4">
+          <div className="mt-6 space-y-4">
+            {filteredTasks.map((task) => (
+              <form
+                key={task.id}
+                action={updateMarketingTaskAction}
+                className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <input type="hidden" name="task_id" value={task.id} />
+                <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
+
+                <div className="grid gap-4 xl:grid-cols-[1.15fr,0.75fr,0.75fr,0.75fr]">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{task.title}</p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      {task.owner} · {task.requester}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                        Priority {task.priority}
+                      </span>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${marketingToneClass(task.status)}`}>
                         {task.status}
                       </span>
-                    </td>
-                    <td className="px-4 py-4 text-slate-700">{task.dueDate}</td>
-                    <td className="px-4 py-4 text-slate-600">{task.notes}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+
+                  <label className="block">
+                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Status</span>
+                    <select
+                      name="status"
+                      defaultValue={task.status}
+                      className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                    >
+                      {statuses.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-xs text-slate-500">Due date: {task.dueDate || "-"}</p>
+                  </label>
+
+                  <label className="block">
+                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Progress %</span>
+                    <input
+                      type="number"
+                      name="progress_percent"
+                      defaultValue={task.progressPercent}
+                      min={0}
+                      max={100}
+                      className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                    />
+                    <p className="mt-2 text-xs text-slate-500">{task.fileLink ? "File link attached" : "No file link yet"}</p>
+                  </label>
+
+                  <div className="flex flex-col justify-between gap-3">
+                    <label className="block">
+                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Result note</span>
+                      <input
+                        name="result_note"
+                        defaultValue={task.notes}
+                        className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                      />
+                    </label>
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      >
+                        Save task
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            ))}
+
+            {!filteredTasks.length ? (
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                No Marketing tasks matched the current filters.
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -278,10 +436,10 @@ export function MarketingTasksWorkspace({ searchParams }: MarketingTasksWorkspac
                     </span>
                   </div>
                   {(() => {
-                    const execution = getMarketingExecutionScore(row.owner);
+                    const execution = getMarketingExecutionScore(row.owner, filteredTasks);
                     return (
                       <p className="mt-2 text-sm text-slate-500">
-                        Active {row.active} · Completed {row.completed} · Execution {execution.executionScore}/40
+                        Active {row.active} · Completed {row.completed} · Avg progress {row.avgProgress}% · Execution {execution.executionScore}/40
                       </p>
                     );
                   })()}
