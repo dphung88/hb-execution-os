@@ -55,13 +55,12 @@ export function SalesPerformanceHub({
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
   const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
-  const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
 
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-4 xl:items-start">
-          <div className="min-w-0 xl:col-span-2">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr),auto] xl:items-end">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className={heroLabelClass}>Sales Dashboard</p>
               {syncStatus ? (
@@ -80,61 +79,61 @@ export function SalesPerformanceHub({
             <h1 className="mt-3 text-4xl font-semibold tracking-tight">
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
+          </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3 xl:flex-nowrap">
-              <Link
-                href={`/sales-performance/targets?period=${selectedPeriod}`}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-              >
-                Open Sales Targets
-              </Link>
+          <div className="flex flex-wrap items-center gap-3 xl:justify-end xl:flex-nowrap">
+            <Link
+              href={`/sales-performance/targets?period=${selectedPeriod}`}
+              className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+            >
+              Open Sales Targets
+            </Link>
 
-              <form
-                method="get"
-                className="flex flex-wrap items-center gap-3 xl:flex-nowrap"
-              >
-                <div className="w-[180px] xl:w-[160px]">
-                  <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
-                    Tracking period
-                  </label>
-                  <select
-                    id="period"
-                    name="period"
-                    defaultValue={selectedPeriod}
-                    className="h-11 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
-                  >
-                    {periods.map((period) => (
-                      <option key={period.key} value={period.key} className="text-slate-900">
-                        {period.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  type="submit"
-                  className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+            <form
+              method="get"
+              className="flex flex-wrap items-center gap-3 xl:flex-nowrap"
+            >
+              <div className="w-[180px] xl:w-[160px]">
+                <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
+                  Tracking period
+                </label>
+                <select
+                  id="period"
+                  name="period"
+                  defaultValue={selectedPeriod}
+                  className="h-11 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
                 >
-                  Apply period
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 xl:col-span-2">
-            {[
-              { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
-              { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
-              { label: "TOTAL DEALERS CODE", value: `${totalCustomers}` },
-              { label: "QUALIFIED ON KEY SKU", value: `${skuQualified}/${scorecards.length}` },
-              { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}` },
-              { label: "ASM KPI SCORE >= 70%", value: `${asmKpiSeventy}/${scorecards.length}` },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[126px]">
-                <p className={darkCardLabelClass}>{item.label}</p>
-                <p className={darkCardValueClass}>{item.value}</p>
+                  {periods.map((period) => (
+                    <option key={period.key} value={period.key} className="text-slate-900">
+                      {period.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            ))}
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+              >
+                Apply period
+              </button>
+            </form>
           </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {[
+            { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
+            { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
+            { label: "TOTAL DEALERS CODE", value: `${totalCustomers}` },
+            { label: "QUALIFIED ON KEY SKU", value: `${skuQualified}/${scorecards.length}` },
+            { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}` },
+            { label: "ASM KPI SCORE >= 70%", value: `${asmKpiSeventy}/${scorecards.length}` },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl bg-white/10 p-4">
+              <p className={darkCardLabelClass}>{item.label}</p>
+              <p className={darkCardValueClass}>{item.value}</p>
+            </div>
+          ))}
         </div>
       </section>
 
