@@ -85,7 +85,7 @@ export function SalesPerformanceHub({
             Real ASM scorecards with KPI drill-down, not just a top-line dashboard.
           </h1>
 
-          <div className="grid gap-4 xl:grid-cols-[1.2fr,1fr]">
+          <div className="space-y-4">
             <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5 backdrop-blur">
               <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
                 Tracking period
@@ -126,7 +126,7 @@ export function SalesPerformanceHub({
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
                 { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
                 { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
