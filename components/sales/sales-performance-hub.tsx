@@ -125,7 +125,7 @@ export function SalesPerformanceHub({
               { label: "Sales revenue", value: `${totalRevenue.toLocaleString("en-US")}M` },
               { label: "Projected payout", value: `${totalPayout.toLocaleString("en-US")}M` },
               { label: "Qualified key SKU", value: `${skuQualified}/${scorecards.length}` },
-              { label: "Current period", value: selectedPeriodLabel.toUpperCase() },
+              { label: "Live rows", value: `${liveCount}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/10 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
