@@ -81,34 +81,27 @@ export function SalesPerformanceHub({
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
 
-            <div className="mt-5 flex flex-wrap gap-3">
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href={`/sales-performance/targets?period=${selectedPeriod}`}
-                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-                >
-                  Open Sales Targets
-                </Link>
-                <Link
-                  href={`/sales-performance?period=${selectedPeriod}`}
-                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-                >
-                  Dashboard overview
-                </Link>
-              </div>
-            </div>
+            <div className="mt-5 flex flex-wrap items-end gap-3">
+              <Link
+                href={`/sales-performance/targets?period=${selectedPeriod}`}
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+              >
+                Open Sales Targets
+              </Link>
 
-            <div className="mt-5 rounded-[1.5rem] border border-white/10 bg-white/5 p-4 backdrop-blur max-w-[520px]">
-              <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
-                Tracking period
-              </label>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <form method="get" className="flex flex-1 flex-col gap-3 sm:flex-row">
+              <form
+                method="get"
+                className="flex flex-1 flex-wrap items-end gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur min-[480px]:min-w-[360px]"
+              >
+                <div className="min-w-[190px] flex-1">
+                  <label htmlFor="period" className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+                    Tracking period
+                  </label>
                   <select
                     id="period"
                     name="period"
                     defaultValue={selectedPeriod}
-                    className="h-11 min-w-[220px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                    className="mt-2 h-11 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
                   >
                     {periods.map((period) => (
                       <option key={period.key} value={period.key} className="text-slate-900">
@@ -116,14 +109,14 @@ export function SalesPerformanceHub({
                       </option>
                     ))}
                   </select>
-                  <button
-                    type="submit"
-                    className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-                  >
-                    Apply period
-                  </button>
-                </form>
-              </div>
+                </div>
+                <button
+                  type="submit"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                >
+                  Apply period
+                </button>
+              </form>
             </div>
           </div>
 
@@ -199,97 +192,162 @@ export function SalesPerformanceHub({
 
         <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
           {scorecards.length ? (
-            <table className="min-w-full table-fixed divide-y divide-slate-200 text-sm">
-              <colgroup>
-                <col className="w-[12%]" />
-                <col className="w-[14%]" />
-                <col className="w-[11%]" />
-                <col className="w-[18%]" />
-                <col className="w-[18%]" />
-                <col className="w-[10%]" />
-                <col className="w-[7%]" />
-                <col className="w-[8%]" />
-                <col className="w-[12%]" />
-              </colgroup>
-              <thead className="bg-slate-50 text-left text-slate-500">
-                <tr>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">ASM</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">SALES REVENUE</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DEALERS CODE</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KEY SKU</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">CLEARSTOCK</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DISCIPLINE</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">TOTAL</th>
-                  <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KPI PAYOUT</th>
-                  <th className="px-4 py-4 font-medium" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {scorecards.map((asm) => {
-                  return (
-                    <tr key={asm.id}>
-                      <td className="px-4 py-4">
-                        <div className="font-medium text-slate-900">{asm.name}</div>
-                        <div className="mt-1 text-xs text-slate-500">{asm.id}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="font-medium text-slate-900">
-                          {asm.revenueActual}/{asm.revenueTarget}M
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">
-                          {asm.scorecard.revenueScore}/65 · {asm.scorecard.revenuePct}% target
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="font-medium text-slate-900">
-                          {asm.newCustomersActual}/{asm.newCustomersTarget}
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="space-y-1 font-medium text-slate-900">
+            <>
+              <div className="divide-y divide-slate-100 bg-white md:hidden">
+                {scorecards.map((asm) => (
+                  <div key={asm.id} className="space-y-4 px-4 py-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
+                        <p className="mt-1 text-xs text-slate-500">{asm.id}</p>
+                      </div>
+                      <span className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
+                        {asm.scorecard.total} pts
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-slate-50 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Sales Revenue</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{asm.revenueActual}/{asm.revenueTarget}M</p>
+                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.revenueScore}/65 · {asm.scorecard.revenuePct}% target</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Dealers Code</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{asm.newCustomersActual}/{asm.newCustomersTarget}</p>
+                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Key SKU</p>
+                        <div className="mt-2 space-y-1 text-sm font-semibold text-slate-900">
                           {asm.keySkuTargets.map((item) => (
-                            <div key={item.code} className="whitespace-nowrap">
-                              {item.code} {item.actual}/{item.target}
-                            </div>
+                            <div key={item.code}>{item.code} {item.actual}/{item.target}</div>
                           ))}
                         </div>
-                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="space-y-1 font-medium text-slate-900">
+                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Clearstock</p>
+                        <div className="mt-2 space-y-1 text-sm font-semibold text-slate-900">
                           {asm.clearstockTargets.map((item) => (
-                            <div key={item.code} className="whitespace-nowrap">
-                              {item.code} {item.actual}/{item.target}
-                            </div>
+                            <div key={item.code}>{item.code} {item.actual}/{item.target}</div>
                           ))}
                         </div>
-                        <div className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="font-medium text-slate-900">{asm.scorecard.manualScore}/5</div>
-                        <div className="mt-1 text-xs text-slate-500">Manager review</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
-                          {asm.scorecard.total} pts
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
-                      <td className="px-4 py-4 text-right">
-                        <Link
-                          href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
-                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
-                        >
-                          View detail
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Discipline</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{asm.scorecard.manualScore}/5</p>
+                      </div>
+                      <div className="rounded-2xl bg-slate-50 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Payout</p>
+                        <p className="mt-2 text-sm font-semibold text-brand-700">{asm.scorecard.payout}M</p>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                    >
+                      View detail
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+
+              <table className="hidden min-w-full table-fixed divide-y divide-slate-200 text-sm md:table">
+                <colgroup>
+                  <col className="w-[12%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[7%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[12%]" />
+                </colgroup>
+                <thead className="bg-slate-50 text-left text-slate-500">
+                  <tr>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">ASM</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">SALES REVENUE</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DEALERS CODE</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KEY SKU</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">CLEARSTOCK</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DISCIPLINE</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">TOTAL</th>
+                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KPI PAYOUT</th>
+                    <th className="px-4 py-4 font-medium" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {scorecards.map((asm) => {
+                    return (
+                      <tr key={asm.id}>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-slate-900">{asm.name}</div>
+                          <div className="mt-1 text-xs text-slate-500">{asm.id}</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-slate-900">
+                            {asm.revenueActual}/{asm.revenueTarget}M
+                          </div>
+                          <div className="mt-1 text-xs text-slate-500">
+                            {asm.scorecard.revenueScore}/65 · {asm.scorecard.revenuePct}% target
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-slate-900">
+                            {asm.newCustomersActual}/{asm.newCustomersTarget}
+                          </div>
+                          <div className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="space-y-1 font-medium text-slate-900">
+                            {asm.keySkuTargets.map((item) => (
+                              <div key={item.code} className="whitespace-nowrap">
+                                {item.code} {item.actual}/{item.target}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="space-y-1 font-medium text-slate-900">
+                            {asm.clearstockTargets.map((item) => (
+                              <div key={item.code} className="whitespace-nowrap">
+                                {item.code} {item.actual}/{item.target}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="font-medium text-slate-900">{asm.scorecard.manualScore}/5</div>
+                          <div className="mt-1 text-xs text-slate-500">Manager review</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
+                            {asm.scorecard.total} pts
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
+                        <td className="px-4 py-4 text-right">
+                          <Link
+                            href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                          >
+                            View detail
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </>
           ) : (
             <div className="px-6 py-14 text-center">
               <p className="text-lg font-semibold text-slate-900">No Sales KPI data for this month yet.</p>

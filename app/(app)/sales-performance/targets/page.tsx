@@ -13,6 +13,7 @@ type SalesTargetsPageProps = {
     period?: string;
     saved?: string;
     error?: string;
+    asm?: string;
   }>;
 };
 
@@ -27,6 +28,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
   const selectedPeriod = resolvedSearchParams?.period ?? salesPeriods[salesPeriods.length - 1]?.key ?? "2026-03";
   const savedAsm = resolvedSearchParams?.saved;
   const errorState = resolvedSearchParams?.error;
+  const selectedAsm = resolvedSearchParams?.asm ?? demoSalesAsms[0]?.id;
 
   const supabase = hasSupabaseClientEnv() ? await createClient() : null;
   const [{ data: targets, error: targetsError }, { data: reviews, error: reviewsError }, { data: actuals, error: actualsError }] =
@@ -294,7 +296,173 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
           </Link>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 md:hidden">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">ASM selector</p>
+          <div className="mt-3 grid gap-2">
+            {demoSalesAsms.map((asm) => (
+              <Link
+                key={asm.id}
+                href={`/sales-performance/targets?period=${selectedPeriod}&asm=${asm.id}`}
+                className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                  selectedAsm === asm.id
+                    ? "bg-slate-950 text-white"
+                    : "border border-slate-200 bg-white text-slate-700"
+                }`}
+              >
+                {asm.name} · {asm.id}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4 md:hidden">
+          {demoSalesAsms
+            .filter((asm) => asm.id === selectedAsm)
+            .map((asm) => {
+              const target = targetsByAsm.get(asm.id);
+              const targetRow = target as Record<string, unknown> | undefined;
+              const review = reviewsByAsm.get(asm.id);
+              const actual = actualsByAsm.get(asm.id);
+              const saved = savedAsm === asm.id;
+
+              return (
+                <form
+                  key={asm.id}
+                  action={saveSalesTargetRowAction}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                >
+                  <input type="hidden" name="asm_id" value={asm.id} />
+                  <input type="hidden" name="period" value={selectedPeriod} />
+
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
+                      <p className="mt-1 text-sm text-slate-500">{asm.id}</p>
+                      <p className="mt-1 text-sm text-slate-500">{asm.region}</p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-400">
+                        Sales Revenue:{" "}
+                        {actual ? `${Number(actual.dt_thuc_dat / 1000000).toFixed(2)} million VND` : "Not synced"}
+                      </p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
+                        Dealers code: {actual?.kh_moi ?? "-"}
+                      </p>
+                      {saved ? (
+                        <span className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                          Row saved
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-3">
+                      {[
+                        {
+                          name: "revenue_target",
+                          label: "Sales Target",
+                          value: target?.revenue_target ?? 500,
+                          note: "Unit: million VND",
+                        },
+                        { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? 10 },
+                      ].map((field) => (
+                        <label key={field.name} className="block">
+                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
+                          <input
+                            type="number"
+                            name={field.name}
+                            defaultValue={field.value}
+                            className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                          />
+                          {"note" in field ? (
+                            <span className="mt-2 block text-xs text-slate-500">{field.note}</span>
+                          ) : null}
+                        </label>
+                      ))}
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
+                        <div className="mt-3 grid gap-3">
+                          {[
+                            { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                            { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                          ].map((field) => (
+                            <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
+                                <input
+                                  type="text"
+                                  name={field.codeName}
+                                  defaultValue={field.codeValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
+                                <input
+                                  type="number"
+                                  name={field.qtyName}
+                                  defaultValue={field.qtyValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
+                        <div className="mt-3 grid gap-3">
+                          {[
+                            { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                            { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                          ].map((field) => (
+                            <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
+                                <input
+                                  type="text"
+                                  name={field.codeName}
+                                  defaultValue={field.codeValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
+                              <label className="block">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
+                                <input
+                                  type="number"
+                                  name={field.qtyName}
+                                  defaultValue={field.qtyValue}
+                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                />
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <button
+                        type="submit"
+                        className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      >
+                        Save targets
+                      </button>
+                      <Link
+                        href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
+                        className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                      >
+                        Open ASM detail
+                      </Link>
+                    </div>
+                  </div>
+                </form>
+              );
+            })}
+        </div>
+
+        <div className="mt-6 hidden space-y-4 md:block">
           {demoSalesAsms.map((asm) => {
             const target = targetsByAsm.get(asm.id);
             const targetRow = target as Record<string, unknown> | undefined;
