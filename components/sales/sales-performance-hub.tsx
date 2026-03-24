@@ -130,12 +130,12 @@ export function SalesPerformanceHub({
               {[
                 { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
                 { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
-                { label: "SCORING MODEL", value: "SALES REVENUE + DEALERS + SKU + CLEARSTOCK" },
+                { label: "SCORING MODEL", value: "SALES REVENUE\nDEALERS CODE\nKEY SKU\nCLEARSTOCK" },
                 { label: "DETAIL VIEW", value: "PER ASM" }
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white/10 p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
-                  <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
+                  <p className="mt-3 whitespace-pre-line text-2xl font-semibold text-white">{item.value}</p>
                 </div>
               ))}
             </div>
