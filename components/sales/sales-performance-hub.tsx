@@ -190,7 +190,7 @@ export function SalesPerformanceHub({
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200">
+        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
           {scorecards.length ? (
             <>
               <div className="divide-y divide-slate-100 bg-white md:hidden">
@@ -256,87 +256,87 @@ export function SalesPerformanceHub({
                 ))}
               </div>
 
-              <table className="hidden min-w-full table-fixed divide-y divide-slate-200 text-sm md:table">
+              <table className="hidden min-w-full table-fixed divide-y divide-slate-200 text-[13px] md:table">
                 <colgroup>
                   <col className="w-[11%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[11%]" />
-                  <col className="w-[16%]" />
-                  <col className="w-[16%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[15%]" />
+                  <col className="w-[15%]" />
                   <col className="w-[10%]" />
                   <col className="w-[8%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[6%]" />
+                  <col className="w-[7%]" />
+                  <col className="w-[11%]" />
                 </colgroup>
                 <thead className="bg-slate-50 text-left text-slate-500">
                   <tr>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">ASM</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">SALES REVENUE</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DEALERS CODE</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KEY SKU</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">CLEARSTOCK</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">DISCIPLINE</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">TOTAL</th>
-                    <th className="px-4 py-4 font-medium uppercase tracking-[0.12em]">KPI PAYOUT</th>
-                    <th className="px-4 py-4 font-medium" />
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">ASM</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">SALES REVENUE</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">DEALERS CODE</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">KEY SKU</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">CLEARSTOCK</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">DISCIPLINE</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">TOTAL</th>
+                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">KPI PAYOUT</th>
+                    <th className="px-3 py-4 font-medium" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {scorecards.map((asm) => {
                     return (
                       <tr key={asm.id}>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <div className="font-medium text-slate-900">{asm.name}</div>
-                          <div className="mt-1 text-xs text-slate-500">{asm.id}</div>
+                          <div className="mt-1 text-[11px] text-slate-500">{asm.id}</div>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <div className="font-medium text-slate-900">
                             {asm.revenueActual}/{asm.revenueTarget}M
                           </div>
-                          <div className="mt-1 text-xs text-slate-500">
+                          <div className="mt-1 text-[11px] text-slate-500">
                             {asm.scorecard.revenueScore}/65 · {asm.scorecard.revenuePct}% target
                           </div>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <div className="font-medium text-slate-900">
                             {asm.newCustomersActual}/{asm.newCustomersTarget}
                           </div>
-                          <div className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</div>
+                          <div className="mt-1 text-[11px] text-slate-500">{asm.scorecard.customerScore}/15</div>
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="space-y-1 font-medium text-slate-900">
+                        <td className="px-3 py-4">
+                          <div className="space-y-1 font-medium leading-6 text-slate-900">
                             {asm.keySkuTargets.map((item) => (
                               <div key={item.code} className="whitespace-nowrap">
                                 {item.code} {item.actual}/{item.target}
                               </div>
                             ))}
                           </div>
-                          <div className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</div>
+                          <div className="mt-1 text-[11px] text-slate-500">{asm.scorecard.keySkuScore}/5</div>
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="space-y-1 font-medium text-slate-900">
+                        <td className="px-3 py-4">
+                          <div className="space-y-1 font-medium leading-6 text-slate-900">
                             {asm.clearstockTargets.map((item) => (
                               <div key={item.code} className="whitespace-nowrap">
                                 {item.code} {item.actual}/{item.target}
                               </div>
                             ))}
                           </div>
-                          <div className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</div>
+                          <div className="mt-1 text-[11px] text-slate-500">{asm.scorecard.clearstockScore}/10</div>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <div className="font-medium text-slate-900">{asm.scorecard.manualScore}/5</div>
-                          <div className="mt-1 text-xs text-slate-500">Manager review</div>
+                          <div className="mt-1 text-[11px] text-slate-500">Manager review</div>
                         </td>
-                        <td className="px-4 py-4">
-                          <span className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
+                        <td className="px-3 py-4">
+                          <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${getHealthTone(asm.scorecard.total)}`}>
                             {asm.scorecard.total} pts
                           </span>
                         </td>
-                        <td className="px-4 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
-                        <td className="px-4 py-4 text-right">
+                        <td className="px-3 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
+                        <td className="px-3 py-4 text-right">
                           <Link
                             href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
-                            className="inline-flex whitespace-nowrap items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                            className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
                           >
                             View detail
                             <ArrowRight className="h-3.5 w-3.5" />
