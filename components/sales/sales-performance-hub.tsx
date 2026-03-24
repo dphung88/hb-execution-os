@@ -126,10 +126,10 @@ export function SalesPerformanceHub({
 
           <div className="grid gap-4 sm:grid-cols-2 xl:col-span-2">
             {[
-              { label: "Sales revenue", value: `${totalRevenue.toLocaleString("en-US")}M` },
-              { label: "Projected payout", value: `${totalPayout.toLocaleString("en-US")}M` },
-              { label: "Qualified key SKU", value: `${skuQualified}/${scorecards.length}` },
-              { label: "Live rows", value: `${liveCount}` },
+              { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
+              { label: "PROJECTED PAYOUT", value: `${totalPayout.toLocaleString("en-US")}M` },
+              { label: "KEY SKU COVERAGE", value: `${skuQualified}/${scorecards.length}` },
+              { label: "LIVE DATA ROWS", value: `${liveCount}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
                 <p className={darkCardLabelClass}>{item.label}</p>
@@ -143,8 +143,8 @@ export function SalesPerformanceHub({
           {[
             { label: "ASM SCORECARDS", value: `${scorecards.length} LIVE` },
             { label: "CURRENT PERIOD", value: selectedPeriodLabel.toUpperCase() },
-            { label: "AVERAGE TOTAL KPI", value: `${averageKpi} PTS` },
-            { label: "ABOVE 80% REVENUE", value: `${aboveEighty}/${scorecards.length}` },
+            { label: "AVERAGE KPI SCORE", value: `${averageKpi} PTS` },
+            { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/10 p-4 xl:min-h-[154px]">
               <p className={darkCardLabelClass}>{item.label}</p>
