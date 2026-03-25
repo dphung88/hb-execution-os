@@ -640,7 +640,6 @@ export const marketingHeadcountPlan = [
   { role: "E-Com Operations", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
   { role: "Media Editor", estimated: 1, actual: 0, remaining: -1, owner: "" },
   { role: "Graphic Designer", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
-  { role: "Fresher AI Officer", estimated: 1, actual: 0, remaining: -1, owner: "" },
 ];
 
 export const marketingResultsTracker = [
@@ -741,13 +740,6 @@ export const marketingTaskTracker = [
     status: "Failed",
     dueDate: "2025-03-19",
     notes: "Needs leadership visibility because the file shows a failed deliverable.",
-  },
-  {
-    owner: "AI Officer",
-    requester: "Boss",
-    status: "In Progress",
-    dueDate: "2025-03-19",
-    notes: "Active AI support task from the monthly tracker.",
   },
 ];
 

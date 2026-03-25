@@ -152,12 +152,12 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
           </div>
           <div>
             <p className="text-sm font-medium text-brand-700">Manual KPI inputs</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Role templates mapped from workbook formulas</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Role KPI inputs</h2>
           </div>
         </div>
 
         <p className="mt-4 text-sm text-slate-500">
-          Enter manual KPI values by role here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual.
+          Enter role KPI targets and actuals here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual.
         </p>
 
         <div className="mt-6 space-y-5">
@@ -177,29 +177,29 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                 </div>
               </div>
 
-              <div className="mt-4 space-y-4">
+              <div className="mt-4 space-y-3">
                 {role.sections.map((section) => (
-                  <div key={section.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div key={section.id} className="rounded-2xl border border-slate-200 bg-white p-3.5">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-base font-semibold text-slate-900">{section.name}</p>
-                        <p className="mt-1 text-sm text-slate-500">Weight {section.weightLabel}</p>
+                        <p className="text-[15px] font-semibold text-slate-900">{section.name}</p>
+                        <p className="mt-1 text-xs text-slate-500">Weight {section.weightLabel}</p>
                       </div>
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                         {section.sectionScore}/{section.sectionMax}
                       </span>
                     </div>
 
-                    <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
                       {section.metrics.map((metric) => {
                         const key = `${role.id}:${metric.id}`;
                         const entry = inputs[key];
                         return (
-                          <div key={metric.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
+                          <div key={metric.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                               <div>
-                                <p className="font-medium text-slate-900">{metric.name}</p>
-                                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">
+                                <p className="text-sm font-medium text-slate-900">{metric.name}</p>
+                                <p className="mt-1 text-[11px] tracking-[0.14em] text-slate-400">
                                   Max score {metric.maxScore} · {metric.unit}
                                 </p>
                               </div>
@@ -208,9 +208,9 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                               </span>
                             </div>
 
-                            <div className="mt-3 grid gap-3 md:grid-cols-2">
+                            <div className="mt-3 grid gap-2.5 md:grid-cols-2">
                               <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</span>
+                                <span className="text-[11px] font-semibold tracking-[0.08em] text-slate-400">Target</span>
                                 <input
                                   type="text"
                                   inputMode="decimal"
@@ -225,11 +225,11 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                                       },
                                     }));
                                   }}
-                                  className="mt-2 h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                  className="mt-1.5 h-9 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                               <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</span>
+                                <span className="text-[11px] font-semibold tracking-[0.08em] text-slate-400">Actual</span>
                                 <input
                                   type="text"
                                   inputMode="decimal"
@@ -244,12 +244,12 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                                       },
                                     }));
                                   }}
-                                  className="mt-2 h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                  className="mt-1.5 h-9 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                             </div>
 
-                            <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-3">
+                            <div className="mt-2.5 grid gap-1.5 text-xs text-slate-500 sm:grid-cols-3">
                               <p>Target {formatDisplay(entry?.target ?? metric.target, metric.unit)}</p>
                               <p>Actual {formatDisplay(entry?.actual ?? 0, metric.unit)}</p>
                               <p>Achievement {Math.round(metric.ratio * 100)}%</p>
