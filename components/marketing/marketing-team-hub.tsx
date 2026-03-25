@@ -5,9 +5,9 @@ import {
   marketingChannelSetup,
   marketingHeadcountPlan,
   marketingReportSummary,
-  marketingResultsTracker,
 } from "@/lib/demo-data";
 import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
+import { marketingRoleTemplates } from "@/lib/marketing/kpi-templates";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
 import { marketingToneClass as toneClass } from "./marketing-shared";
@@ -21,6 +21,29 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
   const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
+  const roleSummaries = marketingHeadcountPlan.map((role) => {
+    const template = marketingRoleTemplates.find((item) => item.role === role.role);
+    const taskRows = tasks.filter((task) => task.owner === role.role);
+    const execution = executionSummary.owners.find((row) => row.owner === role.role);
+    const metricCount = template?.sections.reduce((sum, section) => sum + section.metrics.length, 0) ?? 0;
+
+    return {
+      role: role.role,
+      focus:
+        role.role === "Digital Marketer" || role.role === "E-Com Operations"
+          ? "Revenue-driving"
+          : role.role === "Senior Manager"
+            ? "Leadership"
+            : "Support",
+      estimated: role.estimated,
+      actual: role.actual,
+      remaining: role.remaining,
+      metricCount,
+      taskCount: taskRows.length,
+      executionScore: execution?.executionScore ?? 0,
+    };
+  });
+
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
@@ -175,66 +198,47 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-brand-700">Results</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Monthly KPI results by role</h2>
+              <h2 className="text-2xl font-semibold text-slate-900">Role summary across the department</h2>
             </div>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-slate-200">
-            <div className="divide-y divide-slate-100 bg-white md:hidden">
-              {marketingResultsTracker.map((row) => (
-                <div key={`${row.owner}-${row.metric}`} className="space-y-3 px-4 py-4">
-                  <p className="text-base font-semibold text-slate-900">{row.owner}</p>
-                  <p className="text-sm text-slate-600">{row.metric}</p>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Estimated</p>
-                      <p className="mt-1 text-slate-700">{row.estimated}M</p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
-                      <p className="mt-1 text-slate-700">{row.actual}M</p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
-                      <p className="mt-1 text-slate-700">{row.remaining}M</p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Unit</p>
-                      <p className="mt-1 text-slate-700">{row.kpiUnit.toFixed(2)}M</p>
-                    </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {roleSummaries.map((role) => (
+              <div key={role.role} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-semibold text-slate-900">{role.role}</p>
+                    <p className="mt-1 text-sm text-slate-500">{role.focus}</p>
+                  </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                    Execution {role.executionScore}/40
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Headcount</p>
+                    <p className="mt-2 font-semibold text-slate-900">
+                      {role.actual}/{role.estimated}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
+                    <p className={`mt-2 font-semibold ${role.remaining < 0 ? "text-rose-700" : "text-slate-900"}`}>
+                      {role.remaining}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Tracked KPIs</p>
+                    <p className="mt-2 font-semibold text-slate-900">{role.metricCount}</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Task load</p>
+                    <p className="mt-2 font-semibold text-slate-900">{role.taskCount}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="hidden overflow-x-auto md:block">
-              <div className="min-w-[760px]">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="bg-slate-50 text-left text-slate-500">
-                    <tr>
-                      <th className="px-4 py-4 font-medium">Owner</th>
-                      <th className="px-4 py-4 font-medium">Metric</th>
-                      <th className="px-4 py-4 font-medium">Estimated</th>
-                      <th className="px-4 py-4 font-medium">Actual</th>
-                      <th className="px-4 py-4 font-medium">Remaining</th>
-                      <th className="px-4 py-4 font-medium">KPI unit</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    {marketingResultsTracker.map((row) => (
-                      <tr key={`${row.owner}-${row.metric}`}>
-                        <td className="px-4 py-4 font-medium text-slate-900">{row.owner}</td>
-                        <td className="px-4 py-4 text-slate-700">{row.metric}</td>
-                        <td className="px-4 py-4 text-slate-700">{row.estimated}M</td>
-                        <td className="px-4 py-4 text-slate-700">{row.actual}M</td>
-                        <td className="px-4 py-4 text-slate-700">{row.remaining}M</td>
-                        <td className="px-4 py-4 text-slate-700">{row.kpiUnit.toFixed(2)}M</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
