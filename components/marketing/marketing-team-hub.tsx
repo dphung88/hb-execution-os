@@ -41,6 +41,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
       metricCount,
       taskCount: taskRows.length,
       executionScore: execution?.executionScore ?? 0,
+      openTasks: taskRows.filter((task) => task.status !== "Done").length,
     };
   });
 
@@ -148,7 +149,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
                     <p className="mt-1 text-sm text-slate-500">{role.focus}</p>
                   </div>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                    Execution {role.executionScore}/40
+                    {role.executionScore}/40 execution
                   </span>
                 </div>
 
@@ -166,12 +167,12 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
                     </p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Tracked KPIs</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Metrics</p>
                     <p className="mt-2 font-semibold text-slate-900">{role.metricCount}</p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Task load</p>
-                    <p className="mt-2 font-semibold text-slate-900">{role.taskCount}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Open Tasks</p>
+                    <p className="mt-2 font-semibold text-slate-900">{role.openTasks}</p>
                   </div>
                 </div>
               </div>
