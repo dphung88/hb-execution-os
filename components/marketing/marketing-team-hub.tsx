@@ -100,71 +100,95 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
         ))}
       </section>
 
-      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-            <BriefcaseBusiness className="h-5 w-5" />
+      <section className="grid gap-6 xl:grid-cols-[1.08fr,0.92fr]">
+        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+          <div className="flex items-center gap-3">
+            <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
+              <BriefcaseBusiness className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-brand-700">KPI setup</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Headcount plan</h2>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">KPI setup</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Headcount and ownership plan</h2>
+
+          <div className="mt-6 rounded-3xl border border-slate-200">
+            <div className="divide-y divide-slate-100 bg-white md:hidden">
+              {marketingHeadcountPlan.map((row) => (
+                <div key={row.role} className="space-y-3 px-4 py-4">
+                  <p className="text-base font-semibold text-slate-900">{row.role}</p>
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Estimated</p>
+                      <p className="mt-1 text-slate-700">{row.estimated}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                      <p className="mt-1 text-slate-700">{row.actual}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
+                      <p className={`mt-1 ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>{row.remaining}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
+              <div className="min-w-[640px]">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                  <thead className="bg-slate-50 text-left text-slate-500">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">Role</th>
+                      <th className="px-4 py-4 font-medium">Estimated</th>
+                      <th className="px-4 py-4 font-medium">Actual</th>
+                      <th className="px-4 py-4 font-medium">Remaining</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {marketingHeadcountPlan.map((row) => (
+                      <tr key={row.role}>
+                        <td className="px-4 py-4 font-medium text-slate-900">{row.role}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.estimated}</td>
+                        <td className="px-4 py-4 text-slate-700">{row.actual}</td>
+                        <td className={`px-4 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
+                          {row.remaining}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-slate-200">
-          <div className="divide-y divide-slate-100 bg-white md:hidden">
-            {marketingHeadcountPlan.map((row) => (
-              <div key={row.role} className="space-y-3 px-4 py-4">
-                <p className="text-base font-semibold text-slate-900">{row.role}</p>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Estimated</p>
-                    <p className="mt-1 text-slate-700">{row.estimated}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
-                    <p className="mt-1 text-slate-700">{row.actual}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
-                    <p className={`mt-1 ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>{row.remaining}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Owner slot</p>
-                    <p className="mt-1 text-slate-700">{row.owner || "-"}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+          <div className="flex items-center gap-3">
+            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
+              <Megaphone className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-brand-700">Channel setup</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Budget mix by channel</h2>
+            </div>
           </div>
 
-          <div className="hidden overflow-x-auto md:block">
-            <div className="min-w-[720px]">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
-                  <tr>
-                    <th className="px-4 py-4 font-medium">Role</th>
-                    <th className="px-4 py-4 font-medium">Estimated</th>
-                    <th className="px-4 py-4 font-medium">Actual</th>
-                    <th className="px-4 py-4 font-medium">Remaining</th>
-                    <th className="px-4 py-4 font-medium">Owner slot</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {marketingHeadcountPlan.map((row) => (
-                    <tr key={row.role}>
-                      <td className="px-4 py-4 font-medium text-slate-900">{row.role}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.estimated}</td>
-                      <td className="px-4 py-4 text-slate-700">{row.actual}</td>
-                      <td className={`px-4 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
-                        {row.remaining}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">{row.owner || "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="mt-6 space-y-3">
+            {marketingChannelSetup.map((channel) => (
+              <div key={channel.channel} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-slate-900">{channel.channel}</p>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                    {(channel.actualRatio * 100).toFixed(1)}% actual ratio
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-slate-500">
+                  Budget {channel.budget}M · Actual {channel.actualBudget}M · Remaining {channel.remainingBudget}M
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -240,33 +264,6 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
-              <Megaphone className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Channel setup</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Budget mix from dashboard</h2>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {marketingChannelSetup.map((channel) => (
-              <div key={channel.channel} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{channel.channel}</p>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                    {(channel.actualRatio * 100).toFixed(1)}% actual ratio
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-slate-500">
-                  Budget {channel.budget}M · Actual {channel.actualBudget}M · Remaining {channel.remainingBudget}M
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
