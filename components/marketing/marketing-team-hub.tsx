@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, CheckSquare, Megaphone } from "lucide-react";
+import { BarChart3, BriefcaseBusiness, CheckSquare, LayoutDashboard, Megaphone } from "lucide-react";
 
 import {
   marketingChannelSetup,
@@ -57,27 +57,31 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href="/marketing-performance/tasks"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
               >
+                <CheckSquare className="h-4 w-4" />
                 Open Marketing Tasks
               </Link>
-            <Link
-              href="/marketing-performance/results"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-            >
-              Open Marketing Results
-            </Link>
-            <Link
-              href="/marketing-performance/targets"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-            >
-              Open Marketing Targets
-            </Link>
-            <Link
-              href="/marketing-performance"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-            >
-                Dashboard overview
+              <Link
+                href="/marketing-performance/results"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Open Marketing Results
+              </Link>
+              <Link
+                href="/marketing-performance/targets"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+              >
+                <BriefcaseBusiness className="h-4 w-4" />
+                Open Marketing Targets
+              </Link>
+              <Link
+                href="/marketing-performance"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard Overview
               </Link>
             </div>
           </div>
@@ -104,8 +108,8 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <Megaphone className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Channel setup</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Budget mix by channel</h2>
+            <p className="text-sm font-medium text-brand-700">Channel Setup</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Budget Mix by Channel</h2>
           </div>
         </div>
 
@@ -134,7 +138,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-brand-700">Results</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Role summary across the department</h2>
+              <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across the Department</h2>
             </div>
           </div>
 
@@ -188,8 +192,8 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <CheckSquare className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Task tracking</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Workbook task pipeline by marketing role</h2>
+            <p className="text-sm font-medium text-brand-700">Task Tracking</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Workbook Task Pipeline by Marketing Role</h2>
           </div>
         </div>
 

@@ -129,7 +129,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
               type="submit"
               className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
             >
-              Apply period
+              Apply Period
             </button>
           </form>
         </div>
@@ -317,7 +317,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
             href={`/sales-performance?period=${selectedPeriod}`}
             className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
           >
-            Back to KPI dashboard
+            Back to KPI Dashboard
           </Link>
         </div>
 
