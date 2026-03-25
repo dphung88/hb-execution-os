@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PenSquare, TrendingUp, Users } from "lucide-react";
 
 import { getMarketingExecutionScore } from "@/lib/marketing/execution";
+import { marketingHeadcountPlan } from "@/lib/demo-data";
 import {
   computeMarketingMetricScore,
   getDefaultMarketingManualInputs,
@@ -93,6 +94,39 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
       };
     });
   }, [inputs, tasks]);
+
+  const departmentRoleSummary = useMemo(() => {
+    return marketingHeadcountPlan.map((role) => {
+      const normalizedRole = role.role.toLowerCase();
+      const mappedRole = roleResults.find((item) => item.role.toLowerCase().includes(normalizedRole) || normalizedRole.includes(item.role.toLowerCase()));
+      const supportRole =
+        normalizedRole.includes("graphic") ||
+        normalizedRole.includes("media") ||
+        normalizedRole.includes("ai") ||
+        normalizedRole.includes("junior") ||
+        normalizedRole.includes("manager");
+
+      const linkedTasks = tasks.filter((task) => {
+        const owner = task.owner.toLowerCase();
+        if (normalizedRole.includes("digital")) return owner.includes("content");
+        if (normalizedRole.includes("graphic")) return owner.includes("designer");
+        if (normalizedRole.includes("media")) return owner.includes("editor");
+        if (normalizedRole.includes("ai")) return owner.includes("ai");
+        return false;
+      });
+
+      return {
+        role: role.role,
+        contribution: supportRole ? "Support" : "Revenue",
+        estimated: role.estimated,
+        actual: role.actual,
+        remaining: role.remaining,
+        workbookScore: mappedRole?.workbookScore ?? null,
+        executionScore: mappedRole?.executionScore ?? 0,
+        linkedTasks: linkedTasks.length,
+      };
+    });
+  }, [roleResults, tasks]);
 
   return (
     <>
@@ -223,32 +257,44 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
           </div>
           <div>
             <p className="text-sm font-medium text-brand-700">Results by owner</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Workbook KPI roll-up for the 3 mapped roles</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Role summary across the department</h2>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {roleResults.map((role) => (
-            <div key={role.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          {departmentRoleSummary.map((role) => (
+            <div key={role.role} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-lg font-semibold text-slate-900">{role.role}</p>
-                  <p className="mt-1 text-sm text-slate-500">{role.owner}</p>
+                  <p className="mt-1 text-sm text-slate-500">{role.contribution} role</p>
                 </div>
                 <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                  {role.workbookScore}/100
+                  {role.workbookScore !== null ? `${role.workbookScore}/100` : "Support role"}
                 </span>
               </div>
 
               <div className="mt-4 space-y-2 text-sm text-slate-600">
-                {role.sections.map((section) => (
-                  <div key={section.id} className="flex items-center justify-between gap-3">
-                    <span>{section.name}</span>
-                    <span className="font-semibold text-slate-900">
-                      {section.sectionScore}/{section.sectionMax}
-                    </span>
-                  </div>
-                ))}
+                <div className="flex items-center justify-between gap-3">
+                  <span>Estimated</span>
+                  <span className="font-semibold text-slate-900">{role.estimated}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Actual</span>
+                  <span className="font-semibold text-slate-900">{role.actual}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Remaining</span>
+                  <span className={`font-semibold ${role.remaining < 0 ? "text-rose-700" : "text-slate-900"}`}>{role.remaining}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Task footprint</span>
+                  <span className="font-semibold text-slate-900">{role.linkedTasks}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Execution score</span>
+                  <span className="font-semibold text-slate-900">{role.executionScore}/40</span>
+                </div>
               </div>
             </div>
           ))}
