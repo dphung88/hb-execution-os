@@ -21,7 +21,6 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
   const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
-  const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
@@ -69,38 +68,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Revenue gap",
-            value: `${(marketingWorkbookContext.salesRevenueTarget - marketingWorkbookContext.actualSalesRevenue).toFixed(0)}M`,
-            note: "Target vs actual sales revenue",
-          },
-          {
-            label: "Budget remaining",
-            value: `${(marketingWorkbookContext.expenseBudgetTarget - marketingWorkbookContext.actualExpenseBudget).toFixed(1)}M`,
-            note: "Remaining budget from dashboard sheet",
-          },
-          {
-            label: "Roles on track",
-            value: `${marketingHeadcountPlan.filter((role) => role.remaining >= 0).length}/${marketingHeadcountPlan.length}`,
-            note: "Headcount rows with no negative gap",
-          },
-          {
-            label: "Open marketing tasks",
-            value: `${tasks.filter((task) => task.status !== "Completed").length}`,
-            note: `Execution score average ${executionSummary.averageExecutionScore}/40`,
-          },
-        ].map((card) => (
-          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className={lightCardLabelClass}>{card.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
-            <p className="mt-2 text-sm text-slate-500">{card.note}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.08fr,0.92fr]">
+      <section className="grid gap-6 xl:grid-cols-[0.88fr,1.12fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
@@ -136,23 +104,23 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             </div>
 
             <div className="hidden overflow-x-auto md:block">
-              <div className="min-w-[640px]">
+              <div className="min-w-[520px]">
                 <table className="min-w-full divide-y divide-slate-200 text-sm">
                   <thead className="bg-slate-50 text-left text-slate-500">
                     <tr>
                       <th className="px-4 py-4 font-medium">Role</th>
-                      <th className="px-4 py-4 font-medium">Estimated</th>
-                      <th className="px-4 py-4 font-medium">Actual</th>
-                      <th className="px-4 py-4 font-medium">Remaining</th>
+                      <th className="px-3 py-4 font-medium">Estimated</th>
+                      <th className="px-3 py-4 font-medium">Actual</th>
+                      <th className="px-3 py-4 font-medium">Remaining</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {marketingHeadcountPlan.map((row) => (
                       <tr key={row.role}>
                         <td className="px-4 py-4 font-medium text-slate-900">{row.role}</td>
-                        <td className="px-4 py-4 text-slate-700">{row.estimated}</td>
-                        <td className="px-4 py-4 text-slate-700">{row.actual}</td>
-                        <td className={`px-4 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
+                        <td className="px-3 py-4 text-slate-700">{row.estimated}</td>
+                        <td className="px-3 py-4 text-slate-700">{row.actual}</td>
+                        <td className={`px-3 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
                           {row.remaining}
                         </td>
                       </tr>
