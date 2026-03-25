@@ -102,7 +102,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
             <PenSquare className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">MANUAL KPI INPUTS</p>
+            <p className="text-sm font-medium text-brand-700">Manual KPI inputs</p>
             <h2 className="text-2xl font-semibold text-slate-900">Role templates mapped from workbook formulas</h2>
           </div>
         </div>
@@ -222,7 +222,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
             <TrendingUp className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">RESULTS BY OWNER</p>
+            <p className="text-sm font-medium text-brand-700">Results by owner</p>
             <h2 className="text-2xl font-semibold text-slate-900">Workbook KPI roll-up for the 3 mapped roles</h2>
           </div>
         </div>
@@ -261,7 +261,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">PERSON KPIS</p>
+            <p className="text-sm font-medium text-brand-700">Person KPIs</p>
             <h2 className="text-2xl font-semibold text-slate-900">Role score summary with manual inputs</h2>
           </div>
         </div>

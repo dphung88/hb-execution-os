@@ -27,28 +27,28 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
 
   const teamKpis = [
     {
-      name: "TEAM SALES REVENUE",
+      name: "Team sales revenue",
       target: `${marketingWorkbookContext.salesRevenueTarget}M`,
       actual: `${marketingWorkbookContext.actualSalesRevenue}M`,
       ratio: toPercent(marketingWorkbookContext.actualSalesRevenue / marketingWorkbookContext.salesRevenueTarget),
       weight: "40%",
     },
     {
-      name: "EXPENSE BUDGET CONTROL",
+      name: "Expense budget control",
       target: `${marketingWorkbookContext.expenseBudgetTarget}M`,
       actual: `${marketingWorkbookContext.actualExpenseBudget}M`,
       ratio: toPercent(marketingWorkbookContext.actualExpenseBudget / marketingWorkbookContext.expenseBudgetTarget),
       weight: "20%",
     },
     {
-      name: "HEADCOUNT READINESS",
+      name: "Headcount readiness",
       target: `${marketingWorkbookContext.headcountPlanned}`,
       actual: `${marketingWorkbookContext.headcountActual}`,
       ratio: toPercent(marketingWorkbookContext.headcountActual / marketingWorkbookContext.headcountPlanned),
       weight: "15%",
     },
     {
-      name: "TASK EXECUTION",
+      name: "Task execution",
       target: `${tasks.length}`,
       actual: `${executionSummary.completedTasks}`,
       ratio: toPercent(executionSummary.totalTasks ? executionSummary.completedTasks / executionSummary.totalTasks : 0),
@@ -105,7 +105,7 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
             <BriefcaseBusiness className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">TEAM KPI</p>
+            <p className="text-sm font-medium text-brand-700">Team KPI</p>
             <h2 className="text-2xl font-semibold text-slate-900">Department KPI structure</h2>
           </div>
         </div>
@@ -175,7 +175,7 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
               <Megaphone className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">CHANNEL PERFORMANCE</p>
+              <p className="text-sm font-medium text-brand-700">Channel performance</p>
               <h2 className="text-2xl font-semibold text-slate-900">Budget mix and actual ratio</h2>
             </div>
           </div>
@@ -206,7 +206,7 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
               <BriefcaseBusiness className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">HEADCOUNT STATUS</p>
+              <p className="text-sm font-medium text-brand-700">Headcount status</p>
               <h2 className="text-2xl font-semibold text-slate-900">Role readiness snapshot</h2>
             </div>
           </div>
@@ -234,7 +234,7 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
               <TrendingUp className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">DEPARTMENT VIEW</p>
+              <p className="text-sm font-medium text-brand-700">Department view</p>
               <h2 className="text-2xl font-semibold text-slate-900">Marketing monthly result snapshot</h2>
             </div>
           </div>
