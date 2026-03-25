@@ -4,6 +4,7 @@ import { BriefcaseBusiness } from "lucide-react";
 import {
   marketingWorkbookContext,
 } from "@/lib/demo-data";
+import type { MarketingManualInputs } from "@/lib/marketing/kpi-templates";
 import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 import { MarketingManualKpiResults } from "@/components/marketing/marketing-manual-kpi-results";
@@ -21,9 +22,11 @@ function formatMillion(value: number) {
 
 type MarketingResultsWorkspaceProps = {
   tasks?: MarketingTaskRecord[];
+  manualInputs?: MarketingManualInputs;
+  manualSource?: "supabase" | "local";
 };
 
-export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorkspaceProps) {
+export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSource = "local" }: MarketingResultsWorkspaceProps) {
   const revenueGap = marketingWorkbookContext.salesRevenueTarget - marketingWorkbookContext.actualSalesRevenue;
   const budgetRemaining = marketingWorkbookContext.expenseBudgetTarget - marketingWorkbookContext.actualExpenseBudget;
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
@@ -171,7 +174,12 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
         </div>
       </section>
 
-      <MarketingManualKpiResults tasks={tasks} monthKey={marketingWorkbookContext.monthKey} />
+      <MarketingManualKpiResults
+        tasks={tasks}
+        monthKey={marketingWorkbookContext.monthKey}
+        initialInputs={manualInputs}
+        source={manualSource}
+      />
     </div>
   );
 }

@@ -3,15 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { PenSquare, TrendingUp } from "lucide-react";
 
-import { getMarketingExecutionScore } from "@/lib/marketing/execution";
 import { marketingHeadcountPlan } from "@/lib/demo-data";
-import {
-  computeMarketingMetricScore,
-  getDefaultMarketingManualInputs,
-  marketingRoleTemplates,
-  type MarketingManualInputs,
-} from "@/lib/marketing/kpi-templates";
+import { getDefaultMarketingManualInputs, type MarketingManualInputs } from "@/lib/marketing/kpi-templates";
+import { buildMarketingRoleResults } from "@/lib/marketing/scoring";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
+import { saveMarketingManualInputsAction } from "@/app/(app)/marketing-performance/results/actions";
 
 const STORAGE_KEY = "hb-marketing-manual-kpi-inputs-v1";
 
@@ -44,10 +40,21 @@ function parseInputValue(raw: string) {
 type Props = {
   tasks?: MarketingTaskRecord[];
   monthKey?: string;
+  initialInputs?: MarketingManualInputs;
+  source?: "supabase" | "local";
 };
 
-export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: Props) {
-  const [inputs, setInputs] = useState<MarketingManualInputs>(() => getDefaultMarketingManualInputs());
+export function MarketingManualKpiResults({
+  tasks = [],
+  monthKey = "2025-04",
+  initialInputs,
+  source = "local",
+}: Props) {
+  const [inputs, setInputs] = useState<MarketingManualInputs>(() => initialInputs ?? getDefaultMarketingManualInputs());
+
+  useEffect(() => {
+    setInputs(initialInputs ?? getDefaultMarketingManualInputs());
+  }, [initialInputs]);
 
   useEffect(() => {
     try {
@@ -69,43 +76,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
   }, [inputs, monthKey]);
 
   const roleResults = useMemo(() => {
-    return marketingRoleTemplates.map((role) => {
-      const sections = role.sections.map((section) => {
-        const metrics = section.metrics.map((metric) => {
-          const entry = inputs[`${role.id}:${metric.id}`] ?? { target: metric.target, actual: 0 };
-          const score = computeMarketingMetricScore(metric.scoreType, entry.actual, entry.target);
-          const ratio = entry.target ? entry.actual / entry.target : 0;
-          return {
-            ...metric,
-            actual: entry.actual,
-            target: entry.target,
-            ratio,
-            score,
-          };
-        });
-
-        const sectionScore = metrics.reduce((sum, metric) => sum + metric.score, 0);
-        const sectionMax = metrics.reduce((sum, metric) => sum + metric.maxScore, 0);
-
-        return {
-          ...section,
-          metrics,
-          sectionScore,
-          sectionMax,
-        };
-      });
-
-      const workbookScore = sections.reduce((sum, section) => sum + section.sectionScore, 0);
-      const execution = getMarketingExecutionScore(role.owner, tasks);
-
-      return {
-        ...role,
-        sections,
-        workbookScore,
-        executionScore: execution.executionScore,
-        totalWithExecution: workbookScore + execution.executionScore,
-      };
-    });
+    return buildMarketingRoleResults(inputs, tasks);
   }, [inputs, tasks]);
 
   const departmentRoleSummary = useMemo(() => {
@@ -136,6 +107,9 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
         remaining: role.remaining,
         workbookScore: mappedRole?.workbookScore ?? null,
         executionScore: mappedRole?.executionScore ?? 0,
+        payoutBase: mappedRole?.payoutBase ?? 0,
+        payoutPercent: mappedRole?.payoutPercent ?? 0,
+        payoutAmount: mappedRole?.payoutAmount ?? 0,
         linkedTasks: linkedTasks.length,
         sections: mappedRole?.sections.length ?? 0,
         manualMetrics: mappedRole?.sections.reduce((sum, section) => sum + section.metrics.length, 0) ?? 0,
@@ -156,9 +130,26 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
           </div>
         </div>
 
-        <p className="mt-4 text-sm text-slate-500">
-          Enter role KPI targets and actuals here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual.
-        </p>
+        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-slate-500">
+            Enter role KPI targets and actuals here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual.
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              {source === "supabase" ? "Loaded from Supabase" : "Browser draft"}
+            </span>
+            <form action={saveMarketingManualInputsAction}>
+              <input type="hidden" name="month_key" value={monthKey} />
+              <input type="hidden" name="payload" value={JSON.stringify(inputs)} />
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Save to Supabase
+              </button>
+            </form>
+          </div>
+        </div>
 
         <div className="mt-6 space-y-5">
           {roleResults.map((role) => (
@@ -173,6 +164,9 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                   </span>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
                     Task execution {role.executionScore}/40
+                  </span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                    Payout {role.payoutPercent}% / {formatPlainNumber(role.payoutAmount)} VND
                   </span>
                 </div>
               </div>
@@ -310,6 +304,14 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                 <div className="flex items-center justify-between gap-3">
                   <span>Execution score</span>
                   <span className="font-semibold text-slate-900">{role.executionScore}/40</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Payout base</span>
+                  <span className="font-semibold text-slate-900">{formatPlainNumber(role.payoutBase)} VND</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Payout result</span>
+                  <span className="font-semibold text-slate-900">{role.payoutPercent}% / {formatPlainNumber(role.payoutAmount)} VND</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span>Sections</span>

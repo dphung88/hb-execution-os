@@ -26,6 +26,7 @@ export type MarketingRoleTemplate = {
   id: string;
   role: string;
   owner: string;
+  payoutBase: number;
   sections: MarketingKpiSectionTemplate[];
 };
 
@@ -103,6 +104,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
     id: "digital",
     role: "Digital Marketer",
     owner: "Nguyen Thi Minh Tuyen",
+    payoutBase: 21900000,
     sections: [
       {
         id: "digital-revenue",
@@ -147,6 +149,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
     id: "graphic",
     role: "Graphic Designer",
     owner: "Pham Cam Nhung",
+    payoutBase: 10400000,
     sections: [
       {
         id: "graphic-core",
@@ -194,6 +197,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
     id: "media",
     role: "Media Designer",
     owner: "Bui Quang Binh",
+    payoutBase: 10400000,
     sections: [
       {
         id: "media-core",
