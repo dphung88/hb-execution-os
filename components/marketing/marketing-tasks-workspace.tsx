@@ -295,8 +295,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
 
       <section className="space-y-6">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
                 <FolderKanban className="h-5 w-5" />
               </div>
@@ -304,15 +303,6 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                 <p className="text-sm font-medium text-brand-700">TASK BOARD</p>
                 <h2 className="text-2xl font-semibold text-slate-900">Execution tracker by owner</h2>
               </div>
-            </div>
-
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                source === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
-              }`}
-            >
-              {source === "live" ? "LIVE TASK SOURCE" : "DEMO TASK SOURCE"}
-            </span>
           </div>
 
             <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white md:overflow-hidden">
