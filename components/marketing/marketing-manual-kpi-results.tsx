@@ -7,7 +7,10 @@ import { marketingHeadcountPlan } from "@/lib/demo-data";
 import { getDefaultMarketingManualInputs, type MarketingManualInputs } from "@/lib/marketing/kpi-templates";
 import { buildMarketingRoleResults } from "@/lib/marketing/scoring";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
-import { saveMarketingManualInputsAction } from "@/app/(app)/marketing-performance/results/actions";
+import {
+  saveMarketingManualInputsAction,
+  saveMarketingTargetsAction,
+} from "@/app/(app)/marketing-performance/results/actions";
 
 const STORAGE_KEY = "hb-marketing-manual-kpi-inputs-v1";
 
@@ -42,6 +45,7 @@ type Props = {
   monthKey?: string;
   initialInputs?: MarketingManualInputs;
   source?: "supabase" | "local";
+  mode?: "targets" | "results";
 };
 
 export function MarketingManualKpiResults({
@@ -49,6 +53,7 @@ export function MarketingManualKpiResults({
   monthKey = "2025-04",
   initialInputs,
   source = "local",
+  mode = "results",
 }: Props) {
   const [inputs, setInputs] = useState<MarketingManualInputs>(() => initialInputs ?? getDefaultMarketingManualInputs());
 
@@ -78,6 +83,7 @@ export function MarketingManualKpiResults({
   const roleResults = useMemo(() => {
     return buildMarketingRoleResults(inputs, tasks);
   }, [inputs, tasks]);
+  const isTargetMode = mode === "targets";
 
   const departmentRoleSummary = useMemo(() => {
     return marketingHeadcountPlan.map((role) => {
@@ -126,26 +132,30 @@ export function MarketingManualKpiResults({
           </div>
           <div>
             <p className="text-sm font-medium text-brand-700">Manual KPI inputs</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Role KPI inputs</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              {isTargetMode ? "Role KPI targets" : "Role KPI outcomes"}
+            </h2>
           </div>
         </div>
 
         <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-slate-500">
-            Enter role KPI targets and actuals here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual.
+            {isTargetMode
+              ? "Set KPI targets for each role here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual."
+              : "Confirm actual KPI outcomes here. Targets stay fixed from the target setup page, while actual values are entered and saved for scoring and payout."}
           </p>
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
               {source === "supabase" ? "Loaded from Supabase" : "Browser draft"}
             </span>
-            <form action={saveMarketingManualInputsAction}>
+            <form action={isTargetMode ? saveMarketingTargetsAction : saveMarketingManualInputsAction}>
               <input type="hidden" name="month_key" value={monthKey} />
               <input type="hidden" name="payload" value={JSON.stringify(inputs)} />
               <button
                 type="submit"
                 className="inline-flex h-10 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
-                Save to Supabase
+                {isTargetMode ? "Save targets" : "Save outcomes"}
               </button>
             </form>
           </div>
@@ -205,41 +215,53 @@ export function MarketingManualKpiResults({
                             <div className="mt-3 grid gap-2.5 md:grid-cols-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold tracking-[0.08em] text-slate-400">Target</span>
-                                <input
-                                  type="text"
-                                  inputMode="decimal"
-                                  value={formatInput(entry?.target ?? metric.target, metric.unit)}
-                                  onChange={(event) => {
-                                    const next = parseInputValue(event.target.value);
-                                    setInputs((prev) => ({
-                                      ...prev,
-                                      [key]: {
-                                        target: next,
-                                        actual: prev[key]?.actual ?? 0,
-                                      },
-                                    }));
-                                  }}
-                                  className="mt-1.5 h-9 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                                />
+                                {isTargetMode ? (
+                                  <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={formatInput(entry?.target ?? metric.target, metric.unit)}
+                                    onChange={(event) => {
+                                      const next = parseInputValue(event.target.value);
+                                      setInputs((prev) => ({
+                                        ...prev,
+                                        [key]: {
+                                          target: next,
+                                          actual: prev[key]?.actual ?? 0,
+                                        },
+                                      }));
+                                    }}
+                                    className="mt-1.5 h-9 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                  />
+                                ) : (
+                                  <div className="mt-1.5 flex h-9 items-center rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900">
+                                    {formatInput(entry?.target ?? metric.target, metric.unit)}
+                                  </div>
+                                )}
                               </label>
                               <label className="block">
                                 <span className="text-[11px] font-semibold tracking-[0.08em] text-slate-400">Actual</span>
-                                <input
-                                  type="text"
-                                  inputMode="decimal"
-                                  value={formatInput(entry?.actual ?? 0, metric.unit)}
-                                  onChange={(event) => {
-                                    const next = parseInputValue(event.target.value);
-                                    setInputs((prev) => ({
-                                      ...prev,
-                                      [key]: {
-                                        target: prev[key]?.target ?? metric.target,
-                                        actual: next,
-                                      },
-                                    }));
-                                  }}
-                                  className="mt-1.5 h-9 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                                />
+                                {isTargetMode ? (
+                                  <div className="mt-1.5 flex h-9 items-center rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-500">
+                                    {formatInput(entry?.actual ?? 0, metric.unit)}
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={formatInput(entry?.actual ?? 0, metric.unit)}
+                                    onChange={(event) => {
+                                      const next = parseInputValue(event.target.value);
+                                      setInputs((prev) => ({
+                                        ...prev,
+                                        [key]: {
+                                          target: prev[key]?.target ?? metric.target,
+                                          actual: next,
+                                        },
+                                      }));
+                                    }}
+                                    className="mt-1.5 h-9 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                  />
+                                )}
                               </label>
                             </div>
 

@@ -99,11 +99,18 @@ export function computeMarketingMetricScore(
   }
 }
 
+function cloneSections(sections: MarketingKpiSectionTemplate[]): MarketingKpiSectionTemplate[] {
+  return sections.map((section) => ({
+    ...section,
+    metrics: section.metrics.map((metric) => ({ ...metric })),
+  }));
+}
+
 export const marketingRoleTemplates: MarketingRoleTemplate[] = [
   {
     id: "digital",
     role: "Digital Marketer",
-    owner: "Nguyen Thi Minh Tuyen",
+    owner: "Content Creator #1",
     payoutBase: 21900000,
     sections: [
       {
@@ -146,9 +153,54 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
     ],
   },
   {
+    id: "ecom",
+    role: "E-Com Operations",
+    owner: "Content Creator #2",
+    payoutBase: 21900000,
+    sections: cloneSections([
+      {
+        id: "digital-revenue",
+        name: "A. Online Revenue",
+        weightLabel: "50%",
+        metrics: [
+          { id: "online_revenue", name: "Online Revenue", target: 124605000, unit: "VND", scoreType: "digital_revenue_50", maxScore: 50 },
+        ],
+      },
+      {
+        id: "digital-traffic",
+        name: "B. Ads Execution & Traffic",
+        weightLabel: "20%",
+        metrics: [
+          { id: "roas", name: "ROAS / ROI", target: 2.5, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 10 },
+          { id: "traffic", name: "Traffic", target: 30000, unit: "visits", scoreType: "ten_point_50_90", maxScore: 10 },
+        ],
+      },
+      {
+        id: "digital-content",
+        name: "C. Content Production",
+        weightLabel: "15%",
+        metrics: [
+          { id: "content_output", name: "Content Output", target: 30, unit: "items", scoreType: "five_point_content_output", maxScore: 5 },
+          { id: "audience_growth", name: "Followers / Subscribers", target: 0.05, unit: "ratio", scoreType: "five_point_content_quality", maxScore: 5 },
+          { id: "ad_content", name: "Ad Content", target: 0.4, unit: "ratio", scoreType: "five_point_ad_content", maxScore: 5 },
+        ],
+      },
+      {
+        id: "digital-projects",
+        name: "D. Video, Reports, Ad-hoc",
+        weightLabel: "15%",
+        metrics: [
+          { id: "video_creative", name: "Video Script & Creative", target: 1, unit: "project", scoreType: "five_point_project_60_80_100", maxScore: 5 },
+          { id: "report", name: "Report", target: 1, unit: "report", scoreType: "five_point_project_60_80_100", maxScore: 5 },
+          { id: "adhoc", name: "Ad-hoc", target: 1, unit: "task", scoreType: "five_point_project_60_80_100", maxScore: 5 },
+        ],
+      },
+    ]),
+  },
+  {
     id: "graphic",
     role: "Graphic Designer",
-    owner: "Pham Cam Nhung",
+    owner: "Designer",
     payoutBase: 10400000,
     sections: [
       {
@@ -195,33 +247,33 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
   },
   {
     id: "media",
-    role: "Media Designer",
-    owner: "Bui Quang Binh",
+    role: "Media Editor",
+    owner: "Editor",
     payoutBase: 10400000,
-    sections: [
+    sections: cloneSections([
       {
-        id: "media-core",
-        name: "A. Media Design",
+        id: "graphic-core",
+        name: "A. Graphic Design",
         weightLabel: "45%",
         metrics: [
-          { id: "video_output", name: "Video Output", target: 0.95, unit: "ratio", scoreType: "graphic_fifteen", maxScore: 15 },
-          { id: "video_quality", name: "Video Quality", target: 1, unit: "ratio", scoreType: "graphic_fifteen", maxScore: 15 },
+          { id: "design_output", name: "Design Output", target: 0.95, unit: "ratio", scoreType: "graphic_fifteen", maxScore: 15 },
+          { id: "design_quality", name: "Design Quality", target: 1, unit: "ratio", scoreType: "graphic_fifteen", maxScore: 15 },
           { id: "practical_use", name: "Practical Use", target: 1, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 10 },
           { id: "on_time", name: "On-time Delivery", target: 1, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 5 },
         ],
       },
       {
-        id: "media-graphic",
-        name: "B. Graphic Design",
+        id: "graphic-video",
+        name: "B. Media / Video",
         weightLabel: "25%",
         metrics: [
-          { id: "design_output", name: "Design Output", target: 0.95, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 10 },
-          { id: "design_quality", name: "Design Quality", target: 0.9, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 10 },
-          { id: "quality_ctr", name: "Quality CTR", target: 0.05, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 5 },
+          { id: "video_output", name: "Video Output", target: 0.95, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 10 },
+          { id: "video_quality", name: "Video Quality", target: 0.9, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 10 },
+          { id: "view_ctr", name: "View / Retention / CTR", target: 0.05, unit: "ratio", scoreType: "ten_point_50_90", maxScore: 5 },
         ],
       },
       {
-        id: "media-social",
+        id: "graphic-social",
         name: "C. Digital Post - Social",
         weightLabel: "10%",
         metrics: [
@@ -230,7 +282,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
         ],
       },
       {
-        id: "media-business",
+        id: "graphic-business",
         name: "D. Sales, Report, Ad-hoc",
         weightLabel: "20%",
         metrics: [
@@ -239,7 +291,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
           { id: "adhoc", name: "Ad-hoc", target: 1, unit: "task", scoreType: "five_point_project_60_80_100", maxScore: 5 },
         ],
       },
-    ],
+    ]),
   },
 ];
 

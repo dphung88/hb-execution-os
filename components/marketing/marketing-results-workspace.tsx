@@ -77,6 +77,12 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
 
           <div className="flex flex-wrap gap-3">
             <Link
+              href="/marketing-performance/targets"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+            >
+              Open Marketing Targets
+            </Link>
+            <Link
               href="/marketing-performance"
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
             >
@@ -179,6 +185,7 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
         monthKey={marketingWorkbookContext.monthKey}
         initialInputs={manualInputs}
         source={manualSource}
+        mode="results"
       />
     </div>
   );

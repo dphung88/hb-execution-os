@@ -52,6 +52,7 @@ export const appNavLinks: NavLinkItem[] = [
     children: [
       { href: "/marketing-performance", label: "Marketing Dashboard" },
       { href: "/marketing-performance/tasks", label: "Marketing Tasks" },
+      { href: "/marketing-performance/targets", label: "Marketing Targets" },
       { href: "/marketing-performance/results", label: "Marketing Results" },
     ],
   },

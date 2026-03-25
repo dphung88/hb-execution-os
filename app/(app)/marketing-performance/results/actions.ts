@@ -24,6 +24,14 @@ function getErrorKey(message: string | null | undefined) {
 }
 
 export async function saveMarketingManualInputsAction(formData: FormData) {
+  return persistMarketingInputs(formData, "manual-kpis");
+}
+
+export async function saveMarketingTargetsAction(formData: FormData) {
+  return persistMarketingInputs(formData, "targets");
+}
+
+async function persistMarketingInputs(formData: FormData, savedKey: "manual-kpis" | "targets") {
   const monthKey = String(formData.get("month_key") ?? marketingWorkbookContext.monthKey);
   const rawPayload = String(formData.get("payload") ?? "{}");
   let client;
@@ -83,6 +91,7 @@ export async function saveMarketingManualInputsAction(formData: FormData) {
   }
 
   revalidatePath("/marketing-performance");
+  revalidatePath("/marketing-performance/targets");
   revalidatePath("/marketing-performance/results");
-  redirect(`/marketing-performance/results?saved=manual-kpis`);
+  redirect(`/marketing-performance/${savedKey === "targets" ? "targets" : "results"}?saved=${savedKey}`);
 }

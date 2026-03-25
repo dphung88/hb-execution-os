@@ -37,16 +37,22 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
               >
                 Open Marketing Tasks
               </Link>
-              <Link
-                href="/marketing-performance/results"
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-              >
-                Open Marketing Results
-              </Link>
-              <Link
-                href="/marketing-performance"
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-              >
+            <Link
+              href="/marketing-performance/results"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+            >
+              Open Marketing Results
+            </Link>
+            <Link
+              href="/marketing-performance/targets"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+            >
+              Open Marketing Targets
+            </Link>
+            <Link
+              href="/marketing-performance"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+            >
                 Dashboard overview
               </Link>
             </div>
