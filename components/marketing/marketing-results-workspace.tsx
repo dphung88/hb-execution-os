@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BriefcaseBusiness, Megaphone, TrendingUp } from "lucide-react";
+import { BriefcaseBusiness } from "lucide-react";
 
 import {
   marketingChannelSetup,
@@ -12,6 +12,13 @@ import { MarketingManualKpiResults } from "@/components/marketing/marketing-manu
 
 function toPercent(value: number) {
   return `${(value * 100).toFixed(0)}%`;
+}
+
+function formatMillion(value: number) {
+  return `${value.toLocaleString("en-US", {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 1,
+    maximumFractionDigits: Number.isInteger(value) ? 0 : 1,
+  })}M`;
 }
 
 type MarketingResultsWorkspaceProps = {
@@ -28,15 +35,15 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
   const teamKpis = [
     {
       name: "Team sales revenue",
-      target: `${marketingWorkbookContext.salesRevenueTarget}M`,
-      actual: `${marketingWorkbookContext.actualSalesRevenue}M`,
+      target: formatMillion(marketingWorkbookContext.salesRevenueTarget),
+      actual: formatMillion(marketingWorkbookContext.actualSalesRevenue),
       ratio: toPercent(marketingWorkbookContext.actualSalesRevenue / marketingWorkbookContext.salesRevenueTarget),
       weight: "40%",
     },
     {
       name: "Expense budget control",
-      target: `${marketingWorkbookContext.expenseBudgetTarget}M`,
-      actual: `${marketingWorkbookContext.actualExpenseBudget}M`,
+      target: formatMillion(marketingWorkbookContext.expenseBudgetTarget),
+      actual: formatMillion(marketingWorkbookContext.actualExpenseBudget),
       ratio: toPercent(marketingWorkbookContext.actualExpenseBudget / marketingWorkbookContext.expenseBudgetTarget),
       weight: "20%",
     },
@@ -86,10 +93,10 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "TEAM SALES TARGET", value: `${marketingWorkbookContext.salesRevenueTarget}M`, note: "Monthly team goal" },
-          { label: "ACTUAL SALES", value: `${marketingWorkbookContext.actualSalesRevenue}M`, note: "Current booked result" },
-          { label: "REVENUE GAP", value: `${revenueGap}M`, note: "Target still to close" },
-          { label: "BUDGET REMAINING", value: `${budgetRemaining.toFixed(1)}M`, note: "Available marketing budget" },
+          { label: "TEAM SALES TARGET", value: formatMillion(marketingWorkbookContext.salesRevenueTarget), note: "Monthly team goal" },
+          { label: "ACTUAL SALES", value: formatMillion(marketingWorkbookContext.actualSalesRevenue), note: "Current booked result" },
+          { label: "REVENUE GAP", value: formatMillion(revenueGap), note: "Target still to close" },
+          { label: "BUDGET REMAINING", value: formatMillion(Number(budgetRemaining.toFixed(1))), note: "Available marketing budget" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className={lightCardLabelClass}>{card.label}</p>
@@ -167,96 +174,6 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
       </section>
 
       <MarketingManualKpiResults tasks={tasks} monthKey={marketingWorkbookContext.monthKey} />
-
-      <section className="space-y-6">
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
-              <Megaphone className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Channel performance</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Budget mix and actual ratio</h2>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {marketingChannelSetup.map((channel) => (
-              <div key={channel.channel} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{channel.channel}</p>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                    {toPercent(channel.actualRatio)} actual ratio
-                  </span>
-                </div>
-                <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-2">
-                  <p>Budget {channel.budget}M</p>
-                  <p>Actual {channel.actualBudget}M</p>
-                  <p>Remaining {channel.remainingBudget}M</p>
-                  <p>Budget share {toPercent(channel.budgetRatio)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-              <BriefcaseBusiness className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Headcount status</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Role readiness snapshot</h2>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {marketingHeadcountPlan.map((role) => (
-              <div key={role.role} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{role.role}</p>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                    {role.actual}/{role.estimated}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-slate-500">
-                  Remaining {role.remaining} · Owner {role.owner || "-"}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Department view</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Marketing monthly result snapshot</h2>
-            </div>
-          </div>
-
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Sales Revenue</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-950">
-                  {marketingWorkbookContext.actualSalesRevenue}M / {marketingWorkbookContext.salesRevenueTarget}M
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Expense Budget</p>
-                <p className="mt-2 text-2xl font-semibold text-slate-950">
-                  {marketingWorkbookContext.actualExpenseBudget}M / {marketingWorkbookContext.expenseBudgetTarget}M
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </section>
     </div>
   );
 }

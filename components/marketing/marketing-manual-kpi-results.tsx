@@ -28,6 +28,13 @@ function formatDisplay(value: number, unit: string) {
   return `${Number.isInteger(value) ? value : Number(value.toFixed(2))} ${unit}`;
 }
 
+function formatPlainNumber(value: number) {
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 1,
+    maximumFractionDigits: Number.isInteger(value) ? 0 : 1,
+  });
+}
+
 type Props = {
   tasks?: MarketingTaskRecord[];
   monthKey?: string;
@@ -124,6 +131,8 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
         workbookScore: mappedRole?.workbookScore ?? null,
         executionScore: mappedRole?.executionScore ?? 0,
         linkedTasks: linkedTasks.length,
+        sections: mappedRole?.sections.length ?? 0,
+        manualMetrics: mappedRole?.sections.reduce((sum, section) => sum + section.metrics.length, 0) ?? 0,
       };
     });
   }, [roleResults, tasks]);
@@ -276,54 +285,32 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
               <div className="mt-4 space-y-2 text-sm text-slate-600">
                 <div className="flex items-center justify-between gap-3">
                   <span>Estimated</span>
-                  <span className="font-semibold text-slate-900">{role.estimated}</span>
+                  <span className="font-semibold text-slate-900">{formatPlainNumber(role.estimated)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span>Actual</span>
-                  <span className="font-semibold text-slate-900">{role.actual}</span>
+                  <span className="font-semibold text-slate-900">{formatPlainNumber(role.actual)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span>Remaining</span>
-                  <span className={`font-semibold ${role.remaining < 0 ? "text-rose-700" : "text-slate-900"}`}>{role.remaining}</span>
+                  <span className={`font-semibold ${role.remaining < 0 ? "text-rose-700" : "text-slate-900"}`}>{formatPlainNumber(role.remaining)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span>Task footprint</span>
-                  <span className="font-semibold text-slate-900">{role.linkedTasks}</span>
+                  <span className="font-semibold text-slate-900">{formatPlainNumber(role.linkedTasks)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span>Execution score</span>
                   <span className="font-semibold text-slate-900">{role.executionScore}/40</span>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">Role KPIs</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Role score summary with manual inputs</h2>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-3">
-          {roleResults.map((role) => (
-            <div key={role.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-medium text-slate-900">{role.role}</p>
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                  {role.workbookScore}/100
-                </span>
-              </div>
-              <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-2">
-                <p>Sections {role.sections.length}</p>
-                <p>Manual metrics {role.sections.reduce((sum, section) => sum + section.metrics.length, 0)}</p>
-                <p>Task execution {role.executionScore}/40</p>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Sections</span>
+                  <span className="font-semibold text-slate-900">{formatPlainNumber(role.sections)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Manual metrics</span>
+                  <span className="font-semibold text-slate-900">{formatPlainNumber(role.manualMetrics)}</span>
+                </div>
               </div>
             </div>
           ))}
