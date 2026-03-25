@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PenSquare, TrendingUp, Users } from "lucide-react";
+import { PenSquare, TrendingUp } from "lucide-react";
 
 import { getMarketingExecutionScore } from "@/lib/marketing/execution";
 import { marketingHeadcountPlan } from "@/lib/demo-data";
@@ -33,6 +33,12 @@ function formatPlainNumber(value: number) {
     minimumFractionDigits: Number.isInteger(value) ? 0 : 1,
     maximumFractionDigits: Number.isInteger(value) ? 0 : 1,
   });
+}
+
+function parseInputValue(raw: string) {
+  const normalized = raw.replace(/,/g, "").trim();
+  const next = Number(normalized || 0);
+  return Number.isFinite(next) ? next : 0;
 }
 
 type Props = {
@@ -206,10 +212,11 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</span>
                                 <input
-                                  type="number"
-                                  value={entry?.target ?? metric.target}
+                                  type="text"
+                                  inputMode="decimal"
+                                  value={formatInput(entry?.target ?? metric.target, metric.unit)}
                                   onChange={(event) => {
-                                    const next = Number(event.target.value || 0);
+                                    const next = parseInputValue(event.target.value);
                                     setInputs((prev) => ({
                                       ...prev,
                                       [key]: {
@@ -224,10 +231,11 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</span>
                                 <input
-                                  type="number"
-                                  value={entry?.actual ?? 0}
+                                  type="text"
+                                  inputMode="decimal"
+                                  value={formatInput(entry?.actual ?? 0, metric.unit)}
                                   onChange={(event) => {
-                                    const next = Number(event.target.value || 0);
+                                    const next = parseInputValue(event.target.value);
                                     setInputs((prev) => ({
                                       ...prev,
                                       [key]: {

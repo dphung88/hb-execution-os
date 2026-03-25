@@ -2,8 +2,6 @@ import Link from "next/link";
 import { BriefcaseBusiness } from "lucide-react";
 
 import {
-  marketingChannelSetup,
-  marketingHeadcountPlan,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
 import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
