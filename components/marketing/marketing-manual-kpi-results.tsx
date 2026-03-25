@@ -142,7 +142,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
         </div>
 
         <p className="mt-4 text-sm text-slate-500">
-          These role-level KPI inputs are manual and saved in this browser, so you can enter non-ERP values and preview the score logic immediately.
+          Enter manual KPI values by role here. Sales revenue and channel metrics can be auto-fed later, while the remaining criteria stay manual.
         </p>
 
         <div className="mt-6 space-y-5">
@@ -167,7 +167,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                   <div key={section.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">{section.name}</p>
+                        <p className="text-base font-semibold text-slate-900">{section.name}</p>
                         <p className="mt-1 text-sm text-slate-500">Weight {section.weightLabel}</p>
                       </div>
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -175,12 +175,12 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                       </span>
                     </div>
 
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-4 grid gap-3 xl:grid-cols-2">
                       {section.metrics.map((metric) => {
                         const key = `${role.id}:${metric.id}`;
                         const entry = inputs[key];
                         return (
-                          <div key={metric.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <div key={metric.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                               <div>
                                 <p className="font-medium text-slate-900">{metric.name}</p>
@@ -193,7 +193,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                               </span>
                             </div>
 
-                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            <div className="mt-3 grid gap-3 md:grid-cols-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</span>
                                 <input
@@ -209,7 +209,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                                       },
                                     }));
                                   }}
-                                  className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                  className="mt-2 h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                               <label className="block">
@@ -227,7 +227,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                                       },
                                     }));
                                   }}
-                                  className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                                  className="mt-2 h-10 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                             </div>
@@ -255,7 +255,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
             <TrendingUp className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Results by owner</p>
+            <p className="text-sm font-medium text-brand-700">Results by role</p>
             <h2 className="text-2xl font-semibold text-slate-900">Role summary across the department</h2>
           </div>
         </div>
@@ -306,7 +306,7 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Person KPIs</p>
+            <p className="text-sm font-medium text-brand-700">Role KPIs</p>
             <h2 className="text-2xl font-semibold text-slate-900">Role score summary with manual inputs</h2>
           </div>
         </div>
@@ -321,7 +321,6 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
                 </span>
               </div>
               <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-2">
-                <p>Owner {role.owner}</p>
                 <p>Sections {role.sections.length}</p>
                 <p>Manual metrics {role.sections.reduce((sum, section) => sum + section.metrics.length, 0)}</p>
                 <p>Task execution {role.executionScore}/40</p>
