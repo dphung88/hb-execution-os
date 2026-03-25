@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AlertCircle, ArrowRight, BarChart3, Calculator, Star, Users } from "lucide-react";
 
+import { MobileSalesScorecardSelector } from "@/components/sales/mobile-sales-scorecard-selector";
+
 import { salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
@@ -126,7 +128,7 @@ export function SalesPerformanceHub({
               <p className={heroLabelClass}>Sales Dashboard</p>
               {syncStatus ? (
                 <div
-                  className={`inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${
+                  className={`inline-flex rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] ${
                     syncStatus === "success"
                       ? "bg-emerald-400/20 text-emerald-200"
                       : "bg-rose-400/20 text-rose-200"
@@ -136,12 +138,19 @@ export function SalesPerformanceHub({
                 </div>
               ) : null}
             </div>
-            <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 max-w-4xl text-2xl font-semibold tracking-tight sm:text-4xl">
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 xl:justify-end xl:flex-nowrap">
+            <Link
+              href={`/sales-performance/forecast?period=${selectedPeriod}`}
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+            >
+              Open Sales Forecast
+            </Link>
+
             <Link
               href={`/sales-performance/targets?period=${selectedPeriod}`}
               className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
@@ -203,78 +212,20 @@ export function SalesPerformanceHub({
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">ASM SCORECARDS</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Built around the real ASM roster</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">ASM Scorecards</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Built Around The Real ASM Roster</h2>
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-          {scorecards.length ? (
-            <>
-              <div className="divide-y divide-slate-100 bg-white md:hidden">
-                {scorecards.map((asm) => (
-                  <div key={asm.id} className="space-y-4 px-4 py-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
-                        <p className="mt-1 text-xs text-slate-500">{asm.id}</p>
-                      </div>
-                      <span className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getHealthTone(asm.scorecard.total)}`}>
-                        {asm.scorecard.total} pts
-                      </span>
-                    </div>
+        {scorecards.length ? (
+          <>
+            <MobileSalesScorecardSelector
+              scorecards={scorecards}
+              selectedPeriod={selectedPeriod}
+            />
 
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl bg-slate-50 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Sales Revenue</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-900">{asm.revenueActual}/{asm.revenueTarget}M</p>
-                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.revenueScore}/65 · {asm.scorecard.revenuePct}% target</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Dealers Code</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-900">{asm.newCustomersActual}/{asm.newCustomersTarget}</p>
-                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.customerScore}/15</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Key SKU</p>
-                        <div className="mt-2 space-y-1 text-sm font-semibold text-slate-900">
-                          {asm.keySkuTargets.map((item) => (
-                            <div key={item.code}>{item.code} {item.actual}/{item.target}</div>
-                          ))}
-                        </div>
-                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.keySkuScore}/5</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Clearstock</p>
-                        <div className="mt-2 space-y-1 text-sm font-semibold text-slate-900">
-                          {asm.clearstockTargets.map((item) => (
-                            <div key={item.code}>{item.code} {item.actual}/{item.target}</div>
-                          ))}
-                        </div>
-                        <p className="mt-1 text-xs text-slate-500">{asm.scorecard.clearstockScore}/10</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Discipline</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-900">{asm.scorecard.manualScore}/5</p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Payout</p>
-                        <p className="mt-2 text-sm font-semibold text-brand-700">{asm.scorecard.payout}M</p>
-                      </div>
-                    </div>
-
-                    <Link
-                      href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
-                    >
-                      View detail
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                ))}
-              </div>
-
-              <table className="hidden min-w-full table-fixed divide-y divide-slate-200 text-[13px] md:table">
+            <div className="mt-6 hidden overflow-hidden rounded-3xl border border-slate-200 md:block">
+              <table className="min-w-full table-fixed divide-y divide-slate-200 text-[13px]">
                 <colgroup>
                   <col className="w-[11%]" />
                   <col className="w-[13%]" />
@@ -288,14 +239,14 @@ export function SalesPerformanceHub({
                 </colgroup>
                 <thead className="bg-slate-50 text-left text-slate-500">
                   <tr>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">ASM</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">SALES REVENUE</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">DEALERS CODE</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">KEY SKU</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">CLEARSTOCK</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">DISCIPLINE</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">TOTAL</th>
-                    <th className="px-3 py-4 font-medium uppercase tracking-[0.1em]">KPI PAYOUT</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">ASM</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">SALES REVENUE</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">DEALERS CODE</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">KEY SKU</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">CLEARSTOCK</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">DISCIPLINE</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">TOTAL</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">KPI PAYOUT</th>
                     <th className="px-3 py-4 font-medium" />
                   </tr>
                 </thead>
@@ -365,16 +316,18 @@ export function SalesPerformanceHub({
                   })}
                 </tbody>
               </table>
-            </>
-          ) : (
+            </div>
+          </>
+        ) : (
+          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
             <div className="px-6 py-14 text-center">
-              <p className="text-lg font-semibold text-slate-900">No Sales KPI data for this month yet.</p>
+              <p className="text-base font-semibold text-slate-900">No Sales KPI data for this month yet.</p>
               <p className="mt-2 text-sm text-slate-500">
                 Select another period with live data, then review targets and scoring from there.
               </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
@@ -383,8 +336,8 @@ export function SalesPerformanceHub({
             <BarChart3 className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">SKU KPI DETAIL</p>
-            <h2 className="text-2xl font-semibold text-slate-900">SKU progress tracking by team</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">SKU KPI Detail</p>
+            <h2 className="text-2xl font-semibold text-slate-900">SKU Progress Tracking By Team</h2>
           </div>
         </div>
 
@@ -395,7 +348,7 @@ export function SalesPerformanceHub({
                 <Star className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-slate-900">Key SKU progress</p>
+                <p className="text-base font-semibold text-slate-900">Key SKU Progress</p>
                 <p className="mt-1 text-sm text-slate-500">Both SKUs need to reach at least 50% to unlock the full 5-point KPI.</p>
               </div>
             </div>
@@ -439,7 +392,7 @@ export function SalesPerformanceHub({
                 <AlertCircle className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-slate-900">Lot-date clearstock progress</p>
+                <p className="text-base font-semibold text-slate-900">Lot-Date Clearstock Progress</p>
                 <p className="mt-1 text-sm text-slate-500">Both SKUs need to reach at least 80% to unlock 10 points. One SKU cleared still earns 5 points.</p>
               </div>
             </div>
@@ -485,8 +438,8 @@ export function SalesPerformanceHub({
             <Calculator className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">SCORING LOGIC</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Scoring logic by KPI</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Scoring Logic</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Scoring Logic By KPI</h2>
           </div>
         </div>
 
@@ -500,7 +453,7 @@ export function SalesPerformanceHub({
                 </span>
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-500">{rule.description}</p>
-              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">
+              <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">
                 Source: {rule.source}
               </p>
             </div>

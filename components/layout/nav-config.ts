@@ -41,6 +41,7 @@ export const appNavLinks: NavLinkItem[] = [
     match: "/sales-performance",
     children: [
       { href: "/sales-performance", label: "Sales Dashboard" },
+      { href: "/sales-performance/forecast", label: "Sales Forecast" },
       { href: "/sales-performance/targets", label: "Sales Targets" },
     ],
   },
