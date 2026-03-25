@@ -67,7 +67,7 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <p className={heroLabelClass}>Marketing Results</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
               Department revenue, budget, and channel results in one place.
             </h1>
           </div>
@@ -116,8 +116,8 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
             <BriefcaseBusiness className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Team KPI</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Department KPI structure</h2>
+            <p className="text-sm font-semibold text-brand-700">Team KPI</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Department KPI Structure</h2>
           </div>
         </div>
 
@@ -128,19 +128,19 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
                 <p className="text-base font-semibold text-slate-900">{row.name}</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Target</p>
                     <p className="mt-1 text-slate-700">{row.target}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Actual</p>
                     <p className="mt-1 text-slate-700">{row.actual}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Ratio</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Ratio</p>
                     <p className="mt-1 text-slate-700">{row.ratio}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Weight</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Weight</p>
                     <p className="mt-1 text-slate-700">{row.weight}</p>
                   </div>
                 </div>

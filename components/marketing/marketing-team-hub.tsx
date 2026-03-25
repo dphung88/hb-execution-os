@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, CheckSquare, LayoutDashboard, Megaphone } from "lucide-react";
+import { BarChart3, BriefcaseBusiness, CheckSquare, LayoutDashboard, Megaphone, Sparkles, Users, WandSparkles } from "lucide-react";
 
 import {
   marketingChannelSetup,
@@ -21,6 +21,9 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
   const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
+  const actionCardClass =
+    "group flex min-h-[84px] items-center gap-3 rounded-3xl border px-4 py-4 text-left transition";
+  const actionIconClass = "rounded-2xl p-3";
   const roleSummaries = marketingHeadcountPlan.map((role) => {
     const template = marketingRoleTemplates.find((item) => item.role === role.role);
     const taskRows = tasks.filter((task) => task.owner === role.role);
@@ -51,37 +54,45 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
         <div className="grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
           <div>
             <p className={heroLabelClass}>Marketing Team</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
               Marketing execution, KPI ownership, and department results.
             </h1>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <Link
                 href="/marketing-performance/tasks"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                className={`${actionCardClass} border-sky-200 bg-sky-50 text-slate-950 hover:border-sky-300 hover:bg-sky-100`}
               >
-                <CheckSquare className="h-4 w-4" />
-                Open Marketing Tasks
+                <span className={`${actionIconClass} bg-sky-100 text-sky-700`}>
+                  <CheckSquare className="h-5 w-5" />
+                </span>
+                <span className="text-base font-semibold">Open Marketing Tasks</span>
               </Link>
               <Link
                 href="/marketing-performance/results"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+                className={`${actionCardClass} border-violet-200 bg-violet-50 text-slate-950 hover:border-violet-300 hover:bg-violet-100`}
               >
-                <BarChart3 className="h-4 w-4" />
-                Open Marketing Results
+                <span className={`${actionIconClass} bg-violet-100 text-violet-700`}>
+                  <BarChart3 className="h-5 w-5" />
+                </span>
+                <span className="text-base font-semibold">Open Marketing Results</span>
               </Link>
               <Link
                 href="/marketing-performance/targets"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+                className={`${actionCardClass} border-amber-200 bg-amber-50 text-slate-950 hover:border-amber-300 hover:bg-amber-100`}
               >
-                <BriefcaseBusiness className="h-4 w-4" />
-                Open Marketing Targets
+                <span className={`${actionIconClass} bg-amber-100 text-amber-700`}>
+                  <BriefcaseBusiness className="h-5 w-5" />
+                </span>
+                <span className="text-base font-semibold">Open Marketing Targets</span>
               </Link>
               <Link
                 href="/marketing-performance"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+                className={`${actionCardClass} border-emerald-200 bg-emerald-50 text-slate-950 hover:border-emerald-300 hover:bg-emerald-100`}
               >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard Overview
+                <span className={`${actionIconClass} bg-emerald-100 text-emerald-700`}>
+                  <LayoutDashboard className="h-5 w-5" />
+                </span>
+                <span className="text-base font-semibold">Dashboard Overview</span>
               </Link>
             </div>
           </div>
@@ -108,7 +119,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <Megaphone className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Channel Setup</p>
+            <p className="text-sm font-semibold text-brand-700">Channel Setup</p>
             <h2 className="text-2xl font-semibold text-slate-900">Budget Mix by Channel</h2>
           </div>
         </div>
@@ -136,46 +147,71 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
               <BarChart3 className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Results</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across the Department</h2>
-            </div>
+          <div>
+            <p className="text-sm font-semibold text-brand-700">Results</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across the Department</h2>
           </div>
+        </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {roleSummaries.map((role) => (
-              <div key={role.role} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="truncate text-lg font-semibold text-slate-900" title={role.role}>
-                      {role.role}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">{role.focus}</p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {roleSummaries.map((role) => (
+            <div
+              key={role.role}
+              className={`rounded-3xl border p-5 ${
+                role.focus === "Revenue-driving"
+                  ? "border-sky-200 bg-sky-50/60"
+                  : role.focus === "Leadership"
+                    ? "border-violet-200 bg-violet-50/60"
+                    : "border-amber-200 bg-amber-50/60"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`rounded-2xl p-3 ${
+                      role.focus === "Revenue-driving"
+                        ? "bg-sky-100 text-sky-700"
+                        : role.focus === "Leadership"
+                          ? "bg-violet-100 text-violet-700"
+                          : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {role.focus === "Revenue-driving" ? (
+                      <Sparkles className="h-5 w-5" />
+                    ) : role.focus === "Leadership" ? (
+                      <Users className="h-5 w-5" />
+                    ) : (
+                      <WandSparkles className="h-5 w-5" />
+                    )}
                   </div>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                    {role.executionScore}/40 execution
-                  </span>
+                  <p className="truncate text-base font-semibold text-slate-900" title={role.role}>
+                    {role.role}
+                  </p>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                  {role.executionScore}/40 execution
+                </span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Headcount</p>
+                    <p className="text-xs font-semibold text-slate-500">Headcount</p>
                     <p className="mt-2 font-semibold text-slate-900">
                       {role.actual}/{role.estimated}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
+                    <p className="text-xs font-semibold text-slate-500">Remaining</p>
                     <p className={`mt-2 font-semibold ${role.remaining < 0 ? "text-rose-700" : "text-slate-900"}`}>
                       {role.remaining}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Metrics</p>
+                    <p className="text-xs font-semibold text-slate-500">KPI Metrics</p>
                     <p className="mt-2 font-semibold text-slate-900">{role.metricCount}</p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Open Tasks</p>
+                    <p className="text-xs font-semibold text-slate-500">Open Tasks</p>
                     <p className="mt-2 font-semibold text-slate-900">{role.openTasks}</p>
                   </div>
                 </div>
@@ -192,7 +228,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <CheckSquare className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium text-brand-700">Task Tracking</p>
+            <p className="text-sm font-semibold text-brand-700">Task Tracking</p>
             <h2 className="text-2xl font-semibold text-slate-900">Workbook Task Pipeline by Marketing Role</h2>
           </div>
         </div>
@@ -204,21 +240,21 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
                 <p className="text-base font-semibold text-slate-900">{task.owner}</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Requester</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Requester</p>
                     <p className="mt-1 text-slate-700">{task.requester}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Status</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Status</p>
                     <span className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${toneClass(task.status)}`}>
                       {task.status}
                     </span>
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Due date</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Due date</p>
                     <p className="mt-1 text-slate-700">{task.dueDate}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Notes</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Notes</p>
                     <p className="mt-1 text-slate-600">{task.notes}</p>
                   </div>
                 </div>
