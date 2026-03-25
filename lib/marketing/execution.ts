@@ -3,6 +3,15 @@ import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
 type MarketingTask = Pick<MarketingTaskRecord, "owner" | "status" | "dueDate">;
 
+const OWNER_ALIASES: Record<string, string[]> = {
+  "Senior Manager": ["Senior Manager"],
+  "Junior Executive": ["Junior Executive"],
+  "Digital Marketer": ["Digital Marketer", "Digital Marketer #1", "Content Creator #1"],
+  "E-Com Operations": ["E-Com Operations", "Content Creator #2"],
+  "Graphic Designer": ["Graphic Designer", "Designer"],
+  "Media Editor": ["Media Editor", "Editor"],
+};
+
 const EXECUTION_REFERENCE_DATE = new Date("2025-03-20T00:00:00.000Z");
 
 function statusWeight(status: string) {
@@ -30,8 +39,14 @@ function getDefaultTasks(): MarketingTask[] {
   }));
 }
 
+function normalizeOwner(value: string) {
+  return value.trim().toLowerCase();
+}
+
 export function getMarketingTasksByOwner(owner: string, tasks: MarketingTask[] = getDefaultTasks()) {
-  return tasks.filter((task) => task.owner === owner);
+  const aliases = OWNER_ALIASES[owner] ?? [owner];
+  const normalizedAliases = aliases.map(normalizeOwner);
+  return tasks.filter((task) => normalizedAliases.includes(normalizeOwner(task.owner)));
 }
 
 export function getMarketingExecutionScore(owner: string, tasks: MarketingTask[] = getDefaultTasks()) {

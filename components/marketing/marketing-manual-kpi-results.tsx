@@ -13,6 +13,14 @@ import {
 } from "@/app/(app)/marketing-performance/results/actions";
 
 const STORAGE_KEY = "hb-marketing-manual-kpi-inputs-v1";
+const MARKETING_ROLE_ALIASES: Record<string, string[]> = {
+  "Senior Manager": ["Senior Manager"],
+  "Junior Executive": ["Junior Executive"],
+  "Digital Marketer": ["Digital Marketer", "Digital Marketer #1", "Content Creator #1"],
+  "E-Com Operations": ["E-Com Operations", "Content Creator #2"],
+  "Graphic Designer": ["Graphic Designer", "Designer"],
+  "Media Editor": ["Media Editor", "Editor"],
+};
 
 function formatInput(value: number, unit: string) {
   if (unit === "VND") return value.toLocaleString("en-US");
@@ -38,6 +46,10 @@ function parseInputValue(raw: string) {
   const normalized = raw.replace(/,/g, "").trim();
   const next = Number(normalized || 0);
   return Number.isFinite(next) ? next : 0;
+}
+
+function normalizeOwner(value: string) {
+  return value.trim().toLowerCase();
 }
 
 type Props = {
@@ -106,12 +118,8 @@ export function MarketingManualKpiResults({
         normalizedRole.includes("manager");
 
       const linkedTasks = tasks.filter((task) => {
-        const owner = task.owner.toLowerCase();
-        if (normalizedRole.includes("digital")) return owner.includes("content");
-        if (normalizedRole.includes("graphic")) return owner.includes("designer");
-        if (normalizedRole.includes("media")) return owner.includes("editor");
-        if (normalizedRole.includes("ai")) return owner.includes("ai");
-        return false;
+        const aliases = MARKETING_ROLE_ALIASES[role.role] ?? [role.role];
+        return aliases.map(normalizeOwner).includes(normalizeOwner(task.owner));
       });
 
       return {

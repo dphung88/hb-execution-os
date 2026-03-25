@@ -110,7 +110,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
   {
     id: "digital",
     role: "Digital Marketer",
-    owner: "Content Creator #1",
+    owner: "Digital Marketer",
     payoutBase: 21900000,
     sections: [
       {
@@ -155,7 +155,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
   {
     id: "ecom",
     role: "E-Com Operations",
-    owner: "Content Creator #2",
+    owner: "E-Com Operations",
     payoutBase: 21900000,
     sections: cloneSections([
       {
@@ -200,7 +200,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
   {
     id: "graphic",
     role: "Graphic Designer",
-    owner: "Designer",
+    owner: "Graphic Designer",
     payoutBase: 10400000,
     sections: [
       {
@@ -248,7 +248,7 @@ export const marketingRoleTemplates: MarketingRoleTemplate[] = [
   {
     id: "media",
     role: "Media Editor",
-    owner: "Editor",
+    owner: "Media Editor",
     payoutBase: 10400000,
     sections: cloneSections([
       {

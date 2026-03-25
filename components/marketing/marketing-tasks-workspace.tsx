@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
 
 import { createMarketingTaskAction, updateMarketingTaskAction } from "@/app/(app)/marketing-performance/tasks/actions";
-import { marketingWorkbookContext } from "@/lib/demo-data";
+import { marketingHeadcountPlan, marketingWorkbookContext } from "@/lib/demo-data";
 import { getMarketingExecutionScore } from "@/lib/marketing/execution";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
@@ -31,7 +31,8 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
   const savedState = searchParams?.saved;
   const errorState = searchParams?.error;
 
-  const owners = Array.from(new Set(tasks.map((task) => task.owner))).sort();
+  const roleOwners = marketingHeadcountPlan.map((role) => role.role);
+  const owners = roleOwners;
   const statuses = Array.from(new Set(tasks.map((task) => task.status))).sort();
   const requesters = Array.from(new Set(tasks.map((task) => task.requester))).sort();
 
@@ -78,6 +79,16 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
       }, new Map<string, { owner: string; total: number; active: number; completed: number; avgProgress: number; progressRaw: number }>())
       .values()
   ).map((row) => ({ ...row, avgProgress: row.total ? Math.round(row.progressRaw / row.total) : 0 }));
+
+  const latestBoardRows = roleOwners.map((owner) => {
+    const roleTasks = filteredTasks
+      .filter((task) => normalize(task.owner) === normalize(owner))
+      .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime());
+    return {
+      owner,
+      task: roleTasks[0] ?? null,
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -316,34 +327,40 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               </div>
 
               <div className="divide-y divide-slate-100">
-                {filteredTasks.map((task) => (
+                {latestBoardRows.map(({ owner, task }) => (
                   <form
-                    key={task.id}
-                    action={updateMarketingTaskAction}
+                    key={task?.id ?? owner}
+                    action={task ? updateMarketingTaskAction : undefined}
                     className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] items-start gap-4 px-5 py-4 md:grid-cols-[minmax(160px,1fr)_minmax(112px,0.62fr)_100px_96px_minmax(160px,0.92fr)_84px] md:gap-3 md:px-4 xl:grid-cols-[minmax(190px,1.08fr)_minmax(126px,0.68fr)_110px_104px_minmax(180px,0.96fr)_92px] xl:gap-4 xl:px-5"
                   >
-                    <input type="hidden" name="task_id" value={task.id} />
-                    <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
+                    {task ? <input type="hidden" name="task_id" value={task.id} /> : null}
+                    {task ? <input type="hidden" name="file_link" value={task.fileLink ?? ""} /> : null}
 
                     <div>
-                      <p className="text-sm font-semibold leading-6 text-slate-900 md:text-[12px] md:leading-5">{task.title}</p>
+                      <p className="text-sm font-semibold leading-6 text-slate-900 md:text-[12px] md:leading-5">
+                        {task?.title ?? "No task logged yet"}
+                      </p>
                       <p className="mt-2 text-sm text-slate-600 md:text-[12px]">
-                        {task.owner} · {task.requester}
+                        {owner}
+                        {task ? ` · ${task.requester}` : " · Awaiting first task"}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 md:px-2 md:py-0.5 md:text-[10px]">
-                          Priority {task.priority}
+                          Priority {task?.priority ?? "-"}
                         </span>
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold md:px-2 md:py-0.5 md:text-[10px] ${marketingToneClass(task.status)}`}>
-                          {task.status}
-                        </span>
+                        {task ? (
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold md:px-2 md:py-0.5 md:text-[10px] ${marketingToneClass(task.status)}`}>
+                            {task.status}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
 
                     <div>
                       <select
                         name="status"
-                        defaultValue={task.status}
+                        defaultValue={task?.status ?? "Planned"}
+                        disabled={!task}
                         className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
                       >
                         {statuses.map((status) => (
@@ -354,15 +371,16 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                       </select>
                     </div>
 
-                    <div className="pt-2 text-sm text-slate-700 md:text-[12px]">{task.dueDate || "-"}</div>
+                    <div className="pt-2 text-sm text-slate-700 md:text-[12px]">{task?.dueDate || "-"}</div>
 
                     <div>
                       <input
                         type="number"
                         name="progress_percent"
-                        defaultValue={task.progressPercent}
+                        defaultValue={task?.progressPercent ?? 0}
                         min={0}
                         max={100}
+                        disabled={!task}
                         className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
                       />
                     </div>
@@ -370,15 +388,19 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                     <div>
                       <input
                         name="result_note"
-                        defaultValue={task.notes}
+                        defaultValue={task?.notes ?? ""}
+                        disabled={!task}
                         className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
                       />
-                      <p className="mt-2 text-xs text-slate-500 md:text-[10px]">{task.fileLink ? "File link attached" : "No file link yet"}</p>
+                      <p className="mt-2 text-xs text-slate-500 md:text-[10px]">
+                        {task ? (task.fileLink ? "File link attached" : "No file link yet") : "Create a task from the form above"}
+                      </p>
                     </div>
 
                     <div className="flex justify-end">
                       <button
                         type="submit"
+                        disabled={!task}
                         className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 md:h-9 md:px-3 md:text-[12px]"
                       >
                         Save
@@ -387,7 +409,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
                   </form>
                 ))}
 
-                {!filteredTasks.length ? (
+                {!latestBoardRows.length ? (
                   <div className="px-5 py-8 text-center text-sm text-slate-500">No Marketing tasks matched the current filters.</div>
                 ) : null}
               </div>

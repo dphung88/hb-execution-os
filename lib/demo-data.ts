@@ -645,7 +645,7 @@ export const marketingHeadcountPlan = [
 
 export const marketingResultsTracker = [
   {
-    owner: "Digital Marketer #1",
+    owner: "Digital Marketer",
     metric: "Budget",
     estimated: 170,
     actual: 45.7,
@@ -655,7 +655,7 @@ export const marketingResultsTracker = [
     tasksCompleted: 0,
   },
   {
-    owner: "Digital Marketer #1",
+    owner: "Digital Marketer",
     metric: "Landing Page",
     estimated: 60,
     actual: 15,
@@ -665,7 +665,7 @@ export const marketingResultsTracker = [
     tasksCompleted: 0,
   },
   {
-    owner: "Digital Marketer #1",
+    owner: "Digital Marketer",
     metric: "Facebook",
     estimated: 10,
     actual: 0.3,
@@ -708,35 +708,42 @@ export const marketingResultsTracker = [
 
 export const marketingTaskTracker = [
   {
-    owner: "Content Creator #1",
+    owner: "Senior Manager",
+    requester: "Boss",
+    status: "In Progress",
+    dueDate: "2025-03-29",
+    notes: "Weekly oversight review is active for campaign direction and team execution quality.",
+  },
+  {
+    owner: "Junior Executive",
     requester: "Boss",
     status: "Planned",
     dueDate: "2025-03-28",
-    notes: "One active brief listed in the workbook for month setup.",
+    notes: "Support queue is prepared for asset follow-up and task coordination across the team.",
   },
   {
-    owner: "Content Creator #2",
+    owner: "Digital Marketer",
     requester: "Boss",
     status: "Not Started",
     dueDate: "2025-03-15",
-    notes: "Pipeline includes planned, in-progress, pending, under-review, failed, and completed states.",
+    notes: "Performance campaign sprint is queued for traffic and online revenue delivery.",
   },
   {
-    owner: "Content Creator #2",
+    owner: "E-Com Operations",
     requester: "Manager",
     status: "Planned",
     dueDate: "2025-03-16",
-    notes: "Second queue item assigned from manager lane.",
+    notes: "Marketplace promotion setup is staged for channel execution and order growth.",
   },
   {
-    owner: "Designer",
+    owner: "Graphic Designer",
     requester: "Manager",
     status: "Planned",
     dueDate: "2025-03-19",
-    notes: "Single planned task captured in the workbook snapshot.",
+    notes: "Creative design batch is prepared for campaign launch support this week.",
   },
   {
-    owner: "Editor",
+    owner: "Media Editor",
     requester: "Colleague",
     status: "Failed",
     dueDate: "2025-03-19",
