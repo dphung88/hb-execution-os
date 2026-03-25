@@ -68,7 +68,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.88fr,1.12fr]">
+      <section className="grid gap-6 xl:grid-cols-[0.8fr,1.2fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
@@ -80,11 +80,11 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             </div>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-slate-200">
+          <div className="mt-5 rounded-3xl border border-slate-200">
             <div className="divide-y divide-slate-100 bg-white md:hidden">
               {marketingHeadcountPlan.map((row) => (
-                <div key={row.role} className="space-y-3 px-4 py-4">
-                  <p className="text-base font-semibold text-slate-900">{row.role}</p>
+                <div key={row.role} className="space-y-2 px-4 py-3.5">
+                  <p className="text-[15px] font-semibold text-slate-900">{row.role}</p>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Estimated</p>
@@ -108,19 +108,19 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
                 <table className="min-w-full divide-y divide-slate-200 text-sm">
                   <thead className="bg-slate-50 text-left text-slate-500">
                     <tr>
-                      <th className="px-4 py-4 font-medium">Role</th>
-                      <th className="px-3 py-4 font-medium">Estimated</th>
-                      <th className="px-3 py-4 font-medium">Actual</th>
-                      <th className="px-3 py-4 font-medium">Remaining</th>
+                      <th className="px-4 py-3 font-medium">Role</th>
+                      <th className="px-3 py-3 font-medium">Estimated</th>
+                      <th className="px-3 py-3 font-medium">Actual</th>
+                      <th className="px-3 py-3 font-medium">Remaining</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {marketingHeadcountPlan.map((row) => (
                       <tr key={row.role}>
-                        <td className="px-4 py-4 font-medium text-slate-900">{row.role}</td>
-                        <td className="px-3 py-4 text-slate-700">{row.estimated}</td>
-                        <td className="px-3 py-4 text-slate-700">{row.actual}</td>
-                        <td className={`px-3 py-4 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
+                        <td className="px-4 py-3.5 font-medium text-slate-900">{row.role}</td>
+                        <td className="px-3 py-3.5 text-slate-700">{row.estimated}</td>
+                        <td className="px-3 py-3.5 text-slate-700">{row.actual}</td>
+                        <td className={`px-3 py-3.5 font-medium ${row.remaining < 0 ? "text-rose-700" : "text-slate-700"}`}>
                           {row.remaining}
                         </td>
                       </tr>
@@ -143,7 +143,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             </div>
           </div>
 
-          <div className="mt-6 space-y-3">
+          <div className="mt-5 space-y-3">
             {marketingChannelSetup.map((channel) => (
               <div key={channel.channel} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                 <div className="flex items-center justify-between gap-3">

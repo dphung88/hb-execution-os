@@ -151,7 +151,6 @@ export function MarketingManualKpiResults({ tasks = [], monthKey = "2025-04" }: 
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-lg font-semibold text-slate-900">{role.role}</p>
-                  <p className="mt-1 text-sm text-slate-500">{role.owner}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
