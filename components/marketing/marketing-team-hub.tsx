@@ -6,7 +6,6 @@ import {
   marketingHeadcountPlan,
   marketingReportSummary,
   marketingResultsTracker,
-  marketingWorkbookContext,
 } from "@/lib/demo-data";
 import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
@@ -55,8 +54,8 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { label: "Sales revenue target", value: `${marketingReportSummary.salesRevenueTarget}M` },
-              { label: "Actual online sales", value: `${marketingReportSummary.actualOnlineSales}M` },
+              { label: "Sales revenue", value: `${marketingReportSummary.actualOnlineSales}M / ${marketingReportSummary.salesRevenueTarget}M` },
+              { label: "Actual AOV", value: `${marketingReportSummary.averageOrderValue.toFixed(2)}M` },
               { label: "Total ad spend", value: `${marketingReportSummary.totalAdSpend}M` },
               { label: "Total PO", value: `${marketingReportSummary.totalPurchaseOrders}` },
             ].map((item) => (
@@ -154,7 +153,7 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-slate-500">
-                  Budget {channel.budget}M · Actual {channel.actualBudget}M · Remaining {channel.remainingBudget}M
+                  Actual spend {channel.actualBudget}M
                 </p>
               </div>
             ))}

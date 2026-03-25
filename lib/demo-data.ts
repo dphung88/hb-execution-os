@@ -752,10 +752,12 @@ export const marketingTaskTracker = [
 ];
 
 export const marketingChannelSetup = [
-  { channel: "Facebook", budgetRatio: 0.05, actualRatio: 0.0066, budget: 10, actualBudget: 0.3, remainingBudget: 9.7 },
-  { channel: "Landing Page", budgetRatio: 0.3, actualRatio: 0.3282, budget: 60, actualBudget: 15, remainingBudget: 45 },
-  { channel: "Vision", budgetRatio: 0.05, actualRatio: 0.0788, budget: 10, actualBudget: 3.6, remainingBudget: 6.4 },
-  { channel: "Blackhair", budgetRatio: 0.1, actualRatio: 0.1597, budget: 20, actualBudget: 7.3, remainingBudget: 12.7 },
+  { channel: "Shopee", budgetRatio: 0, actualRatio: 0.471, budget: 0, actualBudget: 7.1, remainingBudget: 0 },
+  { channel: "Facebook", budgetRatio: 0, actualRatio: 0, budget: 0, actualBudget: 0, remainingBudget: 0 },
+  { channel: "Google", budgetRatio: 0, actualRatio: 0, budget: 0, actualBudget: 0, remainingBudget: 0 },
+  { channel: "Lazada", budgetRatio: 0, actualRatio: 0.036, budget: 0, actualBudget: 0.5, remainingBudget: 0 },
+  { channel: "Tiktok", budgetRatio: 0, actualRatio: 0.078, budget: 0, actualBudget: 1.2, remainingBudget: 0 },
+  { channel: "Zalo", budgetRatio: 0, actualRatio: 0, budget: 0, actualBudget: 0, remainingBudget: 0 },
 ];
 
 export const demoErpPipeline = [
