@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, Calculator, Users } from "lucide-react";
+import { AlertCircle, ArrowRight, BarChart3, Calculator, Star, Users } from "lucide-react";
 
 import { salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
@@ -9,6 +9,40 @@ function getHealthTone(total: number) {
   if (total >= 80) return "text-emerald-700 bg-emerald-50";
   if (total >= 60) return "text-amber-700 bg-amber-50";
   return "text-rose-700 bg-rose-50";
+}
+
+const skuLotDates: Record<string, string> = {
+  HB006: "2026-08-23",
+  HB034: "2027-12-29",
+  HB031: "2027-01-28",
+  HB035: "2027-08-16",
+};
+
+function formatLotDate(value?: string) {
+  if (!value) return "Lot date pending";
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) return value;
+  return `${day}/${month}/${year}`;
+}
+
+function getSkuProgressTone(progressPct: number, tone: "key" | "clear") {
+  if (tone === "key") {
+    return {
+      card: "border-sky-200 bg-sky-50/55",
+      badge: "bg-amber-100 text-amber-700",
+      track: "bg-sky-100",
+      fill: progressPct >= 50 ? "bg-sky-500" : "bg-sky-300",
+      percent: progressPct >= 50 ? "text-sky-700" : "text-rose-500",
+    };
+  }
+
+  return {
+    card: "border-rose-200 bg-rose-50/55",
+    badge: "bg-rose-100 text-rose-600",
+    track: "bg-rose-100",
+    fill: progressPct >= 80 ? "bg-rose-500" : "bg-rose-300",
+    percent: progressPct >= 80 ? "text-rose-700" : "text-rose-500",
+  };
 }
 
 type SalesPerformanceHubProps = {
@@ -52,6 +86,33 @@ export function SalesPerformanceHub({
       minPct: product.minPct,
       actual: 0,
     }));
+  const aggregateSkuTargets = (
+    items: typeof summaryKeySkuTargets,
+    category: "keySkuTargets" | "clearstockTargets",
+  ) =>
+    items.map((product) => {
+      const teamActual = scorecards.reduce((sum, asm) => {
+        const matched = asm[category].find((item) => item.code === product.code);
+        return sum + (matched?.actual ?? 0);
+      }, 0);
+
+      const teamTarget = scorecards.reduce((sum, asm) => {
+        const matched = asm[category].find((item) => item.code === product.code);
+        return sum + (matched?.target ?? product.target);
+      }, 0);
+
+      const progressPct = teamTarget > 0 ? Math.round((teamActual / teamTarget) * 100) : 0;
+
+      return {
+        ...product,
+        teamActual,
+        teamTarget,
+        progressPct,
+        lotDate: skuLotDates[product.code],
+      };
+    });
+  const keySkuProgressCards = aggregateSkuTargets(summaryKeySkuTargets, "keySkuTargets");
+  const clearstockProgressCards = aggregateSkuTargets(summaryClearstockTargets, "clearstockTargets");
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
   const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
@@ -323,40 +384,96 @@ export function SalesPerformanceHub({
           </div>
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">SKU KPI DETAIL</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Placed directly under revenue tracking</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">SKU progress tracking by team</h2>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 xl:grid-cols-2">
           <div className="rounded-3xl bg-slate-50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">KEY SKU KPI</p>
+            <div className="flex items-start gap-3">
+              <div className="rounded-2xl bg-sky-100 p-3 text-sky-600">
+                <Star className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-slate-900">Key SKU progress</p>
+                <p className="mt-1 text-sm text-slate-500">Both SKUs need to reach at least 50% to unlock the full 5-point KPI.</p>
+              </div>
+            </div>
             <div className="mt-4 space-y-3">
-              {summaryKeySkuTargets.map((product) => (
-                  <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                    <p className="font-medium text-slate-900">
-                      {product.code} · {product.name}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Target {product.target} · Minimum {Math.round(product.minPct * 100)}%
-                    </p>
+              {keySkuProgressCards.map((product) => {
+                const tone = getSkuProgressTone(product.progressPct, "key");
+                return (
+                  <div key={product.code} className={`rounded-2xl border px-4 py-4 ${tone.card}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-slate-900">
+                          <span className="font-semibold text-sky-600">{product.code}</span>{" "}
+                          {product.name}
+                        </p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${tone.badge}`}>
+                        Lot date: {formatLotDate(product.lotDate)}
+                      </span>
+                    </div>
+                    <div className={`mt-4 h-3 rounded-full ${tone.track}`}>
+                      <div
+                        className={`h-3 rounded-full transition-all ${tone.fill}`}
+                        style={{ width: `${Math.min(product.progressPct, 100)}%` }}
+                      />
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+                      <p className="text-slate-500">
+                        Team: <span className="font-semibold text-slate-900">{product.teamActual.toLocaleString("en-US")}/{product.teamTarget.toLocaleString("en-US")}</span>
+                      </p>
+                      <span className={`text-lg font-semibold ${tone.percent}`}>{product.progressPct}%</span>
+                    </div>
                   </div>
-                ))}
+                );
+              })}
             </div>
           </div>
 
           <div className="rounded-3xl bg-slate-50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">CLEARSTOCK KPI</p>
+            <div className="flex items-start gap-3">
+              <div className="rounded-2xl bg-rose-100 p-3 text-rose-600">
+                <AlertCircle className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-slate-900">Lot-date clearstock progress</p>
+                <p className="mt-1 text-sm text-slate-500">Both SKUs need to reach at least 80% to unlock 10 points. One SKU cleared still earns 5 points.</p>
+              </div>
+            </div>
             <div className="mt-4 space-y-3">
-              {summaryClearstockTargets.map((product) => (
-                  <div key={product.code} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-                    <p className="font-medium text-slate-900">
-                      {product.code} · {product.name}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Target {product.target} · Minimum {Math.round(product.minPct * 100)}%
-                    </p>
+              {clearstockProgressCards.map((product) => {
+                const tone = getSkuProgressTone(product.progressPct, "clear");
+                return (
+                  <div key={product.code} className={`rounded-2xl border px-4 py-4 ${tone.card}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-slate-900">
+                          <span className="font-semibold text-rose-500">{product.code}</span>{" "}
+                          {product.name}
+                        </p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${tone.badge}`}>
+                        Lot date: {formatLotDate(product.lotDate)}
+                      </span>
+                    </div>
+                    <div className={`mt-4 h-3 rounded-full ${tone.track}`}>
+                      <div
+                        className={`h-3 rounded-full transition-all ${tone.fill}`}
+                        style={{ width: `${Math.min(product.progressPct, 100)}%` }}
+                      />
+                    </div>
+                    <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+                      <p className="text-slate-500">
+                        Team: <span className="font-semibold text-slate-900">{product.teamActual.toLocaleString("en-US")}/{product.teamTarget.toLocaleString("en-US")}</span>
+                      </p>
+                      <span className={`text-lg font-semibold ${tone.percent}`}>{product.progressPct}%</span>
+                    </div>
                   </div>
-                ))}
+                );
+              })}
             </div>
           </div>
         </div>
