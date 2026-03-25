@@ -621,6 +621,18 @@ export const marketingWorkbookContext = {
   sourceFile: "Healthy Beauty KPIs Tracking 2025.xlsx",
 };
 
+export const marketingReportSummary = {
+  monthKey: "2026-02",
+  month: "February 2026",
+  sourceFile: "02.2025-Report ONLINE Healthy Beauty.xlsx",
+  salesRevenueTarget: 125,
+  actualOnlineSales: 85.3,
+  totalAdSpend: 15.0,
+  totalPurchaseOrders: 89,
+  averageOrderValue: 0.96,
+  achievementRate: 68.2,
+};
+
 export const marketingHeadcountPlan = [
   { role: "Senior Manager", estimated: 1, actual: 1, remaining: 0, owner: "Person #1" },
   { role: "Junior Executive", estimated: 0, actual: 0, remaining: 0, owner: "" },

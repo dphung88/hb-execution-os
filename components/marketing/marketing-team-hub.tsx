@@ -4,6 +4,7 @@ import { BarChart3, BriefcaseBusiness, CheckSquare, Megaphone } from "lucide-rea
 import {
   marketingChannelSetup,
   marketingHeadcountPlan,
+  marketingReportSummary,
   marketingResultsTracker,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
@@ -54,10 +55,10 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { label: "Sales revenue target", value: `${marketingWorkbookContext.salesRevenueTarget}M` },
-              { label: "Actual sales revenue", value: `${marketingWorkbookContext.actualSalesRevenue}M` },
-              { label: "Expense budget", value: `${marketingWorkbookContext.actualExpenseBudget}M / ${marketingWorkbookContext.expenseBudgetTarget}M` },
-              { label: "Headcount setup", value: `${marketingWorkbookContext.headcountActual}/${marketingWorkbookContext.headcountPlanned}` },
+              { label: "Sales revenue target", value: `${marketingReportSummary.salesRevenueTarget}M` },
+              { label: "Actual online sales", value: `${marketingReportSummary.actualOnlineSales}M` },
+              { label: "Total ad spend", value: `${marketingReportSummary.totalAdSpend}M` },
+              { label: "Total PO", value: `${marketingReportSummary.totalPurchaseOrders}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/10 p-4">
                 <p className={darkCardLabelClass}>{item.label}</p>
