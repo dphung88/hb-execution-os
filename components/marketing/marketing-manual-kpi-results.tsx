@@ -16,7 +16,7 @@ const STORAGE_KEY = "hb-marketing-manual-kpi-inputs-v1";
 
 function formatInput(value: number, unit: string) {
   if (unit === "VND") return value.toLocaleString("en-US");
-  if (Number.isInteger(value)) return String(value);
+  if (Number.isInteger(value)) return value.toLocaleString("en-US");
   return value.toFixed(2);
 }
 

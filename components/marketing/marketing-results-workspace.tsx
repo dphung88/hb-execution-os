@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BriefcaseBusiness } from "lucide-react";
 
 import {
+  marketingReportSummary,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
 import type { MarketingManualInputs } from "@/lib/marketing/kpi-templates";
@@ -27,8 +28,11 @@ type MarketingResultsWorkspaceProps = {
 };
 
 export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSource = "local" }: MarketingResultsWorkspaceProps) {
-  const revenueGap = marketingWorkbookContext.salesRevenueTarget - marketingWorkbookContext.actualSalesRevenue;
   const budgetRemaining = marketingWorkbookContext.expenseBudgetTarget - marketingWorkbookContext.actualExpenseBudget;
+  const purchaseOrderRemaining = Math.max(
+    0,
+    Math.round(marketingReportSummary.purchaseOrderTarget - marketingReportSummary.totalPurchaseOrders)
+  );
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   const executionSummary = getMarketingTeamExecutionSummary(tasks);
@@ -49,18 +53,11 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
       weight: "20%",
     },
     {
-      name: "Headcount readiness",
-      target: `${marketingWorkbookContext.headcountPlanned}`,
-      actual: `${marketingWorkbookContext.headcountActual}`,
-      ratio: toPercent(marketingWorkbookContext.headcountActual / marketingWorkbookContext.headcountPlanned),
-      weight: "15%",
-    },
-    {
       name: "Task execution",
       target: `${tasks.length}`,
       actual: `${executionSummary.completedTasks}`,
       ratio: toPercent(executionSummary.totalTasks ? executionSummary.completedTasks / executionSummary.totalTasks : 0),
-      weight: "25%",
+      weight: "15%",
     },
   ];
 
@@ -102,7 +99,7 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
         {[
           { label: "TEAM SALES TARGET", value: formatMillion(marketingWorkbookContext.salesRevenueTarget), note: "Monthly team goal" },
           { label: "ACTUAL SALES", value: formatMillion(marketingWorkbookContext.actualSalesRevenue), note: "Current booked result" },
-          { label: "REVENUE GAP", value: formatMillion(revenueGap), note: "Target still to close" },
+          { label: "PO REMAINING", value: purchaseOrderRemaining.toLocaleString("en-US"), note: "Purchase orders left to target" },
           { label: "BUDGET REMAINING", value: formatMillion(Number(budgetRemaining.toFixed(1))), note: "Available marketing budget" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">

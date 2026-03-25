@@ -627,6 +627,7 @@ export const marketingReportSummary = {
   sourceFile: "02.2025-Report ONLINE Healthy Beauty.xlsx",
   salesRevenueTarget: 125,
   actualOnlineSales: 85.3,
+  purchaseOrderTarget: 131,
   totalAdSpend: 15.0,
   totalPurchaseOrders: 89,
   averageOrderValue: 0.96,
