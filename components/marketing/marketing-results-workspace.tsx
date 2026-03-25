@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, Megaphone, TrendingUp } from "lucide-react";
+import { BriefcaseBusiness, Megaphone, TrendingUp } from "lucide-react";
 
 import {
   marketingChannelSetup,
   marketingHeadcountPlan,
-  marketingResultsTracker,
   marketingWorkbookContext,
 } from "@/lib/demo-data";
-import { getMarketingExecutionScore, getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
+import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
+import { MarketingManualKpiResults } from "@/components/marketing/marketing-manual-kpi-results";
 
 function toPercent(value: number) {
   return `${(value * 100).toFixed(0)}%`;
@@ -24,48 +24,6 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const lightCardLabelClass = "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400";
   const executionSummary = getMarketingTeamExecutionSummary(tasks);
-  const groupedResults = Array.from(
-    marketingResultsTracker.reduce((map, row) => {
-      const list = map.get(row.owner) ?? [];
-      list.push(row);
-      map.set(row.owner, list);
-      return map;
-    }, new Map<string, typeof marketingResultsTracker>())
-  );
-  const personKpiRows = Array.from(
-    marketingResultsTracker
-      .reduce((map, row) => {
-        const existing = map.get(row.owner) ?? {
-          owner: row.owner,
-          targetTotal: 0,
-          actualTotal: 0,
-          remainingTotal: 0,
-          metricCount: 0,
-        };
-
-        existing.targetTotal += row.estimated;
-        existing.actualTotal += row.actual;
-        existing.remainingTotal += row.remaining;
-        existing.metricCount += 1;
-        map.set(row.owner, existing);
-        return map;
-      }, new Map<string, { owner: string; targetTotal: number; actualTotal: number; remainingTotal: number; metricCount: number }>())
-      .values()
-  ).map((row) => {
-    const ratio = row.targetTotal ? row.actualTotal / row.targetTotal : 0;
-    const outcomeScore = Math.min(60, Math.round(ratio * 60));
-    const execution = getMarketingExecutionScore(row.owner, tasks);
-    const executionScore = execution.executionScore;
-    const totalScore = outcomeScore + executionScore;
-
-    return {
-      ...row,
-      ratio,
-      outcomeScore,
-      executionScore,
-      totalScore,
-    };
-  });
 
   const teamKpis = [
     {
@@ -208,118 +166,9 @@ export function MarketingResultsWorkspace({ tasks = [] }: MarketingResultsWorksp
         </div>
       </section>
 
-      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
-            <BarChart3 className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">RESULTS BY OWNER</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Monthly KPI result blocks</h2>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-4">
-          {groupedResults.map(([owner, rows]) => (
-            <div key={owner} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-lg font-semibold text-slate-900">{owner}</p>
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                  {rows.length} KPI block{rows.length > 1 ? "s" : ""}
-                </span>
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white">
-                <div className="divide-y divide-slate-100 md:hidden">
-                  {rows.map((row) => (
-                    <div key={`${owner}-${row.metric}`} className="space-y-3 px-4 py-4">
-                      <p className="text-base font-semibold text-slate-900">{row.metric}</p>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
-                          <p className="mt-1 text-slate-700">{row.estimated}M</p>
-                        </div>
-                        <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
-                          <p className="mt-1 text-slate-700">{row.actual}M</p>
-                        </div>
-                        <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Remaining</p>
-                          <p className="mt-1 text-slate-700">{row.remaining}M</p>
-                        </div>
-                        <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">KPI Unit</p>
-                          <p className="mt-1 text-slate-700">{row.kpiUnit.toFixed(2)}M</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="hidden overflow-x-auto md:block">
-                  <div className="min-w-[640px]">
-                    <table className="min-w-full divide-y divide-slate-200 text-sm">
-                      <thead className="bg-slate-50 text-left text-slate-500">
-                        <tr>
-                          <th className="px-4 py-3 font-medium">Metric</th>
-                          <th className="px-4 py-3 font-medium">Target</th>
-                          <th className="px-4 py-3 font-medium">Actual</th>
-                          <th className="px-4 py-3 font-medium">Remaining</th>
-                          <th className="px-4 py-3 font-medium">KPI Unit</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {rows.map((row) => (
-                          <tr key={`${owner}-${row.metric}`}>
-                            <td className="px-4 py-3 font-medium text-slate-900">{row.metric}</td>
-                            <td className="px-4 py-3 text-slate-700">{row.estimated}M</td>
-                            <td className="px-4 py-3 text-slate-700">{row.actual}M</td>
-                            <td className="px-4 py-3 text-slate-700">{row.remaining}M</td>
-                            <td className="px-4 py-3 text-slate-700">{row.kpiUnit.toFixed(2)}M</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <MarketingManualKpiResults tasks={tasks} monthKey={marketingWorkbookContext.monthKey} />
 
       <section className="space-y-6">
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-violet-100 p-3 text-violet-700">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">PERSON KPIS</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Score roll-up by owner</h2>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {personKpiRows.map((row) => (
-              <div key={row.owner} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{row.owner}</p>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                    {row.totalScore}/100
-                  </span>
-                </div>
-                <div className="mt-3 grid gap-2 text-sm text-slate-500 sm:grid-cols-2">
-                  <p>Outcome score {row.outcomeScore}/60</p>
-                  <p>Execution score {row.executionScore}/40</p>
-                  <p>Target {row.targetTotal}M</p>
-                  <p>Actual {row.actualTotal}M</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">

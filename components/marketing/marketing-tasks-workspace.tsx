@@ -101,10 +101,10 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               Back to Results
             </Link>
             <Link
-              href="/marketing-performance/kpis"
+              href="/marketing-performance/results"
               className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
             >
-              Open Marketing KPIs
+              Open Marketing Results
             </Link>
           </div>
         </div>
