@@ -1,4 +1,6 @@
 import { getPeriods } from "@/lib/config/periods";
+import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 
 type RevenueForecastRow = {
@@ -62,6 +64,22 @@ export type SalesForecastData = {
   totalStockOnHand: number;
   averageDailySellThrough: number;
 };
+
+type SkuLotRow = { code: string; lot_date: string | null; stock_on_hand: number | null; weekly_sell_out: number | null };
+
+/** Fetch SKU lot dates from Supabase sku_lot_dates table */
+async function getSkuLotDates(): Promise<Map<string, SkuLotRow>> {
+  if (!hasSupabaseAdminEnv()) return new Map();
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.from("sku_lot_dates").select("code, lot_date, stock_on_hand, weekly_sell_out");
+    const map = new Map<string, SkuLotRow>();
+    for (const row of (data ?? []) as SkuLotRow[]) {
+      map.set(row.code.toUpperCase(), row);
+    }
+    return map;
+  } catch { return new Map(); }
+}
 
 async function getPeriodWindows(): Promise<Record<string, { start: string; end: string; label: string }>> {
   const map: Record<string, { start: string; end: string; label: string }> = {};
@@ -199,7 +217,10 @@ export async function getSalesForecastData(
   selectedPeriod: string,
   periods: SalesPeriodOption[] = []
 ): Promise<SalesForecastData> {
-  const { elapsedDays, remainingDays, totalDays, label } = await clampElapsedDays(selectedPeriod);
+  const [{ elapsedDays, remainingDays, totalDays, label }, skuLotMap] = await Promise.all([
+    clampElapsedDays(selectedPeriod),
+    getSkuLotDates(),
+  ]);
 
   const revenueRows: RevenueForecastRow[] = scorecards.map((asm) => {
     const projectedRevenue =
@@ -243,8 +264,8 @@ export async function getSalesForecastData(
   const teamRequiredDailyPace = remainingDays > 0 ? round2(teamRevenueRemaining / remainingDays) : 0;
 
   // Build dynamic clearstock rows from configured SKU targets in scorecards
-  const clearstockRowsFromTargets = buildSkuForecastRows(scorecards, "clearstockTargets", "Clearstock", elapsedDays, remainingDays);
-  const keySkuRowsFromTargets = buildSkuForecastRows(scorecards, "keySkuTargets", "Key SKU", elapsedDays, remainingDays);
+  const clearstockRowsFromTargets = buildSkuForecastRows(scorecards, "clearstockTargets", "Clearstock", elapsedDays, remainingDays, skuLotMap);
+  const keySkuRowsFromTargets = buildSkuForecastRows(scorecards, "keySkuTargets", "Key SKU", elapsedDays, remainingDays, skuLotMap);
   const dynamicClearstockRows = [...keySkuRowsFromTargets, ...clearstockRowsFromTargets];
 
   // Use dynamic rows if available, else fall back to hardcoded snapshot
@@ -283,6 +304,7 @@ function buildSkuForecastRows(
   label: "Key SKU" | "Clearstock",
   elapsedDays: number,
   remainingDays: number,
+  skuLotMap: Map<string, SkuLotRow> = new Map(),
 ): ClearstockForecastRow[] {
   if (scorecards.length === 0) return [];
 
@@ -300,12 +322,13 @@ function buildSkuForecastRows(
   }
 
   return Array.from(skuMap.entries()).map(([code, { name, totalActual, totalTarget, lotDate: targetLotDate }]) => {
-    // Use static snapshot data if available for this code (as fallback for stock/sell data)
+    // Priority: 1) lot date from targets (user override), 2) sku_lot_dates table, 3) hardcoded snapshot
+    const dbLot = skuLotMap.get(code);
     const snapshot = CLEARSTOCK_SNAPSHOT_BASE.find((s) => s.code === code);
-    const averageDailySell = elapsedDays > 0 ? round2(totalActual / elapsedDays) : (snapshot?.averageDailySell ?? 0);
-    const stockOnHand = snapshot?.stockOnHand ?? 0;
-    // Prefer lot date from targets (user-entered), fall back to snapshot
-    const lotDate = targetLotDate || snapshot?.lotDate || "";
+    const averageDailySell = elapsedDays > 0 ? round2(totalActual / elapsedDays) : (snapshot?.averageDailySell ?? dbLot?.weekly_sell_out != null ? round2((dbLot!.weekly_sell_out ?? 0) / 7) : 0);
+    const stockOnHand = dbLot?.stock_on_hand ?? snapshot?.stockOnHand ?? 0;
+    const lotDate = targetLotDate || dbLot?.lot_date || snapshot?.lotDate || "";
+    const weeklySellOut = dbLot?.weekly_sell_out ?? snapshot?.weeklySellOut ?? Math.round(averageDailySell * 7);
     const snapshotDate = snapshot?.snapshotDate ?? new Date().toISOString().slice(0, 10);
 
     const riskValue = (totalTarget > 0 && totalActual / totalTarget < 0.5 ? "At risk" : "Watch") as "At risk";
@@ -316,7 +339,7 @@ function buildSkuForecastRows(
       snapshotDate,
       lotDate,
       stockOnHand,
-      weeklySellOut: snapshot?.weeklySellOut ?? Math.round(averageDailySell * 7),
+      weeklySellOut,
       averageDailySell,
       daysToClear: averageDailySell > 0 ? round2(stockOnHand / averageDailySell) : 9999,
       projectedClearDate: "",

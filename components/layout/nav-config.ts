@@ -72,6 +72,7 @@ export const appNavLinks: NavLinkItem[] = [
     children: [
       { href: "/settings", label: "App Settings" },
       { href: "/settings/periods", label: "Period Management" },
+      { href: "/settings/skus", label: "SKU Lot Dates" },
     ],
   },
 ];
