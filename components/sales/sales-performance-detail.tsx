@@ -35,7 +35,7 @@ function getStatusColor(passed: boolean) {
   return passed ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50";
 }
 
-export function SalesPerformanceDetail({
+export async function SalesPerformanceDetail({
   asm,
   selectedPeriod,
   canEdit,
@@ -45,7 +45,7 @@ export function SalesPerformanceDetail({
   errorStatus,
 }: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
-  const periodLabel = getSalesPeriodLabel(asm.periodKey);
+  const periodLabel = await getSalesPeriodLabel(asm.periodKey);
   const keyChecks = asm.keySkuTargets.map((item) => ({
     ...item,
     threshold: item.target * item.minPct,
@@ -60,7 +60,7 @@ export function SalesPerformanceDetail({
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <Link
           href={`/sales-performance?period=${selectedPeriod}`}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-200 transition hover:bg-white/10"
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to KPI board
@@ -68,14 +68,14 @@ export function SalesPerformanceDetail({
 
         <div className="mt-6 grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">
               ASM detail
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">{asm.name}</h1>
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">{asm.name}</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
               {asm.id} · Period {periodLabel}
             </p>
-            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Active territory · {asm.region || "Nationwide"}
             </p>
           </div>
@@ -89,7 +89,7 @@ export function SalesPerformanceDetail({
                 { label: "Reporting", value: `${scorecard.reportingScore}/5` }
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl bg-white/10 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">{item.label}</p>
                   <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
                 </div>
               ))}
@@ -113,145 +113,64 @@ export function SalesPerformanceDetail({
 
       {(canEdit || saveStatus) ? (
         <section className="grid gap-6 xl:grid-cols-2">
+          {/* Monthly Targets — read-only snapshot, editing is done on /sales-performance/targets */}
           <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">MONTHLY TARGETS</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Set target values outside ERP</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Monthly Targets</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Target Snapshot</h2>
               </div>
-              {saveStatus === "targets" ? (
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  Targets saved
-                </span>
-              ) : null}
+              <Link
+                href={`/sales-performance/targets?period=${selectedPeriod}`}
+                className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-600 transition hover:border-brand-300 hover:text-brand-700"
+              >
+                Edit targets
+              </Link>
             </div>
 
-            <form action={saveSalesTargetsAction} className="mt-6 grid gap-4 md:grid-cols-2">
-              <input type="hidden" name="asm_id" value={asm.id} />
-              <input type="hidden" name="period" value={selectedPeriod} />
-              {[
-                {
-                  name: "revenue_target",
-                  label: "Sales Target",
-                  value: target?.revenue_target ?? asm.revenueTarget,
-                  type: "number",
-                  note: "Unit: million VND",
-                },
-                { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? asm.newCustomersTarget, type: "number" },
-              ].map((field) => (
-                <label key={field.name} className="block">
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
-                  <input
-                    type={field.type}
-                    step="1"
-                    name={field.name}
-                    defaultValue={field.value}
-                    className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                  />
-                  {"note" in field ? (
-                    <span className="mt-2 block text-xs text-slate-500">{field.note}</span>
-                  ) : null}
-                </label>
-              ))}
-              <div className="md:col-span-2 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
-                  <div className="mt-3 grid gap-3">
-                    {[
-                      {
-                        codeName: "key_sku_code_1",
-                        codeValue: String(target?.key_sku_code_1 ?? asm.keySkuTargets[0]?.code ?? "HB031"),
-                        qtyName: "hb031_target",
-                        qtyValue: target?.hb031_target ?? asm.keySkuTargets[0]?.target ?? 0,
-                      },
-                      {
-                        codeName: "key_sku_code_2",
-                        codeValue: String(target?.key_sku_code_2 ?? asm.keySkuTargets[1]?.code ?? "HB035"),
-                        qtyName: "hb035_target",
-                        qtyValue: target?.hb035_target ?? asm.keySkuTargets[1]?.target ?? 0,
-                      },
-                    ].map((field) => (
-                      <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
-                        <label className="block">
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
-                          <input
-                            type="text"
-                            name={field.codeName}
-                            defaultValue={field.codeValue}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
-                          />
-                        </label>
-                        <label className="block">
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
-                          <input
-                            type="number"
-                            step="1"
-                            name={field.qtyName}
-                            defaultValue={field.qtyValue}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                          />
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
-                  <div className="mt-3 grid gap-3">
-                    {[
-                      {
-                        codeName: "clearstock_code_1",
-                        codeValue: String(target?.clearstock_code_1 ?? asm.clearstockTargets[0]?.code ?? "HB006"),
-                        qtyName: "hb006_target",
-                        qtyValue: target?.hb006_target ?? asm.clearstockTargets[0]?.target ?? 0,
-                      },
-                      {
-                        codeName: "clearstock_code_2",
-                        codeValue: String(target?.clearstock_code_2 ?? asm.clearstockTargets[1]?.code ?? "HB034"),
-                        qtyName: "hb034_target",
-                        qtyValue: target?.hb034_target ?? asm.clearstockTargets[1]?.target ?? 0,
-                      },
-                    ].map((field) => (
-                      <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
-                        <label className="block">
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
-                          <input
-                            type="text"
-                            name={field.codeName}
-                            defaultValue={field.codeValue}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
-                          />
-                        </label>
-                        <label className="block">
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
-                          <input
-                            type="number"
-                            step="1"
-                            name={field.qtyName}
-                            defaultValue={field.qtyValue}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                          />
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              {/* Sales Target */}
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Sales Target</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{target?.revenue_target ?? asm.revenueTarget}M</p>
+                <p className="mt-1 text-[10px] text-slate-500">million VND</p>
+              </div>
+              {/* Dealers Code */}
+              <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-600">Dealers Code</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{target?.new_customers_target ?? asm.newCustomersTarget}</p>
+                <p className="mt-1 text-[10px] text-slate-500">new codes</p>
+              </div>
+              {/* Key SKU */}
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Key SKU</p>
+                <div className="mt-2 space-y-1">
+                  {asm.keySkuTargets.map((item) => (
+                    <p key={item.code} className="text-sm font-semibold text-slate-900">
+                      <span className="text-sky-600">{item.code}</span> · {item.target}
+                    </p>
+                  ))}
                 </div>
               </div>
-              <button
-                type="submit"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 md:col-span-2"
-              >
-                Save monthly targets
-              </button>
-            </form>
+              {/* Clearstock */}
+              <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-600">Clearstock</p>
+                <div className="mt-2 space-y-1">
+                  {asm.clearstockTargets.map((item) => (
+                    <p key={item.code} className="text-sm font-semibold text-slate-900">
+                      <span className="text-rose-500">{item.code}</span> · {item.target}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-brand-700">Manager review</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Save discipline and reporting notes</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Manager review</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Save Discipline And Reporting Notes</h2>
               </div>
               {saveStatus === "review" ? (
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -265,7 +184,7 @@ export function SalesPerformanceDetail({
               <input type="hidden" name="period" value={selectedPeriod} />
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Discipline score</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Discipline score</span>
                   <input
                     type="number"
                     min="0"
@@ -276,7 +195,7 @@ export function SalesPerformanceDetail({
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Reporting score</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Reporting score</span>
                   <input
                     type="number"
                     min="0"
@@ -288,7 +207,7 @@ export function SalesPerformanceDetail({
                 </label>
               </div>
               <label className="block">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Manager note</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Manager note</span>
                 <textarea
                   name="manager_note"
                   defaultValue={review?.manager_note ?? asm.managerNote}
@@ -309,19 +228,14 @@ export function SalesPerformanceDetail({
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { icon: Database, label: "SALES REVENUE", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target` },
-            { icon: ClipboardCheck, label: "Dealers Code", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points` },
-            { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner" },
-            {
-              icon: BadgeDollarSign,
-              label: "Payout formula",
-              value: "4.1% x target revenue x factor",
-              note: asm.sourceSyncedAt ? `Last synced ${new Date(asm.sourceSyncedAt).toLocaleString("en-US")}` : "Aligned with the legacy KPI site"
-            }
+            { icon: Database, label: "Sales Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target`, color: "bg-sky-50 border-sky-100", iconColor: "text-sky-600", labelColor: "text-sky-600" },
+            { icon: ClipboardCheck, label: "Dealers Code", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points`, color: "bg-violet-50 border-violet-100", iconColor: "text-violet-600", labelColor: "text-violet-600" },
+            { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner", color: "bg-slate-50 border-slate-200", iconColor: "text-slate-500", labelColor: "text-slate-400" },
+            { icon: BadgeDollarSign, label: "KPI Payout", value: `${scorecard.payout}M`, note: asm.sourceSyncedAt ? `Synced ${new Date(asm.sourceSyncedAt).toLocaleDateString("en-US")}` : "Based on formula", color: "bg-emerald-50 border-emerald-100", iconColor: "text-emerald-600", labelColor: "text-emerald-600" },
           ].map((card) => (
-          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <card.icon className="h-5 w-5 text-brand-700" />
-            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+          <div key={card.label} className={`rounded-3xl border p-5 shadow-panel ${card.color}`}>
+            <card.icon className={`h-5 w-5 ${card.iconColor}`} />
+            <p className={`mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] ${card.labelColor}`}>{card.label}</p>
             <p className="mt-2 text-2xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
@@ -330,19 +244,19 @@ export function SalesPerformanceDetail({
 
       <section className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <h2 className="text-2xl font-semibold text-slate-900">KPI breakdown</h2>
-          <div className="mt-6 space-y-4">
+          <h2 className="text-2xl font-semibold text-slate-900">KPI Breakdown</h2>
+          <div className="mt-6 space-y-3">
             {[
-              { label: "3.1 Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% revenue attainment` },
-              { label: "3.2 Dealers Code", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} dealer codes` },
-              { label: "3.3 Key SKU", value: `${scorecard.keySkuScore}/5`, detail: keyChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ") },
-              { label: "3.4 Clearstock", value: `${scorecard.clearstockScore}/10`, detail: clearChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · ") },
-              { label: "3.5 Discipline", value: `${scorecard.manualScore}/5`, detail: "Entered manually by the manager" }
+              { label: "Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% revenue attainment`, color: "border-sky-100 bg-sky-50", badge: "bg-sky-100 text-sky-700" },
+              { label: "Dealers Code", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} dealer codes`, color: "border-violet-100 bg-violet-50", badge: "bg-violet-100 text-violet-700" },
+              { label: "Key SKU", value: `${scorecard.keySkuScore}/5`, detail: keyChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · "), color: "border-sky-100 bg-sky-50", badge: "bg-sky-100 text-sky-700" },
+              { label: "Clearstock", value: `${scorecard.clearstockScore}/10`, detail: clearChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · "), color: "border-rose-100 bg-rose-50", badge: "bg-rose-100 text-rose-700" },
+              { label: "Discipline", value: `${scorecard.manualScore}/5`, detail: "Entered manually by the manager", color: "border-amber-100 bg-amber-50", badge: "bg-amber-100 text-amber-700" },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div key={item.label} className={`rounded-2xl border px-4 py-4 ${item.color}`}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium text-slate-900">{item.label}</p>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{item.value}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.badge}`}>{item.value}</span>
                 </div>
                 <p className="mt-2 text-sm text-slate-500">{item.detail}</p>
               </div>
@@ -351,7 +265,7 @@ export function SalesPerformanceDetail({
         </div>
 
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <h2 className="text-2xl font-semibold text-slate-900">Manager review</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">Manager Review</h2>
           <div className="mt-6 rounded-3xl bg-slate-50 p-5">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Manager note</p>
             <p className="mt-3 text-sm leading-7 text-slate-600">{asm.managerNote}</p>
@@ -359,11 +273,11 @@ export function SalesPerformanceDetail({
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Discipline</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Discipline</p>
               <p className="mt-3 text-2xl font-semibold text-slate-950">{scorecard.manualScore}/5</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Reporting quality</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Reporting quality</p>
               <p className="mt-3 text-2xl font-semibold text-slate-950">{scorecard.reportingScore}/5</p>
             </div>
           </div>
@@ -372,17 +286,16 @@ export function SalesPerformanceDetail({
 
       <section className="grid gap-6 xl:grid-cols-2">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <h2 className="text-2xl font-semibold text-slate-900">SKU Key detail</h2>
-          <div className="mt-6 space-y-4">
+          <h2 className="text-2xl font-semibold text-slate-900">SKU Key Detail</h2>
+          <div className="mt-6 space-y-3">
             {keyChecks.map((item) => {
               const passed = item.actual >= item.threshold;
-
               return (
-                <div key={item.code} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div key={item.code} className={`rounded-2xl border px-4 py-4 ${passed ? "border-sky-100 bg-sky-50" : "border-amber-100 bg-amber-50"}`}>
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="font-medium text-slate-900">
-                        {item.code} · {item.name}
+                        <span className="font-semibold text-sky-600">{item.code}</span> · {item.name}
                       </p>
                       <p className="mt-1 text-sm text-slate-500">
                         Actual {item.actual} · Min {Math.ceil(item.threshold)} · Target {item.target}
@@ -399,17 +312,16 @@ export function SalesPerformanceDetail({
         </div>
 
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <h2 className="text-2xl font-semibold text-slate-900">Clearstock detail</h2>
-          <div className="mt-6 space-y-4">
+          <h2 className="text-2xl font-semibold text-slate-900">Clearstock Detail</h2>
+          <div className="mt-6 space-y-3">
             {clearChecks.map((item) => {
               const passed = item.actual >= item.threshold;
-
               return (
-                <div key={item.code} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div key={item.code} className={`rounded-2xl border px-4 py-4 ${passed ? "border-emerald-100 bg-emerald-50" : "border-rose-100 bg-rose-50"}`}>
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="font-medium text-slate-900">
-                        {item.code} · {item.name}
+                        <span className="font-semibold text-rose-500">{item.code}</span> · {item.name}
                       </p>
                       <p className="mt-1 text-sm text-slate-500">
                         Actual {item.actual} · Min {Math.ceil(item.threshold)} · Target {item.target}

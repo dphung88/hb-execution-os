@@ -1,4 +1,5 @@
-import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
+import { demoSalesAsms, salesKpiProducts } from "@/lib/demo-data";
+import { getPeriods } from "@/lib/config/periods";
 
 export type SalesAsm = (typeof demoSalesAsms)[number] & {
   keySkuTargets?: Array<{
@@ -18,8 +19,9 @@ export type SalesAsm = (typeof demoSalesAsms)[number] & {
 };
 export type SalesAsmScorecard = ReturnType<typeof getAsmScorecard>;
 
-export function getSalesPeriodLabel(periodKey: string) {
-  return salesPeriods.find((period) => period.key === periodKey)?.label ?? periodKey;
+export async function getSalesPeriodLabel(periodKey: string): Promise<string> {
+  const periods = await getPeriods();
+  return periods.find((p) => p.key === periodKey)?.label ?? periodKey;
 }
 
 export function calculateRevenueScore(revenuePct: number) {
@@ -137,10 +139,11 @@ export function getSalesAsmById(id: string, asms: SalesAsm[] = demoSalesAsms) {
   return asms.find((asm) => asm.id === id) ?? null;
 }
 
-export function getSalesScorecards<T extends SalesAsm>(asms: T[] = demoSalesAsms as T[]) {
+export async function getSalesScorecards<T extends SalesAsm>(asms: T[] = demoSalesAsms as T[]) {
+  const periods = await getPeriods();
   return asms.map((asm) => ({
     ...asm,
-    periodLabel: getSalesPeriodLabel(asm.periodKey),
-    scorecard: getAsmScorecard(asm)
+    periodLabel: periods.find((p) => p.key === asm.periodKey)?.label ?? asm.periodKey,
+    scorecard: getAsmScorecard(asm),
   }));
 }

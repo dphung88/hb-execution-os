@@ -11,8 +11,8 @@ type SalesForecastPageProps = {
 export default async function SalesForecastPage({ searchParams }: SalesForecastPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const period = resolvedSearchParams?.period;
-  const { scorecards, selectedPeriod } = await getSalesScorecardsData(period);
-  const forecast = getSalesForecastData(scorecards, selectedPeriod);
+  const { scorecards, selectedPeriod, periods } = await getSalesScorecardsData(period);
+  const forecast = await getSalesForecastData(scorecards, selectedPeriod, periods);
 
   return <SalesForecastWorkspace forecast={forecast} />;
 }

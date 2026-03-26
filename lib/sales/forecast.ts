@@ -1,4 +1,5 @@
-import type { SalesAsmResolved } from "@/lib/sales/queries";
+import { getPeriods } from "@/lib/config/periods";
+import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
 
 type RevenueForecastRow = {
   id: string;
@@ -9,6 +10,12 @@ type RevenueForecastRow = {
   projectedRevenue: number;
   achievementPct: number;
   projectedPct: number;
+  // New: pace analysis
+  currentDailyPace: number;      // actual / elapsed days (M/day)
+  requiredDailyPace: number;     // (target - actual) / remaining days (M/day)
+  dailyPaceGap: number;          // current - required (negative = needs to accelerate)
+  remainingDays: number;
+  revenueRemaining: number;      // target - actual
   status: "On track" | "Watch" | "At risk" | "Pending";
 };
 
@@ -25,18 +32,28 @@ type ClearstockForecastRow = {
   projectedClearDate: string;
   willClearBeforeLotDate: boolean;
   risk: "Healthy" | "Watch" | "At risk";
+  // New: required pace vs actual
+  daysUntilExpiry: number;         // from today to lotDate
+  requiredDailySell: number;       // stockOnHand / daysUntilExpiry
+  dailySellGap: number;            // averageDailySell - requiredDailySell (negative = at risk)
+  monthlyPushNeeded: number;       // requiredDailySell * 30 (units/month needed)
+  coverageMonths: number;          // months of stock at current sell pace
 };
 
 export type SalesForecastData = {
   selectedPeriod: string;
+  periods: SalesPeriodOption[];
   windowLabel: string;
   elapsedDays: number;
   totalDays: number;
+  remainingDays: number;
   teamRevenueTarget: number;
   teamRevenueActual: number;
   teamProjectedRevenue: number;
   teamProjectedPct: number;
   revenueGap: number;
+  teamCurrentDailyPace: number;    // M/day currently
+  teamRequiredDailyPace: number;   // M/day needed to close gap
   aboveTargetAsmCount: number;
   revenueRows: RevenueForecastRow[];
   clearstockRows: ClearstockForecastRow[];
@@ -46,19 +63,21 @@ export type SalesForecastData = {
   averageDailySellThrough: number;
 };
 
-const PERIOD_WINDOWS: Record<string, { start: string; end: string; label: string }> = {
-  "2026-03": { start: "2026-03-15", end: "2026-04-14", label: "Mar 15 - Apr 14" },
-  "2026-04": { start: "2026-04-15", end: "2026-05-14", label: "Apr 15 - May 14" },
-  "2026-05": { start: "2026-05-15", end: "2026-06-14", label: "May 15 - Jun 14" },
-};
+async function getPeriodWindows(): Promise<Record<string, { start: string; end: string; label: string }>> {
+  const map: Record<string, { start: string; end: string; label: string }> = {};
+  for (const p of await getPeriods()) {
+    map[p.key] = { start: p.startDate, end: p.endDate, label: p.label };
+  }
+  return map;
+}
 
 // Snapshot extracted from the stock workbook:
 // /Users/edisonyang/Documents/Zalo Received Files/TỔNG TỒN KHO TPBVSK CHO ĐẾN HẾT NGÀY  08032025.xlsx
-const CLEARSTOCK_SNAPSHOT: ClearstockForecastRow[] = [
+const CLEARSTOCK_SNAPSHOT_BASE = [
   {
     code: "HB031",
     name: "HB CoQ10 150mg C/30V",
-    category: "Key SKU",
+    category: "Key SKU" as const,
     snapshotDate: "2025-03-08",
     lotDate: "2027-01-28",
     stockOnHand: 15633,
@@ -67,12 +86,12 @@ const CLEARSTOCK_SNAPSHOT: ClearstockForecastRow[] = [
     daysToClear: 2939.744976816074,
     projectedClearDate: "2033-03-27",
     willClearBeforeLotDate: false,
-    risk: "At risk",
+    risk: "At risk" as const,
   },
   {
     code: "HB035",
     name: "HB Collagen 1,2&3 C/120V",
-    category: "Key SKU",
+    category: "Key SKU" as const,
     snapshotDate: "2025-03-08",
     lotDate: "2027-08-16",
     stockOnHand: 4368,
@@ -81,12 +100,12 @@ const CLEARSTOCK_SNAPSHOT: ClearstockForecastRow[] = [
     daysToClear: 1698.6666666893332,
     projectedClearDate: "2029-10-31",
     willClearBeforeLotDate: false,
-    risk: "Watch",
+    risk: "Watch" as const,
   },
   {
     code: "HB006",
     name: "Gluta White C/30V",
-    category: "Clearstock",
+    category: "Clearstock" as const,
     snapshotDate: "2025-03-08",
     lotDate: "2026-08-23",
     stockOnHand: 11959,
@@ -95,12 +114,12 @@ const CLEARSTOCK_SNAPSHOT: ClearstockForecastRow[] = [
     daysToClear: 1152.9410987849974,
     projectedClearDate: "2028-05-05",
     willClearBeforeLotDate: false,
-    risk: "At risk",
+    risk: "At risk" as const,
   },
   {
     code: "HB034",
     name: "HB Prenatal Support H/60V",
-    category: "Clearstock",
+    category: "Clearstock" as const,
     snapshotDate: "2025-03-08",
     lotDate: "2027-12-29",
     stockOnHand: 13322,
@@ -109,33 +128,36 @@ const CLEARSTOCK_SNAPSHOT: ClearstockForecastRow[] = [
     daysToClear: 16047.333333333332,
     projectedClearDate: "2069-02-18",
     willClearBeforeLotDate: false,
-    risk: "At risk",
+    risk: "At risk" as const,
   },
 ];
+
+const TODAY = new Date("2026-03-26T00:00:00");
 
 function differenceInDays(start: Date, end: Date) {
   return Math.floor((end.getTime() - start.getTime()) / 86400000);
 }
 
-function clampElapsedDays(periodKey: string) {
-  const window = PERIOD_WINDOWS[periodKey];
-  if (!window) return { elapsedDays: 15, totalDays: 31, label: periodKey };
+async function clampElapsedDays(periodKey: string) {
+  const window = (await getPeriodWindows())[periodKey];
+  if (!window) return { elapsedDays: 15, remainingDays: 16, totalDays: 31, label: periodKey };
 
   const start = new Date(`${window.start}T00:00:00`);
   const end = new Date(`${window.end}T00:00:00`);
-  const today = new Date("2026-03-26T00:00:00");
   const totalDays = differenceInDays(start, end) + 1;
 
-  if (today < start) {
-    return { elapsedDays: 0, totalDays, label: window.label };
+  if (TODAY < start) {
+    return { elapsedDays: 0, remainingDays: totalDays, totalDays, label: window.label };
   }
 
-  if (today > end) {
-    return { elapsedDays: totalDays, totalDays, label: window.label };
+  if (TODAY > end) {
+    return { elapsedDays: totalDays, remainingDays: 0, totalDays, label: window.label };
   }
 
+  const elapsed = differenceInDays(start, TODAY) + 1;
   return {
-    elapsedDays: differenceInDays(start, today) + 1,
+    elapsedDays: elapsed,
+    remainingDays: totalDays - elapsed,
     totalDays,
     label: window.label,
   };
@@ -148,19 +170,50 @@ function getRevenueStatus(projectedPct: number): RevenueForecastRow["status"] {
   return "At risk";
 }
 
-export function getSalesForecastData(
+function round2(n: number) {
+  return Math.round(n * 100) / 100;
+}
+
+function enrichClearstockRow(base: typeof CLEARSTOCK_SNAPSHOT_BASE[number]): ClearstockForecastRow {
+  const expiryDate = new Date(`${base.lotDate}T00:00:00`);
+  const daysUntilExpiry = Math.max(differenceInDays(TODAY, expiryDate), 1);
+  const requiredDailySell = round2(base.stockOnHand / daysUntilExpiry);
+  const dailySellGap = round2(base.averageDailySell - requiredDailySell); // negative = shortfall
+  const monthlyPushNeeded = Math.ceil(requiredDailySell * 30);
+  const coverageMonths = round2(base.stockOnHand / (base.averageDailySell * 30));
+
+  return {
+    ...base,
+    daysUntilExpiry,
+    requiredDailySell,
+    dailySellGap,
+    monthlyPushNeeded,
+    coverageMonths,
+  };
+}
+
+const CLEARSTOCK_SNAPSHOT: ClearstockForecastRow[] = CLEARSTOCK_SNAPSHOT_BASE.map(enrichClearstockRow);
+
+export async function getSalesForecastData(
   scorecards: Array<SalesAsmResolved & { scorecard: { total: number } }>,
-  selectedPeriod: string
-): SalesForecastData {
-  const { elapsedDays, totalDays, label } = clampElapsedDays(selectedPeriod);
+  selectedPeriod: string,
+  periods: SalesPeriodOption[] = []
+): Promise<SalesForecastData> {
+  const { elapsedDays, remainingDays, totalDays, label } = await clampElapsedDays(selectedPeriod);
 
   const revenueRows: RevenueForecastRow[] = scorecards.map((asm) => {
     const projectedRevenue =
-      elapsedDays > 0 ? Number(((asm.revenueActual / elapsedDays) * totalDays).toFixed(2)) : 0;
+      elapsedDays > 0 ? round2((asm.revenueActual / elapsedDays) * totalDays) : 0;
     const achievementPct =
       asm.revenueTarget > 0 ? Math.round((asm.revenueActual / asm.revenueTarget) * 100) : 0;
     const projectedPct =
       asm.revenueTarget > 0 ? Math.round((projectedRevenue / asm.revenueTarget) * 100) : 0;
+
+    const currentDailyPace = elapsedDays > 0 ? round2(asm.revenueActual / elapsedDays) : 0;
+    const revenueRemaining = round2(asm.revenueTarget - asm.revenueActual);
+    const requiredDailyPace =
+      remainingDays > 0 ? round2(Math.max(revenueRemaining, 0) / remainingDays) : 0;
+    const dailyPaceGap = round2(currentDailyPace - requiredDailyPace);
 
     return {
       id: asm.id,
@@ -171,6 +224,11 @@ export function getSalesForecastData(
       projectedRevenue,
       achievementPct,
       projectedPct,
+      currentDailyPace,
+      requiredDailyPace,
+      dailyPaceGap,
+      remainingDays,
+      revenueRemaining,
       status: getRevenueStatus(projectedPct),
     };
   });
@@ -180,25 +238,89 @@ export function getSalesForecastData(
   const teamProjectedRevenue = revenueRows.reduce((sum, row) => sum + row.projectedRevenue, 0);
   const teamProjectedPct =
     teamRevenueTarget > 0 ? Math.round((teamProjectedRevenue / teamRevenueTarget) * 100) : 0;
+  const teamCurrentDailyPace = elapsedDays > 0 ? round2(teamRevenueActual / elapsedDays) : 0;
+  const teamRevenueRemaining = Math.max(teamRevenueTarget - teamRevenueActual, 0);
+  const teamRequiredDailyPace = remainingDays > 0 ? round2(teamRevenueRemaining / remainingDays) : 0;
+
+  // Build dynamic clearstock rows from configured SKU targets in scorecards
+  const clearstockRowsFromTargets = buildSkuForecastRows(scorecards, "clearstockTargets", "Clearstock", elapsedDays, remainingDays);
+  const keySkuRowsFromTargets = buildSkuForecastRows(scorecards, "keySkuTargets", "Key SKU", elapsedDays, remainingDays);
+  const dynamicClearstockRows = [...keySkuRowsFromTargets, ...clearstockRowsFromTargets];
+
+  // Use dynamic rows if available, else fall back to hardcoded snapshot
+  const clearstockRows = dynamicClearstockRows.length > 0 ? dynamicClearstockRows : CLEARSTOCK_SNAPSHOT;
 
   return {
     selectedPeriod,
+    periods,
     windowLabel: label,
     elapsedDays,
+    remainingDays,
     totalDays,
     teamRevenueTarget,
     teamRevenueActual,
     teamProjectedRevenue,
     teamProjectedPct,
-    revenueGap: Number((teamProjectedRevenue - teamRevenueTarget).toFixed(2)),
+    revenueGap: round2(teamProjectedRevenue - teamRevenueTarget),
+    teamCurrentDailyPace,
+    teamRequiredDailyPace,
     aboveTargetAsmCount: revenueRows.filter((row) => row.projectedPct >= 100).length,
     revenueRows,
-    clearstockRows: CLEARSTOCK_SNAPSHOT,
-    clearBeforeLotCount: CLEARSTOCK_SNAPSHOT.filter((row) => row.willClearBeforeLotDate).length,
-    atRiskClearstockCount: CLEARSTOCK_SNAPSHOT.filter((row) => row.risk === "At risk").length,
-    totalStockOnHand: CLEARSTOCK_SNAPSHOT.reduce((sum, row) => sum + row.stockOnHand, 0),
-    averageDailySellThrough: Number(
-      CLEARSTOCK_SNAPSHOT.reduce((sum, row) => sum + row.averageDailySell, 0).toFixed(1)
+    clearstockRows,
+    clearBeforeLotCount: clearstockRows.filter((row) => row.willClearBeforeLotDate).length,
+    atRiskClearstockCount: clearstockRows.filter((row) => row.risk === "At risk").length,
+    totalStockOnHand: clearstockRows.reduce((sum, row) => sum + row.stockOnHand, 0),
+    averageDailySellThrough: round2(
+      clearstockRows.reduce((sum, row) => sum + row.averageDailySell, 0)
     ),
   };
+}
+
+/** Build clearstock/key-SKU forecast rows dynamically from configured targets in scorecards */
+function buildSkuForecastRows(
+  scorecards: Array<SalesAsmResolved & { scorecard: { total: number } }>,
+  category: "clearstockTargets" | "keySkuTargets",
+  label: "Key SKU" | "Clearstock",
+  elapsedDays: number,
+  remainingDays: number,
+): ClearstockForecastRow[] {
+  if (scorecards.length === 0) return [];
+
+  // Collect unique SKU codes from all ASMs
+  const skuMap = new Map<string, { name: string; totalActual: number; totalTarget: number }>();
+  for (const asm of scorecards) {
+    for (const item of asm[category]) {
+      const existing = skuMap.get(item.code) ?? { name: item.name, totalActual: 0, totalTarget: 0 };
+      existing.totalActual += item.actual;
+      existing.totalTarget += item.target;
+      skuMap.set(item.code, existing);
+    }
+  }
+
+  return Array.from(skuMap.entries()).map(([code, { name, totalActual, totalTarget }]) => {
+    // Use static snapshot data if available for this code
+    const snapshot = CLEARSTOCK_SNAPSHOT_BASE.find((s) => s.code === code);
+    const averageDailySell = elapsedDays > 0 ? round2(totalActual / elapsedDays) : (snapshot?.averageDailySell ?? 0);
+    const stockOnHand = snapshot?.stockOnHand ?? 0;
+    const lotDate = snapshot?.lotDate ?? "";
+    const snapshotDate = snapshot?.snapshotDate ?? new Date().toISOString().slice(0, 10);
+
+    const riskValue = (totalTarget > 0 && totalActual / totalTarget < 0.5 ? "At risk" : "Watch") as "At risk";
+    const base = {
+      code,
+      name,
+      category: label as "Key SKU",
+      snapshotDate,
+      lotDate,
+      stockOnHand,
+      weeklySellOut: snapshot?.weeklySellOut ?? Math.round(averageDailySell * 7),
+      averageDailySell,
+      daysToClear: averageDailySell > 0 ? round2(stockOnHand / averageDailySell) : 9999,
+      projectedClearDate: "",
+      willClearBeforeLotDate: false,
+      risk: riskValue,
+    };
+
+    return enrichClearstockRow(base);
+  });
 }

@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Megaphone,
   Mic,
+  Settings2,
 } from "lucide-react";
 
 export type SingleNavLink = {
@@ -41,6 +42,7 @@ export const appNavLinks: NavLinkItem[] = [
     match: "/sales-performance",
     children: [
       { href: "/sales-performance", label: "Sales Dashboard" },
+      { href: "/sales-performance/volume", label: "Sales Volume" },
       { href: "/sales-performance/forecast", label: "Sales Forecast" },
       { href: "/sales-performance/targets", label: "Sales Targets" },
     ],
@@ -62,4 +64,14 @@ export const appNavLinks: NavLinkItem[] = [
   { type: "single", href: "/briefs", label: "CEO Brief", icon: FileStack },
   { type: "single", href: "/meetings", label: "Meetings", icon: Mic },
   { type: "single", href: "/preview", label: "Preview", icon: Eye },
+  {
+    type: "group",
+    label: "Settings",
+    icon: Settings2,
+    match: "/settings",
+    children: [
+      { href: "/settings", label: "App Settings" },
+      { href: "/settings/periods", label: "Period Management" },
+    ],
+  },
 ];

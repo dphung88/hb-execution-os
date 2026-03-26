@@ -5,7 +5,8 @@ import {
   saveSalesTargetDefaultsAction,
   saveSalesTargetRowAction,
 } from "@/app/(app)/sales-performance/targets/actions";
-import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
+import { demoSalesAsms, salesKpiProducts } from "@/lib/demo-data";
+import { getPeriods } from "@/lib/config/periods";
 import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,15 +19,11 @@ type SalesTargetsPageProps = {
   }>;
 };
 
-function periodLabel(period: string) {
-  const [year, month] = period.split("-");
-  const d = new Date(Number(year), Number(month) - 1, 1);
-  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(d);
-}
 
 export default async function SalesTargetsPage({ searchParams }: SalesTargetsPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const selectedPeriod = resolvedSearchParams?.period ?? salesPeriods[salesPeriods.length - 1]?.key ?? "2026-03";
+  const configPeriods = await getPeriods();
+  const selectedPeriod = resolvedSearchParams?.period ?? configPeriods[0]?.key ?? "2026-03";
   const savedAsm = resolvedSearchParams?.saved;
   const errorState = resolvedSearchParams?.error;
   const selectedAsm = resolvedSearchParams?.asm ?? demoSalesAsms[0]?.id;
@@ -103,8 +100,8 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Sales Targets</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">Monthly target management for the full ASM roster.</h1>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">Sales Targets</p>
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">Monthly target management for the full ASM roster.</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
               Use this page to manage revenue and KPI targets outside ERP. Sales actuals still come from ERP sync, while targets and manager review stay under your control.
             </p>
@@ -116,12 +113,11 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
               defaultValue={selectedPeriod}
               className="h-11 min-w-[220px] rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none"
             >
-              {[...salesPeriods]
-                .map((period) => period.key)
-                .sort((a, b) => b.localeCompare(a))
+              {[...configPeriods]
+                .sort((a, b) => b.key.localeCompare(a.key))
                 .map((period) => (
-                  <option key={period} value={period} className="text-slate-900">
-                    {periodLabel(period)}
+                  <option key={period.key} value={period.key} className="text-slate-900">
+                    {period.label}
                   </option>
                 ))}
             </select>
@@ -137,16 +133,23 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
 
       <section className="grid gap-4 md:grid-cols-3">
         {[
-          { label: "Current period", value: periodLabel(selectedPeriod), note: "Editing target plan" },
+          { label: "Current period", value: configPeriods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod, note: "Editing target plan" },
           { label: "Target setup coverage", value: `${targetCoverage}/${demoSalesAsms.length}`, note: "ASM with saved targets" },
           { label: "Manager review coverage", value: `${reviewCoverage}/${demoSalesAsms.length}`, note: "ASM with saved review" },
-        ].map((card) => (
-          <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+        ].map((card, i) => {
+          const pal = [
+            { card: "border-sky-100 bg-sky-50", label: "text-sky-600" },
+            { card: "border-violet-100 bg-violet-50", label: "text-violet-600" },
+            { card: "border-emerald-100 bg-emerald-50", label: "text-emerald-600" },
+          ][i] ?? { card: "border-white/70 bg-white/85", label: "text-slate-400" };
+          return (
+          <div key={card.label} className={`rounded-3xl border p-6 shadow-panel ${pal.card}`}>
+            <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${pal.label}`}>{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
-        ))}
+          );
+        })}
       </section>
 
       {bulkSaved ? (
@@ -173,8 +176,8 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
 
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">BULK TARGET SETUP</p>
-          <h2 className="text-2xl font-semibold text-slate-900">Apply one baseline target setup to all ASM</h2>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">BULK TARGET SETUP</p>
+          <h2 className="text-2xl font-semibold text-slate-900">Apply One Baseline Target Setup To All ASM</h2>
           <p className="text-sm leading-6 text-slate-500">
             Use this once per month when the core Sales Target, Dealers Code, Key SKU, and Clearstock targets are mostly identical. Then adjust only the exceptional ASM rows below.
           </p>
@@ -184,7 +187,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
           <input type="hidden" name="period" value={selectedPeriod} />
 
           <div className="grid gap-4">
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
                 {
                   name: "revenue_target",
@@ -199,7 +202,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                 },
               ].map((field) => (
                 <label key={field.name} className="block">
-                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{field.label}</span>
                   <input
                     type="number"
                     name={field.name}
@@ -212,8 +215,8 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
             </div>
 
             <div className="grid gap-3 xl:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">Key SKU</p>
                 <div className="mt-3 grid gap-3">
                   {[
                     {
@@ -229,9 +232,9 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                       qtyValue: baselineTarget.hb035Target,
                     },
                   ].map((field) => (
-                    <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                    <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                       <label className="block">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Code</span>
                         <input
                           type="text"
                           name={field.codeName}
@@ -240,7 +243,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         />
                       </label>
                       <label className="block">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Quantity</span>
                         <input
                           type="number"
                           name={field.qtyName}
@@ -253,8 +256,8 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
+              <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-600">Clearstock</p>
                 <div className="mt-3 grid gap-3">
                   {[
                     {
@@ -270,9 +273,9 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                       qtyValue: baselineTarget.hb034Target,
                     },
                   ].map((field) => (
-                    <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                    <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                       <label className="block">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Code</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Code</span>
                         <input
                           type="text"
                           name={field.codeName}
@@ -281,7 +284,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         />
                       </label>
                       <label className="block">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Quantity</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Quantity</span>
                         <input
                           type="number"
                           name={field.qtyName}
@@ -310,8 +313,8 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-brand-700">MONTHLY TARGET MATRIX</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Adjust target rows only for exceptions</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">MONTHLY TARGET MATRIX</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Adjust Target Rows Only For Exceptions</h2>
           </div>
           <Link
             href={`/sales-performance?period=${selectedPeriod}`}
@@ -347,7 +350,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
 
                 <div className="grid gap-4 xl:grid-cols-[220px,1fr,180px] xl:items-start">
                   <div>
-                    <p className="text-lg font-semibold text-slate-900">{asm.name}</p>
+                    <p className="text-base font-semibold text-slate-900">{asm.name}</p>
                     <p className="mt-1 text-sm text-slate-500">{asm.id}</p>
                     <p className="mt-1 text-sm text-slate-500">{asm.region}</p>
                     {saved ? (
@@ -358,7 +361,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                   </div>
 
                   <div className="grid gap-4">
-                    <div className="grid gap-3 md:grid-cols-2">
+                    <div className="grid grid-cols-2 gap-2">
                       {[
                         {
                           name: "revenue_target",
@@ -369,7 +372,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? 10 },
                       ].map((field) => (
                         <label key={field.name} className="block">
-                          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{field.label}</span>
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{field.label}</span>
                           <input
                             type="number"
                             name={field.name}
@@ -384,16 +387,16 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                     </div>
 
                     <div className="grid gap-3 xl:grid-cols-2">
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Key SKU</p>
+                      <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">Key SKU</p>
                         <div className="mt-3 grid gap-3">
                           {[
                             { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
                             { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                            <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                               <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                   Code
                                 </span>
                                 <input
@@ -404,7 +407,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                 />
                               </label>
                               <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                   Quantity
                                 </span>
                                 <input
@@ -419,16 +422,16 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Clearstock</p>
+                      <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-600">Clearstock</p>
                         <div className="mt-3 grid gap-3">
                           {[
                             { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
                             { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid gap-3 sm:grid-cols-2">
+                            <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                               <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                   Code
                                 </span>
                                 <input
@@ -439,7 +442,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                 />
                               </label>
                               <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                   Quantity
                                 </span>
                                 <input

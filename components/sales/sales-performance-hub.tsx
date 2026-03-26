@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { AlertCircle, ArrowRight, BarChart3, Calculator, Star, Users } from "lucide-react";
+import { AlertCircle, ArrowRight, BarChart3, Calculator, ChartColumnBig, RefreshCw, Star, Users } from "lucide-react";
+
+import { syncSalesPeriodAction } from "@/app/(app)/sales-performance/actions";
 
 import { MobileSalesScorecardSelector } from "@/components/sales/mobile-sales-scorecard-selector";
 
@@ -122,7 +124,7 @@ export function SalesPerformanceHub({
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr),auto] xl:items-end">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr),auto] xl:items-end">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className={heroLabelClass}>Sales Dashboard</p>
@@ -141,36 +143,14 @@ export function SalesPerformanceHub({
             <h1 className="mt-3 max-w-4xl text-2xl font-semibold tracking-tight sm:text-4xl">
               Sales execution, ASM scorecards, and payout visibility in one place.
             </h1>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3 xl:justify-end xl:flex-nowrap">
-            <Link
-              href={`/sales-performance/forecast?period=${selectedPeriod}`}
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-            >
-              Open Sales Forecast
-            </Link>
-
-            <Link
-              href={`/sales-performance/targets?period=${selectedPeriod}`}
-              className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-            >
-              Open Sales Targets
-            </Link>
-
-            <form
-              method="get"
-              className="flex flex-wrap items-center gap-3 xl:flex-nowrap"
-            >
-              <div className="w-[170px] xl:w-[170px]">
-                <label htmlFor="period" className={`${darkCardLabelClass} sr-only`}>
-                  Tracking period
-                </label>
+            {/* Period selector + Sync ERP — same row */}
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <form method="get" className="flex items-center gap-2">
                 <select
-                  id="period"
                   name="period"
                   defaultValue={selectedPeriod}
-                  className="h-11 w-full rounded-2xl border border-white/15 bg-white/10 px-4 text-sm text-white outline-none transition focus:border-sky-300"
+                  className="h-11 rounded-2xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none transition focus:border-sky-300 cursor-pointer"
                 >
                   {periods.map((period) => (
                     <option key={period.key} value={period.key} className="text-slate-900">
@@ -178,14 +158,42 @@ export function SalesPerformanceHub({
                     </option>
                   ))}
                 </select>
-              </div>
-              <button
-                type="submit"
-                className="inline-flex h-11 items-center justify-center whitespace-nowrap rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-              >
-                Apply period
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className="h-11 rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+                >
+                  Apply
+                </button>
+              </form>
+
+              <form action={syncSalesPeriodAction}>
+                <input type="hidden" name="period" value={selectedPeriod} />
+                <button
+                  type="submit"
+                  className="flex h-11 items-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 shrink-0 text-slate-300" />
+                  Sync ERP
+                </button>
+              </form>
+            </div>
+
+            {/* 2×2 nav buttons */}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {[
+                { href: `/sales-performance/forecast?period=${selectedPeriod}`, icon: ChartColumnBig, label: "Forecast" },
+                { href: `/sales-performance/targets?period=${selectedPeriod}`,  icon: Calculator,    label: "Targets" },
+              ].map(({ href, icon: Icon, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/8 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
+                >
+                  <Icon className="h-4 w-4 shrink-0 text-slate-300" />
+                  {label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -211,7 +219,7 @@ export function SalesPerformanceHub({
           <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
             <Users className="h-5 w-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">ASM Scorecards</p>
             <h2 className="text-2xl font-semibold text-slate-900">Built Around The Real ASM Roster</h2>
           </div>
@@ -335,7 +343,7 @@ export function SalesPerformanceHub({
           <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
             <BarChart3 className="h-5 w-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">SKU KPI Detail</p>
             <h2 className="text-2xl font-semibold text-slate-900">SKU Progress Tracking By Team</h2>
           </div>
@@ -360,12 +368,12 @@ export function SalesPerformanceHub({
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium text-slate-900">
-                          <span className="font-semibold text-sky-600">{product.code}</span>{" "}
-                          {product.name}
+                          <span className="font-semibold text-sky-600">{product.code}</span>
+                          {product.name !== product.code && <span className="ml-1.5">{product.name}</span>}
                         </p>
                       </div>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${tone.badge}`}>
-                        Lot date: {formatLotDate(product.lotDate)}
+                        Date: {formatLotDate(product.lotDate)}
                       </span>
                     </div>
                     <div className={`mt-4 h-3 rounded-full ${tone.track}`}>
@@ -392,7 +400,7 @@ export function SalesPerformanceHub({
                 <AlertCircle className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-base font-semibold text-slate-900">Lot-Date Clearstock Progress</p>
+                <p className="text-base font-semibold text-slate-900">Clearstock Clear Date</p>
                 <p className="mt-1 text-sm text-slate-500">Both SKUs need to reach at least 80% to unlock 10 points. One SKU cleared still earns 5 points.</p>
               </div>
             </div>
@@ -404,12 +412,12 @@ export function SalesPerformanceHub({
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium text-slate-900">
-                          <span className="font-semibold text-rose-500">{product.code}</span>{" "}
-                          {product.name}
+                          <span className="font-semibold text-rose-500">{product.code}</span>
+                          {product.name !== product.code && <span className="ml-1.5">{product.name}</span>}
                         </p>
                       </div>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${tone.badge}`}>
-                        Lot date: {formatLotDate(product.lotDate)}
+                        Date: {formatLotDate(product.lotDate)}
                       </span>
                     </div>
                     <div className={`mt-4 h-3 rounded-full ${tone.track}`}>
@@ -437,27 +445,36 @@ export function SalesPerformanceHub({
           <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
             <Calculator className="h-5 w-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Scoring Logic</p>
             <h2 className="text-2xl font-semibold text-slate-900">Scoring Logic By KPI</h2>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 xl:grid-cols-5">
-          {salesScoringRules.map((rule) => (
-            <div key={rule.name} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-medium text-slate-900">{rule.name}</p>
-                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
-                  {rule.score}
-                </span>
+          {salesScoringRules.map((rule, i) => {
+            const palette = [
+              { card: "border-sky-100 bg-sky-50",     badge: "bg-sky-100 text-sky-700",     source: "text-sky-600" },
+              { card: "border-violet-100 bg-violet-50", badge: "bg-violet-100 text-violet-700", source: "text-violet-600" },
+              { card: "border-sky-100 bg-sky-50",     badge: "bg-sky-100 text-sky-700",     source: "text-sky-600" },
+              { card: "border-rose-100 bg-rose-50",   badge: "bg-rose-100 text-rose-700",   source: "text-rose-600" },
+              { card: "border-amber-100 bg-amber-50", badge: "bg-amber-100 text-amber-700", source: "text-amber-600" },
+            ][i] ?? { card: "border-slate-200 bg-slate-50", badge: "bg-white text-slate-600", source: "text-brand-700" };
+            return (
+              <div key={rule.name} className={`rounded-2xl border px-4 py-4 ${palette.card}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-slate-900">{rule.name}</p>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${palette.badge}`}>
+                    {rule.score}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{rule.description}</p>
+                <p className={`mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] ${palette.source}`}>
+                  Source: {rule.source}
+                </p>
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-500">{rule.description}</p>
-              <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">
-                Source: {rule.source}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>

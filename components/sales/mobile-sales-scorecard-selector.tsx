@@ -116,42 +116,42 @@ export function MobileSalesScorecardSelector({
             </span>
           </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Sales Revenue</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{selected.revenueActual}/{selected.revenueTarget}M</p>
-              <p className="mt-1 text-xs text-slate-500">{selected.scorecard.revenueScore}/65 · {selected.scorecard.revenuePct}% target</p>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Sales Revenue</p>
+              <p className="mt-1.5 text-[11px] font-semibold leading-snug text-slate-900">{selected.revenueActual}/{selected.revenueTarget}M</p>
+              <p className="mt-1 text-[10px] text-slate-500">{selected.scorecard.revenueScore}/65 · {selected.scorecard.revenuePct}%</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Dealers Code</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{selected.newCustomersActual}/{selected.newCustomersTarget}</p>
-              <p className="mt-1 text-xs text-slate-500">{selected.scorecard.customerScore}/15</p>
+            <div className="rounded-2xl border border-violet-100 bg-violet-50 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-600">Dealers Code</p>
+              <p className="mt-1.5 text-[11px] font-semibold leading-snug text-slate-900">{selected.newCustomersActual}/{selected.newCustomersTarget}</p>
+              <p className="mt-1 text-[10px] text-slate-500">{selected.scorecard.customerScore}/15</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Key SKU</p>
-              <div className="mt-2 space-y-1 text-sm font-semibold text-slate-900">
+            <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Key SKU</p>
+              <div className="mt-1.5 space-y-0.5 text-[11px] font-semibold leading-snug text-slate-900">
                 {selected.keySkuTargets.map((item) => (
                   <div key={item.code}>{item.code} {item.actual}/{item.target}</div>
                 ))}
               </div>
-              <p className="mt-1 text-xs text-slate-500">{selected.scorecard.keySkuScore}/5</p>
+              <p className="mt-1 text-[10px] text-slate-500">{selected.scorecard.keySkuScore}/5</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Clearstock</p>
-              <div className="mt-2 space-y-1 text-sm font-semibold text-slate-900">
+            <div className="rounded-2xl border border-rose-100 bg-rose-50 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-600">Clearstock</p>
+              <div className="mt-1.5 space-y-0.5 text-[11px] font-semibold leading-snug text-slate-900">
                 {selected.clearstockTargets.map((item) => (
                   <div key={item.code}>{item.code} {item.actual}/{item.target}</div>
                 ))}
               </div>
-              <p className="mt-1 text-xs text-slate-500">{selected.scorecard.clearstockScore}/10</p>
+              <p className="mt-1 text-[10px] text-slate-500">{selected.scorecard.clearstockScore}/10</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Discipline</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{selected.scorecard.manualScore}/5</p>
+            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-600">Discipline</p>
+              <p className="mt-1.5 text-[11px] font-semibold leading-snug text-slate-900">{selected.scorecard.manualScore}/5</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">KPI Payout</p>
-              <p className="mt-2 text-sm font-semibold text-brand-700">{selected.scorecard.payout}M</p>
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-600">KPI Payout</p>
+              <p className="mt-1.5 text-[11px] font-semibold leading-snug text-emerald-700">{selected.scorecard.payout}M</p>
             </div>
           </div>
 

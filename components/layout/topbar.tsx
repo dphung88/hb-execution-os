@@ -4,19 +4,20 @@ import { redirect } from "next/navigation";
 
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Button } from "@/components/ui/button";
+import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export async function Topbar() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const supabase = hasSupabaseClientEnv() ? await createClient() : null;
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
   async function signOut() {
     "use server";
 
-    const serverClient = await createClient();
-    await serverClient.auth.signOut();
+    if (hasSupabaseClientEnv()) {
+      const serverClient = await createClient();
+      await serverClient.auth.signOut();
+    }
     redirect("/login");
   }
 
@@ -26,7 +27,7 @@ export async function Topbar() {
         <header className="flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/80 px-5 py-4 shadow-panel backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-slate-500">Welcome back</p>
-            <h2 className="text-lg font-semibold text-slate-900">{user.email}</h2>
+            <h2 className="text-base font-semibold text-slate-900">{user.email}</h2>
           </div>
 
           <form action={signOut} className="hidden md:block">

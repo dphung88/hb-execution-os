@@ -1,6 +1,8 @@
-import { demoSalesAsms, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
-import { hasSupabaseClientEnv } from "@/lib/supabase/env";
+import { demoSalesAsms, lookupSkuName, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
+import { getPeriods } from "@/lib/config/periods";
+import { hasSupabaseClientEnv, hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getSalesScorecards, type SalesAsm } from "@/lib/sales/scorecards";
 
 type KpiDataRow = {
@@ -126,7 +128,7 @@ function toResolvedAsm(
           : 0),
     name:
       Object.values(salesKpiProducts).find((product) => product.code === item.code)?.name ??
-      item.code,
+      lookupSkuName(item.code),
   }));
 
   const clearstockTargets = [
@@ -151,7 +153,7 @@ function toResolvedAsm(
           : 0),
     name:
       Object.values(salesKpiProducts).find((product) => product.code === item.code)?.name ??
-      item.code,
+      lookupSkuName(item.code),
   }));
 
   return {
@@ -192,19 +194,21 @@ function formatPeriodLabel(periodKey: string) {
 
 export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
   if (!hasSupabaseClientEnv()) {
-    return [...salesPeriods]
-      .map((period) => ({ key: period.key, label: formatPeriodLabel(period.key) }))
+    const configPeriods = await getPeriods();
+    return [...configPeriods]
+      .map((p) => ({ key: p.key, label: p.label }))
       .sort((a, b) => b.key.localeCompare(a.key));
   }
 
-  const supabase = await createClient();
+  const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
   const { data, error } = await supabase
     .from("kpi_data")
     .select("month")
     .not("month", "is", null)
     .order("month", { ascending: false });
 
-  const monthSet = new Set<string>(salesPeriods.map((period) => period.key));
+  const configPeriods = await getPeriods();
+  const monthSet = new Set<string>(configPeriods.map((p) => p.key));
 
   if (!error && data?.length) {
     data.forEach((row) => {
@@ -216,18 +220,32 @@ export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
 
   return Array.from(monthSet)
     .sort((a, b) => b.localeCompare(a))
-    .map((periodKey) => ({
-      key: periodKey,
-      label: formatPeriodLabel(periodKey),
-    }));
+    .map((periodKey) => {
+      const found = configPeriods.find((p) => p.key === periodKey);
+      return { key: periodKey, label: found?.label ?? formatPeriodLabel(periodKey) };
+    });
 }
 
 export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmResolved[]> {
   if (!hasSupabaseClientEnv()) {
-    return [];
+    return demoSalesAsms.map((asm) => ({
+      ...asm,
+      periodKey: periodKey ?? asm.periodKey,
+      sourceSyncedAt: null,
+      fromDate: null,
+      toDate: null,
+      keySkuTargets: [
+        { code: "HB031", target: salesKpiProducts.HB031.target, actual: asm.hb031, minPct: salesKpiProducts.HB031.minPct, name: salesKpiProducts.HB031.name },
+        { code: "HB035", target: salesKpiProducts.HB035.target, actual: asm.hb035, minPct: salesKpiProducts.HB035.minPct, name: salesKpiProducts.HB035.name },
+      ],
+      clearstockTargets: [
+        { code: "HB006", target: salesKpiProducts.HB006.target, actual: asm.hb006, minPct: salesKpiProducts.HB006.minPct, name: salesKpiProducts.HB006.name },
+        { code: "HB034", target: salesKpiProducts.HB034.target, actual: asm.hb034, minPct: salesKpiProducts.HB034.minPct, name: salesKpiProducts.HB034.name },
+      ],
+    }));
   }
 
-  const supabase = await createClient();
+  const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
   const [kpiResult, targetResult, reviewResult] = await Promise.all([
     supabase
       .from("kpi_data")
@@ -246,21 +264,24 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
 
   const { data, error } = kpiResult;
 
-  if (error || !data?.length) {
-    return [];
-  }
-
-  const latestMonth = data.find((row) => row.month)?.month ?? null;
+  // Determine effective period (requested or latest available in DB)
+  const latestMonth = (!error && data?.length)
+    ? data.find((row) => row.month)?.month ?? null
+    : null;
   const effectivePeriod = periodKey ?? latestMonth;
-  const monthRows = effectivePeriod ? data.filter((row) => row.month === effectivePeriod) : data;
+
+  const monthRows = (!error && data?.length && effectivePeriod)
+    ? data.filter((row) => row.month === effectivePeriod)
+    : [];
+
   const { data: breakdowns, error: breakdownsError } = effectivePeriod
     ? await supabase
         .from("kpi_item_breakdowns")
         .select("asm_id, month, item_code, quantity")
         .eq("month", effectivePeriod)
     : { data: null, error: null };
-  const latestByAsm = new Map<string, KpiDataRow>();
 
+  const latestByAsm = new Map<string, KpiDataRow>();
   monthRows.forEach((row) => {
     if (!latestByAsm.has(row.asm_id)) {
       latestByAsm.set(row.asm_id, row);
@@ -284,27 +305,43 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     breakdownsByAsm.set(row.asm_id, asmBreakdowns);
   });
 
-  const resolved = demoSalesAsms
-    .map((asm) => {
-    const liveRow = latestByAsm.get(asm.id);
-    return liveRow
-      ? toResolvedAsm(
-          asm,
-          liveRow,
-          breakdownsByAsm.get(asm.id) ?? new Map<string, number>(),
-          targetsByAsm.get(asm.id),
-          reviewsByAsm.get(asm.id)
-        )
-      : null;
-  })
-    .filter((asm): asm is SalesAsmResolved => asm !== null);
+  // Build a zero-actual stub for ASMs with no ERP row yet (targets already saved)
+  const emptyKpiRow = (asmId: string): KpiDataRow => ({
+    asm_id: asmId,
+    month: effectivePeriod,
+    dt_target: null,
+    dt_thuc_dat: 0,
+    kh_moi: 0,
+    hb006: 0,
+    hb034: 0,
+    hb031: 0,
+    hb035: 0,
+    noiquy: 0,
+    total_kpi: null,
+    luong: null,
+    from_date: null,
+    to_date: null,
+    source_synced_at: null,
+    updated_at: null,
+  });
+
+  const resolved = demoSalesAsms.map((asm) => {
+    const liveRow = latestByAsm.get(asm.id) ?? emptyKpiRow(asm.id);
+    return toResolvedAsm(
+      asm,
+      liveRow,
+      breakdownsByAsm.get(asm.id) ?? new Map<string, number>(),
+      targetsByAsm.get(asm.id),
+      reviewsByAsm.get(asm.id),
+    );
+  });
 
   return resolved;
 }
 
 export async function getSalesScorecardsData(periodKey?: string | null) {
   const [asms, periods] = await Promise.all([getSalesAsms(periodKey), getAvailableSalesPeriods()]);
-  const scorecards = getSalesScorecards(asms);
+  const scorecards = await getSalesScorecards(asms);
   const selectedPeriod = periodKey ?? asms[0]?.periodKey ?? periods[0]?.key ?? salesPeriods[0]?.key ?? "";
 
   return {
@@ -380,7 +417,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
     };
   }
 
-  const supabase = await createClient();
+  const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
   const [{ data: target }, { data: review }, { data: breakdowns }] = await Promise.all([
     supabase
       .from("sales_monthly_targets")
@@ -437,7 +474,7 @@ export async function getSalesManagementFormData(asmId: string, periodKey: strin
     return { target: null, review: null };
   }
 
-  const supabase = await createClient();
+  const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
   const [{ data: target }, { data: review }] = await Promise.all([
     supabase
       .from("sales_monthly_targets")

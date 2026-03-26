@@ -12,3 +12,7 @@ export function getSupabasePublishableKey() {
 export function hasSupabaseClientEnv() {
   return Boolean(getSupabaseUrl()) && Boolean(getSupabasePublishableKey());
 }
+
+export function hasSupabaseAdminEnv() {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+}

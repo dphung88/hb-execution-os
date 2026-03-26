@@ -22,7 +22,7 @@ export default async function SalesPerformancePage({ searchParams }: SalesPerfor
 
   const syncMessage =
     sync === "success"
-      ? `Sync completed: ${synced ?? 0} ASM succeeded, ${failed ?? 0} failed.`
+      ? message ?? `Sync completed: ${synced ?? 0} ASM succeeded, ${failed ?? 0} failed.`
       : sync === "error"
         ? message ?? "ERP sync failed."
         : sync === "missing-period"

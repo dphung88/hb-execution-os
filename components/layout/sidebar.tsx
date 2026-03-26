@@ -12,7 +12,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-72 flex-col border-r border-slate-200 bg-white/80 px-5 py-6 backdrop-blur md:flex">
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-600">
           HB Execution OS
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">

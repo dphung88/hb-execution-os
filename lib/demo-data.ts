@@ -268,6 +268,39 @@ export const salesPeriods = [
   { label: "May 15 - Jun 14", key: "2026-05" }
 ] as const;
 
+// Broad SKU name registry built from ERP API item catalog
+export const erpSkuNames: Record<string, string> = {
+  HB001: "HB Collagen Type 1,2&3 C/120V",
+  HB002: "Glucollagen 7 in 1 C/30V",
+  HB003: "Glucollagen 7 in 1 C/60V",
+  HB004: "HB Glucosamine 3 in 1 C/200V",
+  HB005: "HB Glucosamine 3 in 1 C/60V",
+  HB006: "Gluta White C/30V",
+  HB007: "Slim Day C/60V",
+  HB008: "Slim Night C/30V",
+  HB009: "Omega 3.6.9 C/100V",
+  HB010: "HB Shark Cartilage 750mg C/100V",
+  HB011: "Omega 3.6.9 C/200V",
+  HB015: "HB Cordy Extract C/60V",
+  HB018: "HB Arginmilk Plus H/60V",
+  HB020: "HB Liver Detox C/30V",
+  HB024: "HB Calcidsoft H/30V",
+  HB025: "HB Calcidsoft H/60V",
+  HB028: "HB Vision Care C/30V",
+  HB030: "HB Glutathion-C Plus H/30V",
+  HB031: "HB CoQ10 150mg C/30V",
+  HB034: "HB Prenatal Support H/60V",
+  HB035: "HB Ginkgo Biloba 120mg C/30V",
+  HB036: "HB Ginkgo Biloba 120mg H/60V",
+  HB037: "HBGutcare C/30V",
+  HB038: "HBGutcare H/60V",
+  HB039: "HB Prenatal Support H/30V",
+};
+
+export function lookupSkuName(code: string): string {
+  return erpSkuNames[code.toUpperCase()] ?? code;
+}
+
 export const salesKpiProducts = {
   HB006: {
     code: "HB006",
@@ -578,31 +611,31 @@ export const demoSalesAsms = [
 
 export const salesScoringRules = [
   {
-    name: "3.1 Revenue achievement",
+    name: "Revenue Achievement",
     description: "ERP provides target vs actual revenue. Scoring follows the real ladder: 100%=65, 90%=62, 80%=55, 70%=49, 60%=39, 50%=33.",
     score: "65 pts",
     source: "ERP API"
   },
   {
-    name: "3.2 New customers",
+    name: "New Customers",
     description: "Pulled from ERP/CRM sales activity and mapped to ASM by period.",
     score: "15 pts",
     source: "ERP API"
   },
   {
-    name: "3.3 Key SKU sell-out",
+    name: "Key SKU Sell-Out",
     description: "Requires both key SKUs to reach at least 50 percent of target: HB031=243 and HB035=203.",
     score: "5 pts",
     source: "ERP API"
   },
   {
-    name: "3.4 Clearstock",
+    name: "Clearstock",
     description: "Evaluated on ERP sell-out/clearstock movement against threshold: HB006=229 and HB034=161, with 80 percent needed.",
     score: "10 pts",
     source: "ERP API"
   },
   {
-    name: "3.5 Discipline and reporting",
+    name: "Discipline And Reporting",
     description: "Manager enters the discipline KPI and qualitative reporting review after the weekly check-in.",
     score: "5 pts + notes",
     source: "Manager input"

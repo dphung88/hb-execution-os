@@ -1,4 +1,5 @@
 import { demoSalesAsms } from "@/lib/demo-data";
+import { getPeriods } from "@/lib/config/periods";
 import { normalizeErpAsmKpiResponse, type ErpAsmKpiApiResponse } from "@/lib/sales/erp-contract";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -6,35 +7,44 @@ type SyncMonthSummary = {
   period: string;
   syncedCount: number;
   failedCount: number;
+  fromDate: string;
+  toDate: string;
+  firstError?: string;
 };
 
-function getMonthRange(period: string) {
+/** Fallback: derive calendar-month range from YYYY-MM */
+function calendarMonthRange(period: string) {
   const [yearValue, monthValue] = period.split("-");
   const year = Number(yearValue);
   const month = Number(monthValue);
-
   if (!year || !month || month < 1 || month > 12) {
     throw new Error(`Invalid period "${period}". Expected format YYYY-MM.`);
   }
-
-  const fromDate = new Date(Date.UTC(year, month - 1, 1));
-  const toDate = new Date(Date.UTC(year, month, 0));
-
-  return {
-    fromDate: fromDate.toISOString().slice(0, 10),
-    toDate: toDate.toISOString().slice(0, 10),
-  };
+  const from = new Date(Date.UTC(year, month - 1, 1));
+  const to   = new Date(Date.UTC(year, month, 0));
+  return { fromDate: from.toISOString().slice(0, 10), toDate: to.toISOString().slice(0, 10) };
 }
 
-async function fetchAsmKpi(employeeCode: string, period: string) {
+/** Resolve date range: use configured period startDate/endDate if available, else calendar fallback */
+async function resolveDateRange(period: string): Promise<{ fromDate: string; toDate: string }> {
+  try {
+    const periods = await getPeriods();
+    const config = periods.find((p) => p.key === period);
+    if (config?.startDate && config?.endDate) {
+      return { fromDate: config.startDate, toDate: config.endDate };
+    }
+  } catch { /* fall through */ }
+  return calendarMonthRange(period);
+}
+
+async function fetchAsmKpi(employeeCode: string, period: string, fromDate: string, toDate: string) {
   const baseUrl = process.env.ERP_ASM_KPI_BASE_URL;
   const apiKey = process.env.ERP_ASM_KPI_API_KEY;
 
   if (!baseUrl || !apiKey) {
-    throw new Error("Missing ERP sync environment variables.");
+    throw new Error("Missing ERP sync environment variables (ERP_ASM_KPI_BASE_URL / ERP_ASM_KPI_API_KEY).");
   }
 
-  const { fromDate, toDate } = getMonthRange(period);
   const requestUrl = new URL("/api/asm-kpi/get_data", baseUrl);
   requestUrl.searchParams.set("employee_code", employeeCode);
   requestUrl.searchParams.set("from_date", fromDate);
@@ -65,13 +75,14 @@ async function fetchAsmKpi(employeeCode: string, period: string) {
 async function upsertSyncRun(
   employeeCode: string,
   period: string,
+  fromDate: string,
+  toDate: string,
   requestUrl: string,
   status: "running" | "succeeded" | "failed",
   payload?: unknown,
   errorMessage?: string
 ) {
   const admin = createAdminClient();
-  const { fromDate, toDate } = getMonthRange(period);
 
   const row = {
     employee_code: employeeCode,
@@ -99,10 +110,10 @@ async function upsertSyncRun(
   return data.id as string;
 }
 
-async function writeAsmSnapshot(employeeCode: string, period: string) {
+async function writeAsmSnapshot(employeeCode: string, period: string, fromDate: string, toDate: string) {
   const admin = createAdminClient();
-  const { requestUrl, payload } = await fetchAsmKpi(employeeCode, period);
-  const syncRunId = await upsertSyncRun(employeeCode, period, requestUrl, "running");
+  const { requestUrl, payload } = await fetchAsmKpi(employeeCode, period, fromDate, toDate);
+  const syncRunId = await upsertSyncRun(employeeCode, period, fromDate, toDate, requestUrl, "running");
 
   try {
     const normalized = normalizeErpAsmKpiResponse(payload);
@@ -219,22 +230,25 @@ async function writeAsmSnapshot(employeeCode: string, period: string) {
 }
 
 export async function syncAllAsmsInMonth(period: string): Promise<SyncMonthSummary> {
+  // Resolve configured date range (honours custom startDate/endDate set in Period Management)
+  const { fromDate, toDate } = await resolveDateRange(period);
+  console.log(`[sync] period=${period} fromDate=${fromDate} toDate=${toDate}`);
+
   let syncedCount = 0;
   let failedCount = 0;
+  let firstError: string | undefined;
 
   for (const asm of demoSalesAsms) {
     try {
-      await writeAsmSnapshot(asm.id, period);
+      await writeAsmSnapshot(asm.id, period, fromDate, toDate);
       syncedCount += 1;
     } catch (error) {
       failedCount += 1;
-      console.error(`Sales KPI sync failed for ${asm.id}`, error);
+      const msg = error instanceof Error ? error.message : String(error);
+      if (!firstError) firstError = msg;
+      console.error(`Sales KPI sync failed for ${asm.id}:`, msg);
     }
   }
 
-  return {
-    period,
-    syncedCount,
-    failedCount,
-  };
+  return { period, syncedCount, failedCount, fromDate, toDate, firstError };
 }
