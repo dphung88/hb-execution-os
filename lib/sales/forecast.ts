@@ -325,7 +325,9 @@ function buildSkuForecastRows(
     // Priority: 1) lot date from targets (user override), 2) sku_lot_dates table, 3) hardcoded snapshot
     const dbLot = skuLotMap.get(code);
     const snapshot = CLEARSTOCK_SNAPSHOT_BASE.find((s) => s.code === code);
-    const averageDailySell = elapsedDays > 0 ? round2(totalActual / elapsedDays) : (snapshot?.averageDailySell ?? dbLot?.weekly_sell_out != null ? round2((dbLot!.weekly_sell_out ?? 0) / 7) : 0);
+    const averageDailySell = elapsedDays > 0
+      ? round2(totalActual / elapsedDays)
+      : (snapshot?.averageDailySell ?? (dbLot?.weekly_sell_out != null ? round2(dbLot.weekly_sell_out / 7) : 0));
     const stockOnHand = dbLot?.stock_on_hand ?? snapshot?.stockOnHand ?? 0;
     const lotDate = targetLotDate || dbLot?.lot_date || snapshot?.lotDate || "";
     const weeklySellOut = dbLot?.weekly_sell_out ?? snapshot?.weeklySellOut ?? Math.round(averageDailySell * 7);
