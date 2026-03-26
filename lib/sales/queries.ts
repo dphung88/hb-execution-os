@@ -34,6 +34,7 @@ export type SalesAsmResolved = SalesAsm & {
     actual: number;
     minPct: number;
     name: string;
+    lotDate: string;
   }>;
   clearstockTargets: Array<{
     code: string;
@@ -41,6 +42,7 @@ export type SalesAsmResolved = SalesAsm & {
     actual: number;
     minPct: number;
     name: string;
+    lotDate: string;
   }>;
 };
 
@@ -58,6 +60,10 @@ type SalesTargetRow = {
   hb034_target: number;
   hb031_target: number;
   hb035_target: number;
+  key_sku_lot_date_1?: string | null;
+  key_sku_lot_date_2?: string | null;
+  clearstock_lot_date_1?: string | null;
+  clearstock_lot_date_2?: string | null;
 };
 
 type SalesReviewRow = {
@@ -111,11 +117,13 @@ function toResolvedAsm(
       code: String(target?.key_sku_code_1 ?? "HB031").toUpperCase(),
       target: Number(target?.hb031_target ?? salesKpiProducts.HB031.target),
       minPct: salesKpiProducts.HB031.minPct,
+      lotDate: String(target?.key_sku_lot_date_1 ?? ""),
     },
     {
       code: String(target?.key_sku_code_2 ?? "HB035").toUpperCase(),
       target: Number(target?.hb035_target ?? salesKpiProducts.HB035.target),
       minPct: salesKpiProducts.HB035.minPct,
+      lotDate: String(target?.key_sku_lot_date_2 ?? ""),
     },
   ].map((item) => ({
     ...item,
@@ -136,11 +144,13 @@ function toResolvedAsm(
       code: String(target?.clearstock_code_1 ?? "HB006").toUpperCase(),
       target: Number(target?.hb006_target ?? salesKpiProducts.HB006.target),
       minPct: salesKpiProducts.HB006.minPct,
+      lotDate: String(target?.clearstock_lot_date_1 ?? ""),
     },
     {
       code: String(target?.clearstock_code_2 ?? "HB034").toUpperCase(),
       target: Number(target?.hb034_target ?? salesKpiProducts.HB034.target),
       minPct: salesKpiProducts.HB034.minPct,
+      lotDate: String(target?.clearstock_lot_date_2 ?? ""),
     },
   ].map((item) => ({
     ...item,
@@ -235,12 +245,12 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
       fromDate: null,
       toDate: null,
       keySkuTargets: [
-        { code: "HB031", target: salesKpiProducts.HB031.target, actual: asm.hb031, minPct: salesKpiProducts.HB031.minPct, name: salesKpiProducts.HB031.name },
-        { code: "HB035", target: salesKpiProducts.HB035.target, actual: asm.hb035, minPct: salesKpiProducts.HB035.minPct, name: salesKpiProducts.HB035.name },
+        { code: "HB031", target: salesKpiProducts.HB031.target, actual: asm.hb031, minPct: salesKpiProducts.HB031.minPct, name: salesKpiProducts.HB031.name, lotDate: "" },
+        { code: "HB035", target: salesKpiProducts.HB035.target, actual: asm.hb035, minPct: salesKpiProducts.HB035.minPct, name: salesKpiProducts.HB035.name, lotDate: "" },
       ],
       clearstockTargets: [
-        { code: "HB006", target: salesKpiProducts.HB006.target, actual: asm.hb006, minPct: salesKpiProducts.HB006.minPct, name: salesKpiProducts.HB006.name },
-        { code: "HB034", target: salesKpiProducts.HB034.target, actual: asm.hb034, minPct: salesKpiProducts.HB034.minPct, name: salesKpiProducts.HB034.name },
+        { code: "HB006", target: salesKpiProducts.HB006.target, actual: asm.hb006, minPct: salesKpiProducts.HB006.minPct, name: salesKpiProducts.HB006.name, lotDate: "" },
+        { code: "HB034", target: salesKpiProducts.HB034.target, actual: asm.hb034, minPct: salesKpiProducts.HB034.minPct, name: salesKpiProducts.HB034.name, lotDate: "" },
       ],
     }));
   }
@@ -389,6 +399,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
           actual: 0,
           minPct: salesKpiProducts.HB031.minPct,
           name: salesKpiProducts.HB031.name,
+          lotDate: "",
         },
         {
           code: salesKpiProducts.HB035.code,
@@ -396,6 +407,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
           actual: 0,
           minPct: salesKpiProducts.HB035.minPct,
           name: salesKpiProducts.HB035.name,
+          lotDate: "",
         },
       ],
       clearstockTargets: [
@@ -405,6 +417,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
           actual: 0,
           minPct: salesKpiProducts.HB006.minPct,
           name: salesKpiProducts.HB006.name,
+          lotDate: "",
         },
         {
           code: salesKpiProducts.HB034.code,
@@ -412,6 +425,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
           actual: 0,
           minPct: salesKpiProducts.HB034.minPct,
           name: salesKpiProducts.HB034.name,
+          lotDate: "",
         },
       ],
     };

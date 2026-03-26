@@ -52,6 +52,11 @@ export async function saveSalesTargetRowAction(formData: FormData) {
     redirect(`/sales-performance/targets?period=${period}&error=save-not-configured`);
   }
 
+  const normDate = (val: FormDataEntryValue | null) => {
+    const s = String(val ?? "").trim();
+    return s || null;
+  };
+
   const { error } = await client.from("sales_monthly_targets").upsert(
     {
       asm_id: asmId,
@@ -66,6 +71,10 @@ export async function saveSalesTargetRowAction(formData: FormData) {
       hb034_target: Number(formData.get("hb034_target") ?? 161),
       hb031_target: Number(formData.get("hb031_target") ?? 243),
       hb035_target: Number(formData.get("hb035_target") ?? 203),
+      key_sku_lot_date_1: normDate(formData.get("key_sku_lot_date_1")),
+      key_sku_lot_date_2: normDate(formData.get("key_sku_lot_date_2")),
+      clearstock_lot_date_1: normDate(formData.get("clearstock_lot_date_1")),
+      clearstock_lot_date_2: normDate(formData.get("clearstock_lot_date_2")),
     },
     { onConflict: "asm_id,month" }
   );
@@ -100,6 +109,15 @@ export async function saveSalesTargetDefaultsAction(formData: FormData) {
   const hb006Target = Number(formData.get("hb006_target") ?? 229);
   const hb034Target = Number(formData.get("hb034_target") ?? 161);
 
+  const normDate = (val: FormDataEntryValue | null) => {
+    const s = String(val ?? "").trim();
+    return s || null;
+  };
+  const keySkuLotDate1 = normDate(formData.get("key_sku_lot_date_1"));
+  const keySkuLotDate2 = normDate(formData.get("key_sku_lot_date_2"));
+  const clearstockLotDate1 = normDate(formData.get("clearstock_lot_date_1"));
+  const clearstockLotDate2 = normDate(formData.get("clearstock_lot_date_2"));
+
   const rows = demoSalesAsms.map((asm) => ({
     asm_id: asm.id,
     month: period,
@@ -113,6 +131,10 @@ export async function saveSalesTargetDefaultsAction(formData: FormData) {
     hb035_target: hb035Target,
     hb006_target: hb006Target,
     hb034_target: hb034Target,
+    key_sku_lot_date_1: keySkuLotDate1,
+    key_sku_lot_date_2: keySkuLotDate2,
+    clearstock_lot_date_1: clearstockLotDate1,
+    clearstock_lot_date_2: clearstockLotDate2,
   }));
 
   const { error } = await client.from("sales_monthly_targets").upsert(rows, {

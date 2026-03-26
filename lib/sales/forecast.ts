@@ -287,22 +287,25 @@ function buildSkuForecastRows(
   if (scorecards.length === 0) return [];
 
   // Collect unique SKU codes from all ASMs
-  const skuMap = new Map<string, { name: string; totalActual: number; totalTarget: number }>();
+  const skuMap = new Map<string, { name: string; totalActual: number; totalTarget: number; lotDate: string }>();
   for (const asm of scorecards) {
     for (const item of asm[category]) {
-      const existing = skuMap.get(item.code) ?? { name: item.name, totalActual: 0, totalTarget: 0 };
+      const existing = skuMap.get(item.code) ?? { name: item.name, totalActual: 0, totalTarget: 0, lotDate: item.lotDate ?? "" };
       existing.totalActual += item.actual;
       existing.totalTarget += item.target;
+      // Keep the most specific lot date (prefer non-empty)
+      if (!existing.lotDate && item.lotDate) existing.lotDate = item.lotDate;
       skuMap.set(item.code, existing);
     }
   }
 
-  return Array.from(skuMap.entries()).map(([code, { name, totalActual, totalTarget }]) => {
-    // Use static snapshot data if available for this code
+  return Array.from(skuMap.entries()).map(([code, { name, totalActual, totalTarget, lotDate: targetLotDate }]) => {
+    // Use static snapshot data if available for this code (as fallback for stock/sell data)
     const snapshot = CLEARSTOCK_SNAPSHOT_BASE.find((s) => s.code === code);
     const averageDailySell = elapsedDays > 0 ? round2(totalActual / elapsedDays) : (snapshot?.averageDailySell ?? 0);
     const stockOnHand = snapshot?.stockOnHand ?? 0;
-    const lotDate = snapshot?.lotDate ?? "";
+    // Prefer lot date from targets (user-entered), fall back to snapshot
+    const lotDate = targetLotDate || snapshot?.lotDate || "";
     const snapshotDate = snapshot?.snapshotDate ?? new Date().toISOString().slice(0, 10);
 
     const riskValue = (totalTarget > 0 && totalActual / totalTarget < 0.5 ? "At risk" : "Watch") as "At risk";
