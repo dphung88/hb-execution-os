@@ -63,10 +63,10 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
           <div className="min-w-0">
             <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300">SKU Forecast</p>
             <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
-              Clearstock forecast cho toàn bộ SKU.
+              Clearstock forecast for all SKUs.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
-              Dựa vào doanh số bán thực tế tháng này, tính tốc độ bán hàng ngày và so sánh với lượng tồn kho cần thanh lý trước ngày lô.
+              Based on actual monthly sell-through, computes daily sell rate per SKU and compares against required pace to clear stock before lot expiry.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 xl:justify-end">
@@ -145,14 +145,14 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
           className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-400"
         >
           {showZeroStock ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-          {showZeroStock ? "Ẩn hết hàng" : "Hiện hết hàng"}
+          {showZeroStock ? "Hide zero stock" : "Show zero stock"}
         </button>
       </div>
 
       {/* ── SKU Grid ── */}
       {visible.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-white/85 p-12 text-center shadow-panel">
-          <p className="text-slate-500">Không có SKU nào phù hợp bộ lọc.</p>
+          <p className="text-slate-500">No SKUs match the current filter.</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -175,7 +175,7 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <span className="text-slate-500">Lot date</span>
                   <span className="font-semibold text-slate-800">
-                    {row.lotDate || <span className="text-slate-400 italic">Chưa có</span>}
+                    {row.lotDate || <span className="text-slate-400 italic">Pending</span>}
                     {row.daysUntilExpiry > 0 && (
                       <span className="ml-1.5 font-normal text-slate-400">({row.daysUntilExpiry}d)</span>
                     )}
@@ -185,21 +185,21 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
                 {/* Metrics grid */}
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <div className="rounded-2xl bg-white/70 px-3 py-2">
-                    <p className="text-[10px] font-semibold text-slate-500">Tồn kho</p>
+                    <p className="text-[10px] font-semibold text-slate-500">Stock on Hand</p>
                     <p className="mt-1 text-sm font-semibold text-slate-900">{row.stockOnHand.toLocaleString("en-US")}</p>
                   </div>
                   <div className="rounded-2xl bg-white/70 px-3 py-2">
-                    <p className="text-[10px] font-semibold text-slate-500">Bán tháng này</p>
+                    <p className="text-[10px] font-semibold text-slate-500">Sold This Month</p>
                     <p className="mt-1 text-sm font-semibold text-slate-900">{row.totalActual.toLocaleString("en-US")}</p>
                   </div>
                   <div className="rounded-2xl bg-white/70 px-3 py-2">
-                    <p className="text-[10px] font-semibold text-slate-500">Tốc độ hiện tại</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{fmt(row.averageDailySell)}/ngày</p>
+                    <p className="text-[10px] font-semibold text-slate-500">Current Pace</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-900">{fmt(row.averageDailySell)}/day</p>
                   </div>
                   <div className="rounded-2xl bg-white/70 px-3 py-2">
-                    <p className="text-[10px] font-semibold text-slate-500">Cần bán/ngày</p>
+                    <p className="text-[10px] font-semibold text-slate-500">Required Pace</p>
                     <p className={`mt-1 text-sm font-semibold ${row.requiredDailySell > row.averageDailySell ? "text-rose-700" : "text-emerald-700"}`}>
-                      {row.requiredDailySell > 0 ? `${fmt(row.requiredDailySell)}/ngày` : "—"}
+                      {row.requiredDailySell > 0 ? `${fmt(row.requiredDailySell)}/day` : "—"}
                     </p>
                   </div>
                 </div>
@@ -209,10 +209,10 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${row.dailySellGap >= 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
                       {row.dailySellGap >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {row.dailySellGap >= 0 ? "+" : ""}{fmt(row.dailySellGap)}/ngày
+                      {row.dailySellGap >= 0 ? "+" : ""}{fmt(row.dailySellGap)}/day
                     </span>
                     <span className="text-xs text-slate-600">
-                      → push <strong>{row.monthlyPushNeeded.toLocaleString("en-US")}</strong>/tháng
+                      → push <strong>{row.monthlyPushNeeded.toLocaleString("en-US")}</strong>/mo
                     </span>
                   </div>
                 )}
@@ -223,7 +223,7 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
       )}
 
       <p className="text-center text-[11px] text-slate-400">
-        * Tốc độ hiện tại = tổng bán ÷ số ngày đã qua. Cần bán/ngày = tồn kho ÷ số ngày đến hết hạn lô.
+        * Current Pace = total sold ÷ elapsed days. Required Pace = stock on hand ÷ days until lot expiry.
       </p>
     </div>
   );
