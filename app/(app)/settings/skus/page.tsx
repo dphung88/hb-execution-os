@@ -39,27 +39,27 @@ export default async function SettingsSkusPage() {
         ) : (
           <div className="mt-5 space-y-3">
             {/* Header */}
-            <div className="hidden grid-cols-[80px,1fr,130px,110px,110px,80px,80px] gap-3 px-4 sm:grid">
+            <div className="hidden grid-cols-[72px,minmax(0,1fr),128px,88px,88px,60px,72px] gap-2 px-3 sm:grid">
               {["Code", "Name", "Lot Date", "Stock", "Wk Sell-out", "", ""].map((h, i) => (
                 <p key={i} className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">{h}</p>
               ))}
             </div>
 
             {skus.map((sku) => (
-              <div key={sku.code} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <div key={sku.code} className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
                 <form id={`del-${sku.code}`} action={deleteSkuLotDateAction}>
                   <input type="hidden" name="code" value={sku.code} />
                 </form>
                 <form
                   action={upsertSkuLotDateAction}
-                  className="grid grid-cols-2 gap-3 sm:grid-cols-[80px,1fr,130px,110px,110px,80px,80px] sm:items-center"
+                  className="grid grid-cols-2 gap-2 sm:grid-cols-[72px,minmax(0,1fr),128px,88px,88px,60px,72px] sm:items-center"
                 >
                   <input type="hidden" name="code" value={sku.code} />
-                  <div>
+                  <div className="min-w-0">
                     <p className="mb-1 text-[10px] font-semibold uppercase text-slate-400 sm:hidden">Code</p>
                     <p className="flex h-9 items-center font-mono text-sm font-semibold text-sky-600">{sku.code}</p>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="mb-1 text-[10px] font-semibold uppercase text-slate-400 sm:hidden">Name</p>
                     <SkuNameField code={sku.code} name={sku.name} />
                   </div>
