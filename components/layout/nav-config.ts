@@ -13,6 +13,8 @@ import {
   Settings2,
   Landmark,
   Users,
+  Stethoscope,
+  Monitor,
 } from "lucide-react";
 
 export type SingleNavLink = {
@@ -84,6 +86,30 @@ export const appNavLinks: NavLinkItem[] = [
       { href: "/hr/headcount", label: "Headcount Detail" },
       { href: "/hr/tasks", label: "HR Tasks" },
       { href: "/hr/results", label: "HR Results" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Medical Team",
+    icon: Stethoscope,
+    match: "/medical",
+    children: [
+      { href: "/medical", label: "Medical Dashboard" },
+      { href: "/medical/registrations", label: "Registrations" },
+      { href: "/medical/tasks", label: "Medical Tasks" },
+      { href: "/medical/results", label: "Medical Results" },
+    ],
+  },
+  {
+    type: "group",
+    label: "IT Team",
+    icon: Monitor,
+    match: "/it",
+    children: [
+      { href: "/it", label: "IT Dashboard" },
+      { href: "/it/system-status", label: "System Status" },
+      { href: "/it/tasks", label: "IT Tasks" },
+      { href: "/it/results", label: "IT Results" },
     ],
   },
   { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
