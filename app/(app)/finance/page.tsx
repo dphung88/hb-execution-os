@@ -21,8 +21,8 @@ export default async function FinanceDashboard({ searchParams }: Props) {
 
   const quickLinks = [
     { label: "Break-Even Analysis", href: `/finance/break-even?period=${selectedPeriod}` },
+    { label: "Asset Breakdown",      href: `/finance/assets?period=${selectedPeriod}` },
     { label: "Finance Tasks",        href: `/finance/tasks?period=${selectedPeriod}` },
-    { label: "Budget vs Actual",     href: `/finance/budget?period=${selectedPeriod}` },
     { label: "Finance Results",      href: `/finance/results?period=${selectedPeriod}` },
   ];
 

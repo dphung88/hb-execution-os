@@ -73,6 +73,7 @@ export const appNavLinks: NavLinkItem[] = [
     children: [
       { href: "/finance", label: "Finance Dashboard" },
       { href: "/finance/break-even", label: "Break-Even Analysis" },
+      { href: "/finance/assets", label: "Asset Breakdown" },
       { href: "/finance/tasks", label: "Finance Tasks" },
       { href: "/finance/results", label: "Finance Results" },
     ],
