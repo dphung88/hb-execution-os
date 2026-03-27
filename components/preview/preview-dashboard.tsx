@@ -64,10 +64,10 @@ export function PreviewDashboard() {
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">
               Executive Preview
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
               One operating system for revenue, execution, and CEO readiness.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
@@ -110,19 +110,19 @@ export function PreviewDashboard() {
             <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
               <ChartNoAxesCombined className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">VP / COO dashboard</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Execution pulse</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">VP / COO dashboard</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Execution Pulse</h2>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {demoSignals.map((signal) => (
               <div key={signal.label} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {signal.label}
                 </p>
-                <p className="mt-3 text-lg font-semibold text-slate-900">{signal.value}</p>
+                <p className="mt-3 text-base font-semibold text-slate-900">{signal.value}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-500">{signal.detail}</p>
               </div>
             ))}
@@ -134,8 +134,8 @@ export function PreviewDashboard() {
             <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
               <BellRing className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Leadership timeline</p>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Leadership timeline</p>
               <h2 className="text-2xl font-semibold text-slate-900">Today</h2>
             </div>
           </div>
@@ -160,9 +160,9 @@ export function PreviewDashboard() {
             <div className="rounded-2xl bg-indigo-100 p-3 text-indigo-700">
               <ChartNoAxesCombined className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">KPI command center</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Trend watch</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">KPI command center</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Trend Watch</h2>
             </div>
           </div>
 
@@ -192,9 +192,9 @@ export function PreviewDashboard() {
             <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
               <ShieldAlert className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">Notification stack</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Leadership alerts</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Notification stack</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Leadership Alerts</h2>
             </div>
           </div>
 
@@ -221,8 +221,8 @@ export function PreviewDashboard() {
               <BriefcaseBusiness className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">Execution queue</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Priority tasks</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Execution queue</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Priority Tasks</h2>
             </div>
           </div>
 
@@ -235,8 +235,8 @@ export function PreviewDashboard() {
               <div className="rounded-2xl bg-cyan-100 p-3 text-cyan-700">
                 <FileStack className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">CEO presentation workflow</p>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">CEO presentation workflow</p>
                 <h2 className="text-2xl font-semibold text-slate-900">
                   {demoExecutiveBrief.title}
                 </h2>
@@ -267,9 +267,9 @@ export function PreviewDashboard() {
             <div className="rounded-2xl bg-fuchsia-100 p-3 text-fuchsia-700">
               <Sparkles className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">What Phase 1 shows</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Visual product story</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">What Phase 1 shows</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Visual Product Story</h2>
             </div>
           </div>
 

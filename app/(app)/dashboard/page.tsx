@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {[
           { label: "Total tasks", value: stats.totalTasks },
           { label: "Open tasks", value: stats.openTasks },
@@ -26,10 +26,10 @@ export default async function DashboardPage() {
         ].map((card) => (
           <div
             key={card.label}
-            className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-panel"
+            className="rounded-3xl border border-white/70 bg-white/80 p-4 shadow-panel sm:p-6"
           >
-            <p className="text-sm text-slate-500">{card.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-900">{card.value}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400 sm:text-[11px] sm:tracking-[0.18em]">{card.label}</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900 sm:mt-3 sm:text-3xl">{card.value}</p>
           </div>
         ))}
       </section>
@@ -38,9 +38,9 @@ export default async function DashboardPage() {
         <div className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-panel">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-brand-700">Execution pulse</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Execution pulse</p>
               <h2 className="mt-1 text-2xl font-semibold text-slate-900">
-                Focus areas this week
+                Focus Areas This Week
               </h2>
             </div>
             <Link href="/tasks">
@@ -78,9 +78,9 @@ export default async function DashboardPage() {
         </div>
 
         <div className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-panel">
-          <p className="text-sm font-medium text-brand-700">Phase 1 scope</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Phase 1 scope</p>
           <h2 className="mt-1 text-2xl font-semibold text-slate-900">
-            What this release includes
+            What This Release Includes
           </h2>
           <ul className="mt-6 space-y-3 text-sm text-slate-600">
             <li>Supabase-authenticated app shell with protected routes</li>
@@ -98,8 +98,8 @@ export default async function DashboardPage() {
               <BellRing className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">Notification center</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Leadership queue</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Notification center</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Leadership Queue</h2>
             </div>
           </div>
 
@@ -124,13 +124,13 @@ export default async function DashboardPage() {
               <FileStack className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">CEO brief</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">CEO brief</p>
               <h2 className="text-2xl font-semibold text-slate-900">{demoExecutiveBrief.title}</h2>
             </div>
           </div>
 
           <p className="mt-6 text-sm leading-7 text-slate-600">{demoExecutiveBrief.summary}</p>
-          <Link href="/briefs" className="mt-6 inline-flex text-sm font-medium text-brand-700">
+          <Link href="/briefs" className="mt-6 inline-flex text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">
             Open brief workspace
           </Link>
         </div>
@@ -143,20 +143,20 @@ export default async function DashboardPage() {
               <Mic className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">Meeting intelligence</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Meeting intelligence</p>
               <h2 className="text-2xl font-semibold text-slate-900">{demoMeetingInsight.title}</h2>
             </div>
           </div>
 
           <p className="mt-6 text-sm leading-7 text-slate-600">{demoMeetingInsight.summary}</p>
-          <Link href="/meetings" className="mt-6 inline-flex text-sm font-medium text-brand-700">
+          <Link href="/meetings" className="mt-6 inline-flex text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">
             Open meeting workspace
           </Link>
         </div>
 
         <div className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-panel">
-          <p className="text-sm font-medium text-brand-700">Department boards</p>
-          <h2 className="mt-1 text-2xl font-semibold text-slate-900">Operating view by function</h2>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Department boards</p>
+          <h2 className="mt-1 text-2xl font-semibold text-slate-900">Operating View By Function</h2>
 
           <div className="mt-6 grid gap-4">
             {demoDepartmentBoards.map((board) => (

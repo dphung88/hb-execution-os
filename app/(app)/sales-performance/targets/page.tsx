@@ -222,19 +222,17 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                     {
                       codeName: "key_sku_code_1",
                       codeValue: baselineTarget.keySkuCode1,
-                      lotDateName: "key_sku_lot_date_1",
                       qtyName: "hb031_target",
                       qtyValue: baselineTarget.hb031Target,
                     },
                     {
                       codeName: "key_sku_code_2",
                       codeValue: baselineTarget.keySkuCode2,
-                      lotDateName: "key_sku_lot_date_2",
                       qtyName: "hb035_target",
                       qtyValue: baselineTarget.hb035Target,
                     },
                   ].map((field) => (
-                    <div key={field.qtyName} className="grid grid-cols-3 gap-2">
+                    <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                       <label className="block">
                         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Code</span>
                         <input
@@ -242,15 +240,6 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                           name={field.codeName}
                           defaultValue={field.codeValue}
                           className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Lot Date</span>
-                        <input
-                          type="date"
-                          name={field.lotDateName}
-                          defaultValue=""
-                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                         />
                       </label>
                       <label className="block">
@@ -274,19 +263,17 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                     {
                       codeName: "clearstock_code_1",
                       codeValue: baselineTarget.clearstockCode1,
-                      lotDateName: "clearstock_lot_date_1",
                       qtyName: "hb006_target",
                       qtyValue: baselineTarget.hb006Target,
                     },
                     {
                       codeName: "clearstock_code_2",
                       codeValue: baselineTarget.clearstockCode2,
-                      lotDateName: "clearstock_lot_date_2",
                       qtyName: "hb034_target",
                       qtyValue: baselineTarget.hb034Target,
                     },
                   ].map((field) => (
-                    <div key={field.qtyName} className="grid grid-cols-3 gap-2">
+                    <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                       <label className="block">
                         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Code</span>
                         <input
@@ -294,15 +281,6 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                           name={field.codeName}
                           defaultValue={field.codeValue}
                           className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Lot Date</span>
-                        <input
-                          type="date"
-                          name={field.lotDateName}
-                          defaultValue=""
-                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                         />
                       </label>
                       <label className="block">
@@ -413,10 +391,10 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">Key SKU</p>
                         <div className="mt-3 grid gap-3">
                           {[
-                            { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), lotDateName: "key_sku_lot_date_1", lotDateValue: String(targetRow?.key_sku_lot_date_1 ?? ""), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
-                            { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), lotDateName: "key_sku_lot_date_2", lotDateValue: String(targetRow?.key_sku_lot_date_2 ?? ""), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
+                            { codeName: "key_sku_code_1", codeValue: String(targetRow?.key_sku_code_1 ?? "HB031"), qtyName: "hb031_target", qtyValue: target?.hb031_target ?? salesKpiProducts.HB031.target },
+                            { codeName: "key_sku_code_2", codeValue: String(targetRow?.key_sku_code_2 ?? "HB035"), qtyName: "hb035_target", qtyValue: target?.hb035_target ?? salesKpiProducts.HB035.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid grid-cols-3 gap-2">
+                            <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                   Code
@@ -426,17 +404,6 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                   name={field.codeName}
                                   defaultValue={field.codeValue}
                                   className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
-                                />
-                              </label>
-                              <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                  Lot Date
-                                </span>
-                                <input
-                                  type="date"
-                                  name={field.lotDateName}
-                                  defaultValue={field.lotDateValue}
-                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                               <label className="block">
@@ -459,10 +426,10 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-600">Clearstock</p>
                         <div className="mt-3 grid gap-3">
                           {[
-                            { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), lotDateName: "clearstock_lot_date_1", lotDateValue: String(targetRow?.clearstock_lot_date_1 ?? ""), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
-                            { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), lotDateName: "clearstock_lot_date_2", lotDateValue: String(targetRow?.clearstock_lot_date_2 ?? ""), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
+                            { codeName: "clearstock_code_1", codeValue: String(targetRow?.clearstock_code_1 ?? "HB006"), qtyName: "hb006_target", qtyValue: target?.hb006_target ?? salesKpiProducts.HB006.target },
+                            { codeName: "clearstock_code_2", codeValue: String(targetRow?.clearstock_code_2 ?? "HB034"), qtyName: "hb034_target", qtyValue: target?.hb034_target ?? salesKpiProducts.HB034.target },
                           ].map((field) => (
-                            <div key={field.qtyName} className="grid grid-cols-3 gap-2">
+                            <div key={field.qtyName} className="grid grid-cols-2 gap-2">
                               <label className="block">
                                 <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                   Code
@@ -472,17 +439,6 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                                   name={field.codeName}
                                   defaultValue={field.codeValue}
                                   className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-400"
-                                />
-                              </label>
-                              <label className="block">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                  Lot Date
-                                </span>
-                                <input
-                                  type="date"
-                                  name={field.lotDateName}
-                                  defaultValue={field.lotDateValue}
-                                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                                 />
                               </label>
                               <label className="block">

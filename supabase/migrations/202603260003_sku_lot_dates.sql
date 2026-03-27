@@ -8,13 +8,35 @@ create table if not exists public.sku_lot_dates (
   updated_at    timestamptz default now()
 );
 
--- Seed with known SKUs from stock workbook (2025-03-08 snapshot)
-insert into public.sku_lot_dates (code, name, lot_date, stock_on_hand, weekly_sell_out) values
-  ('HB031', 'HB CoQ10 150mg C/30V',          '2027-01-28', 15633, 2),
-  ('HB035', 'HB Collagen 1,2&3 C/120V',      '2027-08-16', 4368,  18),
-  ('HB006', 'Gluta White C/30V',              '2026-08-23', 11959, 89),
-  ('HB034', 'HB Prenatal Support H/60V',      '2027-12-29', 13322, 6)
-on conflict (code) do nothing;
+-- Seed with inventory data (snapshot 2026-03-27)
+insert into public.sku_lot_dates (code, lot_date, stock_on_hand) values
+  ('HB001', '2027-08-16', 2367),
+  ('HB002', '2027-04-25', 0),
+  ('HB003', '2027-04-25', 1),
+  ('HB004', '2028-05-14', 1720),
+  ('HB005', '2028-05-14', 5070),
+  ('HB006', '2026-08-23', 7999),
+  ('HB007', '2027-11-09', 6345),
+  ('HB009', '2028-03-09', 21574),
+  ('HB010', '2027-11-12', 0),
+  ('HB011', '2028-03-09', 3462),
+  ('HB015', '2028-01-27', 10275),
+  ('HB018', '2027-12-01', 558),
+  ('HB024', '2027-10-27', 2548),
+  ('HB025', '2027-10-27', 0),
+  ('HB030', '2027-08-27', 7958),
+  ('HB031', '2027-01-28', 13607),
+  ('HB033', '2026-07-23', 25),
+  ('HB034', '2027-12-29', 5618),
+  ('HB035', '2028-02-19', 11777),
+  ('HB036', '2028-02-19', 11060),
+  ('HB037', '2028-02-17', 11106),
+  ('HB038', '2028-02-17', 3679),
+  ('HB039', '2027-12-29', 7673)
+on conflict (code) do update set
+  lot_date      = excluded.lot_date,
+  stock_on_hand = excluded.stock_on_hand,
+  updated_at    = now();
 
 alter table public.sku_lot_dates enable row level security;
 create policy "Allow all" on public.sku_lot_dates for all using (true) with check (true);

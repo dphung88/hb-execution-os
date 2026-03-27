@@ -6,12 +6,17 @@ import { marketingHeadcountPlan, marketingWorkbookContext } from "@/lib/demo-dat
 import { getMarketingExecutionScore } from "@/lib/marketing/execution";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
 
+import type { PeriodConfig } from "@/lib/config/periods";
+import { PeriodSelector } from "@/components/ui/period-selector";
 import { marketingToneClass } from "./marketing-shared";
 
 type MarketingTasksWorkspaceProps = {
   tasks: MarketingTaskRecord[];
   source: "live" | "demo";
+  periods?: PeriodConfig[];
+  selectedPeriod?: string;
   searchParams?: {
+    period?: string;
     owner?: string;
     status?: string;
     requester?: string;
@@ -24,7 +29,7 @@ function normalize(value: string) {
   return value.trim().toLowerCase();
 }
 
-export function MarketingTasksWorkspace({ tasks, source, searchParams }: MarketingTasksWorkspaceProps) {
+export function MarketingTasksWorkspace({ tasks, source, searchParams, periods = [], selectedPeriod = "" }: MarketingTasksWorkspaceProps) {
   const ownerFilter = searchParams?.owner ?? "all";
   const statusFilter = searchParams?.status ?? "all";
   const requesterFilter = searchParams?.requester ?? "all";
@@ -95,8 +100,8 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-sky-300">Marketing Tasks</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">Marketing Tasks</p>
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
               Daily task workspace for the Marketing team.
             </h1>
             <p className="mt-4 text-sm leading-7 text-slate-300">
@@ -104,18 +109,16 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {periods.length > 0 && (
+              <PeriodSelector periods={periods} selectedPeriod={selectedPeriod} basePath="/marketing-performance/tasks" />
+            )}
+            <div className="h-6 w-px bg-white/15 hidden sm:block" />
             <Link
               href="/marketing-performance/results"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
             >
-              Back to Results
-            </Link>
-            <Link
-              href="/marketing-performance/results"
-              className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-            >
-              Open Marketing Results
+              Marketing Results
             </Link>
           </div>
         </div>
@@ -129,7 +132,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
           { label: "Failed", value: String(failedTasks), note: "Tasks needing reset" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
             <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
@@ -163,9 +166,9 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
           <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
             <CheckSquare className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">NEW TASK</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Create a Marketing task directly on the web</h2>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">NEW TASK</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Create A Marketing Task Directly On The Web</h2>
           </div>
         </div>
 
@@ -173,47 +176,47 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
           <input type="hidden" name="month_key" value={marketingWorkbookContext.monthKey} />
 
           <label className="block xl:col-span-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Task name</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Task name</span>
             <input name="task_name" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Owner</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Owner</span>
             <select name="owner_name" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
               {owners.map((owner) => <option key={owner} value={owner}>{owner}</option>)}
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Requester</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Requester</span>
             <select name="request_source" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
               {requesters.map((requester) => <option key={requester} value={requester}>{requester}</option>)}
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Status</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Status</span>
             <select name="status" defaultValue="Planned" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
               {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Priority</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Priority</span>
             <select name="priority" defaultValue="Medium" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
               {["Low", "Medium", "High", "Critical"].map((priority) => <option key={priority} value={priority}>{priority}</option>)}
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Due date</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Due date</span>
             <input type="date" name="due_date" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Progress %</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Progress %</span>
             <input type="number" name="progress_percent" defaultValue={0} min={0} max={100} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block xl:col-span-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Result note</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Result note</span>
             <input name="result_note" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">File link</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">File link</span>
             <input name="file_link" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <div className="xl:col-span-3 flex justify-end">
@@ -229,15 +232,15 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
           <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
             <Filter className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-medium text-brand-700">TASK FILTERS</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Slice the Marketing task queue by owner and status</h2>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">TASK FILTERS</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Slice The Marketing Task Queue By Owner And Status</h2>
           </div>
         </div>
 
         <form method="get" className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-[1fr,1fr,1fr,140px]">
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Owner</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Owner</span>
             <select
               name="owner"
               defaultValue={ownerFilter}
@@ -253,7 +256,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
           </label>
 
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Status</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Status</span>
             <select
               name="status"
               defaultValue={statusFilter}
@@ -269,7 +272,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
           </label>
 
           <label className="block">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Requester</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Requester</span>
             <select
               name="requester"
               defaultValue={requesterFilter}
@@ -299,9 +302,9 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
                 <FolderKanban className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">TASK BOARD</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Execution tracker by owner</h2>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">TASK BOARD</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Execution Tracker By Owner</h2>
               </div>
           </div>
 
@@ -413,9 +416,9 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
                 <TimerReset className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">OVERDUE WATCH</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Tasks needing intervention</h2>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">OVERDUE WATCH</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Tasks Needing Intervention</h2>
               </div>
             </div>
 
@@ -443,9 +446,9 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
                 <CalendarDays className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">WORKLOAD</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Task count by owner</h2>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">WORKLOAD</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Task Count By Owner</h2>
               </div>
             </div>
 
@@ -476,9 +479,9 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams }: Marketi
               <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
                 <CheckSquare className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">REQUEST LANES</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Task queue by requester</h2>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">REQUEST LANES</p>
+                <h2 className="text-2xl font-semibold text-slate-900">Task Queue By Requester</h2>
               </div>
             </div>
 

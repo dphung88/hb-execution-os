@@ -11,8 +11,8 @@ export default async function TasksPage() {
     <div className="space-y-6">
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <p className="text-sm font-medium text-brand-700">Task management</p>
-          <h1 className="mt-1 text-3xl font-semibold text-slate-900">Tasks</h1>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Task management</p>
+          <h1 className="mt-1 text-2xl font-semibold text-slate-900">Tasks</h1>
         </div>
 
         {viewer.user ? (

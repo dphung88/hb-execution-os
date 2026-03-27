@@ -11,10 +11,10 @@ export function NotificationCenter() {
             <BellRing className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-300">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">
               Notification Center
             </p>
-            <h1 className="mt-1 text-4xl font-semibold tracking-tight">Leadership alerts and follow-up stream</h1>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-4xl">Leadership alerts and follow-up stream</h1>
           </div>
         </div>
       </section>
@@ -26,8 +26,8 @@ export function NotificationCenter() {
               <ShieldAlert className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">Priority stack</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Needs attention now</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Priority stack</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Needs Attention Now</h2>
             </div>
           </div>
 
@@ -47,13 +47,13 @@ export function NotificationCenter() {
         </div>
 
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <p className="text-sm font-medium text-brand-700">Operational feed</p>
-          <h2 className="mt-1 text-2xl font-semibold text-slate-900">Inbox by urgency</h2>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Operational feed</p>
+          <h2 className="mt-1 text-2xl font-semibold text-slate-900">Inbox By Urgency</h2>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {demoNotificationFeed.map((group) => (
               <div key={group.group} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {group.group}
                 </p>
                 <div className="mt-4 space-y-3">

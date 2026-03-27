@@ -11,17 +11,17 @@ export function CeoBriefPanel() {
             <FileStack className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-300">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">
               CEO Brief
             </p>
-            <h1 className="mt-1 text-4xl font-semibold tracking-tight">{demoExecutiveBrief.title}</h1>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-4xl">{demoExecutiveBrief.title}</h1>
           </div>
         </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.15fr,0.85fr]">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <p className="text-sm font-medium text-brand-700">Executive narrative</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Executive narrative</p>
           <h2 className="mt-1 text-2xl font-semibold text-slate-900">{demoExecutiveBrief.readiness}</h2>
 
           <div className="mt-6 rounded-2xl bg-slate-950 p-6 text-white">
@@ -42,8 +42,8 @@ export function CeoBriefPanel() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-brand-700">Presentation notes</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Ready to speak from</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Presentation notes</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Ready To Speak From</h2>
             </div>
           </div>
 

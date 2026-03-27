@@ -96,9 +96,9 @@ const CLEARSTOCK_SNAPSHOT_BASE = [
     code: "HB031",
     name: "HB CoQ10 150mg C/30V",
     category: "Key SKU" as const,
-    snapshotDate: "2025-03-08",
+    snapshotDate: "2026-03-27",
     lotDate: "2027-01-28",
-    stockOnHand: 15633,
+    stockOnHand: 13607,
     weeklySellOut: 2,
     averageDailySell: 5.317808219178082,
     daysToClear: 2939.744976816074,
@@ -110,9 +110,9 @@ const CLEARSTOCK_SNAPSHOT_BASE = [
     code: "HB035",
     name: "HB Collagen 1,2&3 C/120V",
     category: "Key SKU" as const,
-    snapshotDate: "2025-03-08",
-    lotDate: "2027-08-16",
-    stockOnHand: 4368,
+    snapshotDate: "2026-03-27",
+    lotDate: "2028-02-19",
+    stockOnHand: 11777,
     weeklySellOut: 18,
     averageDailySell: 2.5714285714,
     daysToClear: 1698.6666666893332,
@@ -124,9 +124,9 @@ const CLEARSTOCK_SNAPSHOT_BASE = [
     code: "HB006",
     name: "Gluta White C/30V",
     category: "Clearstock" as const,
-    snapshotDate: "2025-03-08",
+    snapshotDate: "2026-03-27",
     lotDate: "2026-08-23",
-    stockOnHand: 11959,
+    stockOnHand: 7999,
     weeklySellOut: 89,
     averageDailySell: 10.372602739726027,
     daysToClear: 1152.9410987849974,
@@ -138,9 +138,9 @@ const CLEARSTOCK_SNAPSHOT_BASE = [
     code: "HB034",
     name: "HB Prenatal Support H/60V",
     category: "Clearstock" as const,
-    snapshotDate: "2025-03-08",
+    snapshotDate: "2026-03-27",
     lotDate: "2027-12-29",
-    stockOnHand: 13322,
+    stockOnHand: 5618,
     weeklySellOut: 6,
     averageDailySell: 0.8301369863013699,
     daysToClear: 16047.333333333332,
@@ -150,7 +150,7 @@ const CLEARSTOCK_SNAPSHOT_BASE = [
   },
 ];
 
-const TODAY = new Date("2026-03-26T00:00:00");
+const TODAY = new Date();
 
 function differenceInDays(start: Date, end: Date) {
   return Math.floor((end.getTime() - start.getTime()) / 86400000);

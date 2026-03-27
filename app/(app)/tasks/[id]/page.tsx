@@ -27,14 +27,14 @@ export default async function TaskDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr,0.7fr]">
         <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-panel">
-          <h2 className="text-lg font-semibold text-slate-900">Description</h2>
+          <h2 className="text-base font-semibold text-slate-900">Description</h2>
           <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-600">
             {task.description || "No description provided for this task."}
           </p>
         </section>
 
         <aside className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-panel">
-          <h2 className="text-lg font-semibold text-slate-900">Details</h2>
+          <h2 className="text-base font-semibold text-slate-900">Details</h2>
           <dl className="mt-5 space-y-4 text-sm">
             <div>
               <dt className="text-slate-500">Owner</dt>

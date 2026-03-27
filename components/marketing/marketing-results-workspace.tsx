@@ -25,9 +25,11 @@ type MarketingResultsWorkspaceProps = {
   tasks?: MarketingTaskRecord[];
   manualInputs?: MarketingManualInputs;
   manualSource?: "supabase" | "local";
+  periods?: import("@/lib/config/periods").PeriodConfig[];
+  selectedPeriod?: string;
 };
 
-export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSource = "local" }: MarketingResultsWorkspaceProps) {
+export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSource = "local", periods = [], selectedPeriod = "" }: MarketingResultsWorkspaceProps) {
   const budgetRemaining = marketingWorkbookContext.expenseBudgetTarget - marketingWorkbookContext.actualExpenseBudget;
   const purchaseOrderRemaining = Math.max(
     0,
@@ -72,24 +74,23 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
             </h1>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/marketing-performance/targets"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-            >
-              Open Marketing Targets
+          <div className="flex flex-wrap items-center gap-3">
+            {periods.length > 0 && (
+              <>{/* inline import to avoid adding import at top for a simple inline use */}
+                <form method="get" action="/marketing-performance/results" className="flex items-center gap-2">
+                  <select name="period" defaultValue={selectedPeriod} className="h-11 rounded-2xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none transition focus:border-sky-300 cursor-pointer">
+                    {periods.map((p) => <option key={p.key} value={p.key} className="text-slate-900">{p.label}</option>)}
+                  </select>
+                  <button type="submit" className="h-11 rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Apply</button>
+                </form>
+                <div className="h-6 w-px bg-white/15 hidden sm:block" />
+              </>
+            )}
+            <Link href="/marketing-performance" className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/15">
+              Dashboard
             </Link>
-            <Link
-              href="/marketing-performance"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-            >
-              Back to Marketing Dashboard
-            </Link>
-            <Link
-              href="/marketing-performance/tasks"
-              className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
-            >
-              Open Marketing Tasks
+            <Link href="/marketing-performance/tasks" className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/15">
+              Tasks
             </Link>
           </div>
         </div>
@@ -115,8 +116,8 @@ export function MarketingResultsWorkspace({ tasks = [], manualInputs, manualSour
           <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
             <BriefcaseBusiness className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-brand-700">Team KPI</p>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Team KPI</p>
             <h2 className="text-2xl font-semibold text-slate-900">Department KPI Structure</h2>
           </div>
         </div>

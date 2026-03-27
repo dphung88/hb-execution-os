@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, BriefcaseBusiness, CheckSquare, LayoutDashboard, Megaphone, Sparkles, Users, WandSparkles } from "lucide-react";
+import { BarChart3, BriefcaseBusiness, CheckSquare, Megaphone, Sparkles, Users, WandSparkles } from "lucide-react";
 
 import {
   marketingChannelSetup,
@@ -8,22 +8,23 @@ import {
 } from "@/lib/demo-data";
 import { getMarketingTeamExecutionSummary } from "@/lib/marketing/execution";
 import { marketingRoleTemplates } from "@/lib/marketing/kpi-templates";
+import type { PeriodConfig } from "@/lib/config/periods";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
+import { PeriodSelector } from "@/components/ui/period-selector";
 
 import { marketingToneClass as toneClass } from "./marketing-shared";
 
 type MarketingTeamHubProps = {
   tasks?: MarketingTaskRecord[];
+  periods?: PeriodConfig[];
+  selectedPeriod?: string;
 };
 
-export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
+export function MarketingTeamHub({ tasks = [], periods = [], selectedPeriod = "" }: MarketingTeamHubProps) {
   const executionSummary = getMarketingTeamExecutionSummary(tasks);
   const heroLabelClass = "text-[11px] font-medium uppercase tracking-[0.24em] text-sky-300";
   const darkCardLabelClass = "text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300";
   const darkCardValueClass = "mt-3 text-[1.9rem] font-semibold leading-tight text-white";
-  const actionCardClass =
-    "group flex min-h-[84px] items-center gap-3 rounded-3xl border px-4 py-4 text-left transition";
-  const actionIconClass = "rounded-2xl p-3";
   const roleSummaries = marketingHeadcountPlan.map((role) => {
     const template = marketingRoleTemplates.find((item) => item.role === role.role);
     const taskRows = tasks.filter((task) => task.owner === role.role);
@@ -57,43 +58,27 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
               Marketing execution, KPI ownership, and department results.
             </h1>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Link
-                href="/marketing-performance/tasks"
-                className={`${actionCardClass} border-sky-200 bg-sky-50 text-slate-950 hover:border-sky-300 hover:bg-sky-100`}
-              >
-                <span className={`${actionIconClass} bg-sky-100 text-sky-700`}>
-                  <CheckSquare className="h-5 w-5" />
-                </span>
-                <span className="text-base font-semibold">Open Marketing Tasks</span>
-              </Link>
-              <Link
-                href="/marketing-performance/results"
-                className={`${actionCardClass} border-violet-200 bg-violet-50 text-slate-950 hover:border-violet-300 hover:bg-violet-100`}
-              >
-                <span className={`${actionIconClass} bg-violet-100 text-violet-700`}>
-                  <BarChart3 className="h-5 w-5" />
-                </span>
-                <span className="text-base font-semibold">Open Marketing Results</span>
-              </Link>
-              <Link
-                href="/marketing-performance/targets"
-                className={`${actionCardClass} border-amber-200 bg-amber-50 text-slate-950 hover:border-amber-300 hover:bg-amber-100`}
-              >
-                <span className={`${actionIconClass} bg-amber-100 text-amber-700`}>
-                  <BriefcaseBusiness className="h-5 w-5" />
-                </span>
-                <span className="text-base font-semibold">Open Marketing Targets</span>
-              </Link>
-              <Link
-                href="/marketing-performance"
-                className={`${actionCardClass} border-emerald-200 bg-emerald-50 text-slate-950 hover:border-emerald-300 hover:bg-emerald-100`}
-              >
-                <span className={`${actionIconClass} bg-emerald-100 text-emerald-700`}>
-                  <LayoutDashboard className="h-5 w-5" />
-                </span>
-                <span className="text-base font-semibold">Dashboard Overview</span>
-              </Link>
+            {periods.length > 0 && (
+              <div className="mt-5">
+                <PeriodSelector periods={periods} selectedPeriod={selectedPeriod} basePath="/marketing-performance" />
+              </div>
+            )}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {[
+                { href: "/marketing-performance/tasks",   icon: CheckSquare,      label: "Tasks" },
+                { href: "/marketing-performance/results", icon: BarChart3,        label: "Results" },
+                { href: "/marketing-performance/targets", icon: BriefcaseBusiness, label: "Targets" },
+                { href: "/marketing-performance/kpis",    icon: Sparkles,         label: "KPI Structure" },
+              ].map(({ href, icon: Icon, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/8 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
+                >
+                  <Icon className="h-4 w-4 shrink-0 text-slate-300" />
+                  {label}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -118,9 +103,9 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
           <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
             <Megaphone className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-brand-700">Channel Setup</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Budget Mix by Channel</h2>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Channel Setup</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Budget Mix By Channel</h2>
           </div>
         </div>
 
@@ -147,9 +132,9 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
             <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
               <BarChart3 className="h-5 w-5" />
             </div>
-          <div>
-            <p className="text-sm font-semibold text-brand-700">Results</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across the Department</h2>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Results</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across The Department</h2>
           </div>
         </div>
 
@@ -227,9 +212,9 @@ export function MarketingTeamHub({ tasks = [] }: MarketingTeamHubProps) {
           <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
             <CheckSquare className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-brand-700">Task Tracking</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Workbook Task Pipeline by Marketing Role</h2>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Task Tracking</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Workbook Task Pipeline By Marketing Role</h2>
           </div>
         </div>
 

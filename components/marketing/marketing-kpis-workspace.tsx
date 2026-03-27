@@ -113,7 +113,7 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <p className={heroLabelClass}>Marketing KPIs</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-4xl">
               Person KPI and team KPI scoring in one Marketing layer.
             </h1>
           </div>
@@ -127,7 +127,7 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
             </Link>
             <Link
               href="/marketing-performance/results"
-              className="inline-flex h-11 items-center justify-center rounded-2xl bg-sky-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-sky-300"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
             >
               Open Results
             </Link>
@@ -156,9 +156,9 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
             <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
               <Users className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">TEAM KPI</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Department scorecard structure</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">TEAM KPI</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Department Scorecard Structure</h2>
             </div>
           </div>
 
@@ -169,19 +169,19 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
                   <p className="text-base font-semibold text-slate-900">{row.name}</p>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Target</p>
                       <p className="mt-1 text-slate-700">{row.target}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Actual</p>
                       <p className="mt-1 text-slate-700">{row.actual}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Ratio</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Ratio</p>
                       <p className="mt-1 text-slate-700">{row.ratio}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Weight</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Weight</p>
                       <p className="mt-1 text-slate-700">{row.weight}</p>
                     </div>
                   </div>
@@ -223,9 +223,9 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
             <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
               <BriefcaseBusiness className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">ROLE KPI SETUP</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Role-based KPI logic</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">ROLE KPI SETUP</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Role-Based KPI Logic</h2>
             </div>
           </div>
 
@@ -246,9 +246,9 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
             <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
               <Gauge className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-brand-700">PERSON KPI</p>
-              <h2 className="text-2xl font-semibold text-slate-900">Monthly score roll-up by owner</h2>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">PERSON KPI</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Monthly Score Roll-Up By Owner</h2>
             </div>
           </div>
 
@@ -259,31 +259,31 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
                   <p className="text-base font-semibold text-slate-900">{row.owner}</p>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Target</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Target</p>
                       <p className="mt-1 text-slate-700">{row.targetTotal.toFixed(1)}M</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Actual</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Actual</p>
                       <p className="mt-1 text-slate-700">{row.actualTotal.toFixed(1)}M</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Ratio</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Ratio</p>
                       <p className="mt-1 text-slate-700">{percent(row.ratio)}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Outcome</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Outcome</p>
                       <p className="mt-1 text-slate-700">{row.outcomeScore}/60</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Execution</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Execution</p>
                       <p className="mt-1 text-slate-700">{row.executionScore}/40</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Task Completion</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Task Completion</p>
                       <p className="mt-1 text-slate-700">{percent(row.completionRate)}</p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Total</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Total</p>
                       <p className="mt-1 font-semibold text-slate-900">{row.totalScore}/100{row.overdueTasks ? ` · ${row.overdueTasks} overdue` : ""}</p>
                     </div>
                   </div>
@@ -334,9 +334,9 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
               <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
                 <CheckCircle2 className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">SCORING LOGIC</p>
-                <h2 className="text-2xl font-semibold text-slate-900">How KPI should be judged</h2>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">SCORING LOGIC</p>
+                <h2 className="text-2xl font-semibold text-slate-900">How KPI Should Be Judged</h2>
               </div>
             </div>
 
@@ -359,9 +359,9 @@ export function MarketingKpisWorkspace({ tasks = [] }: MarketingKpisWorkspacePro
               <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
                 <Users className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-700">KPI INPUTS</p>
-                <h2 className="text-2xl font-semibold text-slate-900">What feeds the score</h2>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">KPI INPUTS</p>
+                <h2 className="text-2xl font-semibold text-slate-900">What Feeds The Score</h2>
               </div>
             </div>
 

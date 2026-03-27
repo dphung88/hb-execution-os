@@ -1,8 +1,10 @@
 import { MarketingTasksWorkspace } from "@/components/marketing/marketing-tasks-workspace";
+import { getPeriods } from "@/lib/config/periods";
 import { loadMarketingTasks } from "@/lib/marketing/tasks";
 
 type MarketingTasksPageProps = {
   searchParams?: Promise<{
+    period?: string;
     owner?: string;
     status?: string;
     requester?: string;
@@ -13,7 +15,17 @@ type MarketingTasksPageProps = {
 
 export default async function MarketingTasksPage({ searchParams }: MarketingTasksPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const { tasks, source } = await loadMarketingTasks();
+  const periods = await getPeriods();
+  const selectedPeriod = resolvedSearchParams?.period ?? periods[0]?.key ?? "";
+  const { tasks, source } = await loadMarketingTasks(selectedPeriod);
 
-  return <MarketingTasksWorkspace tasks={tasks} source={source} searchParams={resolvedSearchParams} />;
+  return (
+    <MarketingTasksWorkspace
+      tasks={tasks}
+      source={source}
+      searchParams={resolvedSearchParams}
+      periods={periods}
+      selectedPeriod={selectedPeriod}
+    />
+  );
 }

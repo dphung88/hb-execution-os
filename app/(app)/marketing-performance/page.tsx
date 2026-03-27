@@ -1,8 +1,14 @@
 import { MarketingTeamHub } from "@/components/marketing/marketing-team-hub";
+import { getPeriods } from "@/lib/config/periods";
 import { loadMarketingTasks } from "@/lib/marketing/tasks";
 
-export default async function MarketingPerformancePage() {
-  const { tasks } = await loadMarketingTasks();
+type Props = { searchParams?: Promise<{ period?: string }> };
 
-  return <MarketingTeamHub tasks={tasks} />;
+export default async function MarketingPerformancePage({ searchParams }: Props) {
+  const params = searchParams ? await searchParams : undefined;
+  const periods = await getPeriods();
+  const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
+  const { tasks } = await loadMarketingTasks(selectedPeriod);
+
+  return <MarketingTeamHub tasks={tasks} periods={periods} selectedPeriod={selectedPeriod} />;
 }

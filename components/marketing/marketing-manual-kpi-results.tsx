@@ -147,8 +147,8 @@ export function MarketingManualKpiResults({
           <div className="rounded-2xl bg-violet-100 p-3 text-violet-700">
             <PenSquare className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-brand-700">Manual KPI Inputs</p>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Manual KPI Inputs</p>
             <h2 className="text-2xl font-semibold text-slate-900">
               {isTargetMode ? "Role KPI Targets" : "Role KPI Outcomes"}
             </h2>
@@ -450,9 +450,9 @@ export function MarketingManualKpiResults({
           <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
             <TrendingUp className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-brand-700">Results by Role</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across the Department</h2>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Results by Role</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Role Summary Across The Department</h2>
           </div>
         </div>
 
