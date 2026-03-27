@@ -11,6 +11,7 @@ import {
   Megaphone,
   Mic,
   Settings2,
+  Landmark,
 } from "lucide-react";
 
 export type SingleNavLink = {
@@ -58,6 +59,18 @@ export const appNavLinks: NavLinkItem[] = [
       { href: "/marketing-performance/tasks", label: "Marketing Tasks" },
       { href: "/marketing-performance/targets", label: "Marketing Targets" },
       { href: "/marketing-performance/results", label: "Marketing Results" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Finance Team",
+    icon: Landmark,
+    match: "/finance",
+    children: [
+      { href: "/finance", label: "Finance Dashboard" },
+      { href: "/finance/break-even", label: "Break-Even Analysis" },
+      { href: "/finance/tasks", label: "Finance Tasks" },
+      { href: "/finance/results", label: "Finance Results" },
     ],
   },
   { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
