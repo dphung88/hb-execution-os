@@ -230,42 +230,52 @@ export function ItTasksWorkspace({ tasks, source, searchParams, periods = [], se
               <div>Task</div><div>Status</div><div>Due date</div><div>Progress</div><div>Note</div><div className="text-right">Action</div>
             </div>
             <div className="divide-y divide-slate-100">
-              {boardRows.map(({ owner, task }) => (
-                <form key={task?.id ?? owner} action={task ? updateItTaskAction : undefined}
-                  className="grid grid-cols-[1fr,140px,100px,90px,1fr,80px] items-start gap-3 px-5 py-4">
-                  {task && <input type="hidden" name="task_id" value={task.id} />}
-                  {task && <input type="hidden" name="file_link" value={task.fileLink ?? ""} />}
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{task?.title ?? "No task logged yet"}</p>
-                    <p className="mt-1 text-xs text-slate-500">{owner}{task ? ` · ${task.requester}` : " · Awaiting first task"}</p>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">{task?.priority ?? "-"}</span>
-                      {task && <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${toneClass(task.status)}`}>{task.status}</span>}
+              {boardRows.map(({ owner, task }) => {
+                if (!task) {
+                  return (
+                    <div key={owner} className="flex items-center gap-3 px-5 py-4">
+                      <p className="text-sm font-medium text-slate-700">{owner}</p>
+                      <p className="text-xs text-slate-400">· No task logged yet</p>
                     </div>
-                  </div>
-                  <div>
-                    <select name="status" defaultValue={task?.status ?? "Planned"} disabled={!task}
-                      className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400">
-                      {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div className="pt-2 text-xs text-slate-600">{task?.dueDate || "—"}</div>
-                  <div>
-                    <input type="number" name="progress_percent" defaultValue={task?.progressPercent ?? 0} min={0} max={100} disabled={!task}
-                      className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400" />
-                  </div>
-                  <div>
-                    <input name="result_note" defaultValue={task?.notes ?? ""} disabled={!task}
-                      className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400" />
-                  </div>
-                  <div className="flex justify-end">
-                    <button type="submit" disabled={!task}
-                      className="inline-flex h-9 items-center justify-center rounded-xl bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-40">
-                      Save
-                    </button>
-                  </div>
-                </form>
-              ))}
+                  );
+                }
+                return (
+                  <form key={task.id} action={updateItTaskAction}
+                    className="grid grid-cols-[1fr,140px,100px,90px,1fr,80px] items-start gap-3 px-5 py-4">
+                    <input type="hidden" name="task_id" value={task.id} />
+                    <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{task.title}</p>
+                      <p className="mt-1 text-xs text-slate-500">{owner} · {task.requester}</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">{task.priority}</span>
+                        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${toneClass(task.status)}`}>{task.status}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <select name="status" defaultValue={task.status}
+                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400">
+                        {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div className="pt-2 text-xs text-slate-600">{task.dueDate || "—"}</div>
+                    <div>
+                      <input type="number" name="progress_percent" defaultValue={task.progressPercent} min={0} max={100}
+                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400" />
+                    </div>
+                    <div>
+                      <input name="result_note" defaultValue={task.notes}
+                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400" />
+                    </div>
+                    <div className="flex justify-end">
+                      <button type="submit"
+                        className="inline-flex h-9 items-center justify-center rounded-xl bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800">
+                        Save
+                      </button>
+                    </div>
+                  </form>
+                );
+              })}
             </div>
           </div>
         </div>
