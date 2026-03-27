@@ -246,6 +246,14 @@ export const demoDepartmentBoards = [
     highlight: "System status monitor and task queue active.",
     href: "/it",
     items: []
+  },
+  {
+    name: "Supply Chain",
+    health: "Active",
+    owner: "[SC Lead]",
+    highlight: "Inventory overview and procurement tracking active.",
+    href: "/supply-chain",
+    items: []
   }
 ];
 

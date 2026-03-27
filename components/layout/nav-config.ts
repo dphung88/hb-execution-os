@@ -15,6 +15,7 @@ import {
   Users,
   Stethoscope,
   Monitor,
+  Package,
 } from "lucide-react";
 
 export type SingleNavLink = {
@@ -110,6 +111,18 @@ export const appNavLinks: NavLinkItem[] = [
       { href: "/it/system-status", label: "System Status" },
       { href: "/it/tasks", label: "IT Tasks" },
       { href: "/it/results", label: "IT Results" },
+    ],
+  },
+  {
+    type: "group",
+    label: "Supply Chain",
+    icon: Package,
+    match: "/supply-chain",
+    children: [
+      { href: "/supply-chain", label: "SC Dashboard" },
+      { href: "/supply-chain/inventory", label: "Inventory Overview" },
+      { href: "/supply-chain/tasks", label: "SC Tasks" },
+      { href: "/supply-chain/results", label: "SC Results" },
     ],
   },
   { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
