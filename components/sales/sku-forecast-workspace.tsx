@@ -189,7 +189,7 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
                     <p className="mt-1 text-sm font-semibold text-slate-900">{row.stockOnHand.toLocaleString("en-US")}</p>
                   </div>
                   <div className="rounded-2xl bg-white/70 px-3 py-2">
-                    <p className="text-[10px] font-semibold text-slate-500">Sold This Month</p>
+                    <p className="text-[10px] font-semibold text-slate-500">Sold This Period</p>
                     <p className="mt-1 text-sm font-semibold text-slate-900">{row.totalActual.toLocaleString("en-US")}</p>
                   </div>
                   <div className="rounded-2xl bg-white/70 px-3 py-2">

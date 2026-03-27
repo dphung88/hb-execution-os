@@ -126,7 +126,7 @@ export const appNavLinks: NavLinkItem[] = [
       { href: "/supply-chain/results", label: "SC Results" },
     ],
   },
-  { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
+  { type: "single", href: "/tasks", label: "Task Report", icon: ClipboardList },
   { type: "single", href: "/notifications", label: "Notifications", icon: BellRing },
   { type: "single", href: "/briefs", label: "CEO Brief", icon: FileStack },
   { type: "single", href: "/meetings", label: "Meetings", icon: Mic },
