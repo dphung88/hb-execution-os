@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
 import { createItTaskAction, updateItTaskAction } from "@/app/(app)/it/tasks/actions";
 import { IT_OWNERS, IT_STATUSES, type ItTaskRecord } from "@/lib/it/config";
@@ -31,6 +32,16 @@ export function ItTasksWorkspace({ tasks, source, searchParams, periods = [], se
   const statusFilter = searchParams?.status ?? "all";
   const savedState   = searchParams?.saved;
   const errorState   = searchParams?.error;
+
+  const [createPeriod, setCreatePeriod] = useState(selectedPeriod);
+
+  function handleDueDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const d = e.target.value; // "YYYY-MM-DD"
+    if (!d) return;
+    const match = periods.find((p) => d >= p.startDate && d <= p.endDate);
+    if (match) setCreatePeriod(match.key);
+    else setCreatePeriod(d.slice(0, 7));
+  }
 
   const allStatuses = Array.from(new Set([...IT_STATUSES, ...tasks.map((t) => t.status)]));
 
@@ -137,10 +148,16 @@ export function ItTasksWorkspace({ tasks, source, searchParams, periods = [], se
           </div>
         </div>
         <form action={createItTaskAction} className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <input type="hidden" name="month_key" value={selectedPeriod} />
           <label className="block xl:col-span-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Task name</span>
             <input name="task_name" required className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
+          </label>
+          <label className="block">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Reporting period</span>
+            <select name="month_key" value={createPeriod} onChange={(e) => setCreatePeriod(e.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-sky-200 bg-sky-50 px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400">
+              {periods.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
+              {periods.length === 0 && <option value={selectedPeriod}>{selectedPeriod}</option>}
+            </select>
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Owner</span>
@@ -166,7 +183,7 @@ export function ItTasksWorkspace({ tasks, source, searchParams, periods = [], se
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Due date</span>
-            <input type="date" name="due_date" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
+            <input type="date" name="due_date" onChange={handleDueDateChange} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Progress %</span>
