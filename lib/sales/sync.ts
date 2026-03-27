@@ -25,8 +25,9 @@ function calendarMonthRange(period: string) {
   return { fromDate: from.toISOString().slice(0, 10), toDate: to.toISOString().slice(0, 10) };
 }
 
-/** Resolve date range: use configured period startDate/endDate if available, else calendar fallback */
+/** Resolve date range: use configured period startDate/endDate if available, else YYYY-MM calendar fallback */
 async function resolveDateRange(period: string): Promise<{ fromDate: string; toDate: string }> {
+  // Always try the configured period table first — this supports any key format (monthly, quarterly, custom)
   try {
     const periods = await getPeriods();
     const config = periods.find((p) => p.key === period);
@@ -34,7 +35,16 @@ async function resolveDateRange(period: string): Promise<{ fromDate: string; toD
       return { fromDate: config.startDate, toDate: config.endDate };
     }
   } catch { /* fall through */ }
-  return calendarMonthRange(period);
+
+  // Fallback only works for YYYY-MM format keys
+  try {
+    return calendarMonthRange(period);
+  } catch {
+    throw new Error(
+      `Period "${period}" has no configured date range and is not in YYYY-MM format. ` +
+      `Go to Settings → Periods and set a Start date and End date for this period.`
+    );
+  }
 }
 
 async function fetchAsmKpi(employeeCode: string, period: string, fromDate: string, toDate: string) {
@@ -117,6 +127,13 @@ async function writeAsmSnapshot(employeeCode: string, period: string, fromDate: 
 
   try {
     const normalized = normalizeErpAsmKpiResponse(payload);
+
+    // Override month to use the configured period key (not ERP's from_date slice).
+    // This supports quarterly / custom periods: e.g. "2026-Q1" instead of "2026-01",
+    // preventing duplicate-key conflicts when the same calendar month was already
+    // synced under its own monthly key.
+    normalized.snapshot.month = period;
+    for (const item of normalized.itemBreakdowns) item.month = period;
 
     const snapshotRow = {
       asm_id: normalized.snapshot.asm_id,
