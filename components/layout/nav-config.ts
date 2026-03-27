@@ -12,6 +12,7 @@ import {
   Mic,
   Settings2,
   Landmark,
+  Users,
 } from "lucide-react";
 
 export type SingleNavLink = {
@@ -71,6 +72,18 @@ export const appNavLinks: NavLinkItem[] = [
       { href: "/finance/break-even", label: "Break-Even Analysis" },
       { href: "/finance/tasks", label: "Finance Tasks" },
       { href: "/finance/results", label: "Finance Results" },
+    ],
+  },
+  {
+    type: "group",
+    label: "HR Team",
+    icon: Users,
+    match: "/hr",
+    children: [
+      { href: "/hr", label: "HR Dashboard" },
+      { href: "/hr/headcount", label: "Headcount Detail" },
+      { href: "/hr/tasks", label: "HR Tasks" },
+      { href: "/hr/results", label: "HR Results" },
     ],
   },
   { type: "single", href: "/tasks", label: "Tasks", icon: ClipboardList },
