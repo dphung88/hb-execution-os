@@ -351,6 +351,31 @@ export function SalesForecastWorkspace({ forecast }: Props) {
           </p>
         </div>
       </section>
+
+      {/* ── Full SKU Forecast CTA ── */}
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="rounded-2xl bg-slate-100 p-3 text-slate-600">
+              <ChartColumnBig className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Full SKU Analysis</p>
+              <h2 className="text-lg font-semibold text-slate-900">Sales Volume — All SKUs</h2>
+              <p className="mt-0.5 text-sm text-slate-500">
+                Xem breakdown doanh số theo từng SKU cho toàn bộ danh mục, theo từng ASM.
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/sales-performance/volume?period=${forecast.selectedPeriod}`}
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Xem toàn bộ SKU
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
