@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
 import { createHrTaskAction, updateHrTaskAction } from "@/app/(app)/hr/tasks/actions";
-import { HR_OWNERS, HR_STATUSES, type HrTaskRecord } from "@/lib/hr/tasks";
+import { HR_OWNERS, HR_STATUSES, type HrTaskRecord } from "@/lib/hr/config";
 import type { PeriodConfig } from "@/lib/config/periods";
 import { PeriodSelector } from "@/components/ui/period-selector";
 

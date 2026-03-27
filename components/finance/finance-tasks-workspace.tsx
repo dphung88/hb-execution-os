@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
 import { createFinanceTaskAction, updateFinanceTaskAction } from "@/app/(app)/finance/tasks/actions";
-import { FINANCE_OWNERS, FINANCE_STATUSES, type FinanceTaskRecord } from "@/lib/finance/tasks";
+import { FINANCE_OWNERS, FINANCE_STATUSES, type FinanceTaskRecord } from "@/lib/finance/config";
 import type { PeriodConfig } from "@/lib/config/periods";
 import { PeriodSelector } from "@/components/ui/period-selector";
 
