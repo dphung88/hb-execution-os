@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { upsertSkuLotDateAction, deleteSkuLotDateAction } from "./actions";
+import { SkuNameField } from "@/components/settings/sku-name-field";
 
 type SkuRow = { code: string; name: string | null; lot_date: string | null; stock_on_hand: number | null; weekly_sell_out: number | null };
 
@@ -60,7 +61,7 @@ export default async function SettingsSkusPage() {
                   </div>
                   <div>
                     <p className="mb-1 text-[10px] font-semibold uppercase text-slate-400 sm:hidden">Name</p>
-                    <input name="name" defaultValue={sku.name ?? ""} placeholder="SKU display name" className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
+                    <SkuNameField code={sku.code} name={sku.name} />
                   </div>
                   <div>
                     <p className="mb-1 text-[10px] font-semibold uppercase text-slate-400 sm:hidden">Lot Date</p>
