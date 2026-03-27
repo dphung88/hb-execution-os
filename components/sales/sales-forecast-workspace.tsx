@@ -360,18 +360,18 @@ export function SalesForecastWorkspace({ forecast }: Props) {
               <ChartColumnBig className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Full SKU Analysis</p>
-              <h2 className="text-lg font-semibold text-slate-900">Sales Volume — All SKUs</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Full SKU Forecast</p>
+              <h2 className="text-lg font-semibold text-slate-900">Clearstock Forecast — Toàn bộ SKU</h2>
               <p className="mt-0.5 text-sm text-slate-500">
-                Xem breakdown doanh số theo từng SKU cho toàn bộ danh mục, theo từng ASM.
+                Dựa vào lực bán thực tế tháng này, tính forecast clearstock cho từng SKU trong danh mục.
               </p>
             </div>
           </div>
           <Link
-            href={`/sales-performance/volume?period=${forecast.selectedPeriod}`}
+            href={`/sales-performance/sku-forecast?period=${forecast.selectedPeriod}`}
             className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            Xem toàn bộ SKU
+            Xem SKU Forecast
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
