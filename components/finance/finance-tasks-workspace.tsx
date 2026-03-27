@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useState } from "react";
 import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
