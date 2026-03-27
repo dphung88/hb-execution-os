@@ -159,20 +159,31 @@ export default async function DashboardPage() {
           <h2 className="mt-1 text-2xl font-semibold text-slate-900">Operating View By Function</h2>
 
           <div className="mt-6 grid gap-4">
-            {demoDepartmentBoards.map((board) => (
-              <div key={board.name} className="rounded-2xl bg-slate-50 px-4 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-medium text-slate-900">{board.name}</p>
-                    <p className="mt-1 text-sm text-slate-500">{board.owner}</p>
+            {demoDepartmentBoards.map((board) => {
+              const healthClass =
+                board.health === "Strong"  ? "bg-emerald-100 text-emerald-700" :
+                board.health === "Watch"   ? "bg-yellow-100 text-yellow-700" :
+                board.health === "Active"  ? "bg-cyan-100 text-cyan-700" :
+                board.health === "Pending" ? "bg-yellow-100 text-yellow-700" :
+                "bg-white text-slate-600";
+              const inner = (
+                <div className="rounded-2xl bg-slate-50 px-4 py-4 transition hover:bg-slate-100">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-slate-900">{board.name}</p>
+                      <p className="mt-1 text-sm text-slate-500">{board.owner}</p>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${healthClass}`}>
+                      {board.health}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
-                    {board.health}
-                  </span>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{board.highlight}</p>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{board.highlight}</p>
-              </div>
-            ))}
+              );
+              return board.href
+                ? <Link key={board.name} href={board.href}>{inner}</Link>
+                : <div key={board.name}>{inner}</div>;
+            })}
           </div>
         </div>
       </section>

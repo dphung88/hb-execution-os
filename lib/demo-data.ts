@@ -214,6 +214,38 @@ export const demoDepartmentBoards = [
       "Risk memo needs final finance comment",
       "Monday board packet draft nearly complete"
     ]
+  },
+  {
+    name: "Finance",
+    health: "Active",
+    owner: "[Finance Lead]",
+    highlight: "BEP calculator live. Awaiting period data integration for P&L and cashflow visibility.",
+    href: "/finance",
+    items: []
+  },
+  {
+    name: "HR",
+    health: "Pending",
+    owner: "[HR Lead]",
+    highlight: "Headcount roster ready. Awaiting employee data to activate salary cost tracking.",
+    href: "/hr",
+    items: []
+  },
+  {
+    name: "Medical",
+    health: "Active",
+    owner: "[Medical Lead]",
+    highlight: "Registration tracking and task follow-up modules live.",
+    href: "/medical",
+    items: []
+  },
+  {
+    name: "IT",
+    health: "Active",
+    owner: "[IT Lead]",
+    highlight: "System status monitor and task queue active.",
+    href: "/it",
+    items: []
   }
 ];
 
