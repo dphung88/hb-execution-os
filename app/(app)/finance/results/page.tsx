@@ -1,22 +1,25 @@
+import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getPeriods } from "@/lib/config/periods";
 
 type Props = { searchParams?: Promise<{ period?: string }> };
 
+type Section = { label: string; rows: string[] };
+
+const sections: Section[] = [
+  { label: "Revenue", rows: ["Gross Revenue", "Discounts & Returns", "Net Revenue"] },
+  { label: "Cost of Goods Sold", rows: ["Raw Materials", "Packaging", "Manufacturing"] },
+  { label: "Gross Profit", rows: [] },
+  { label: "Operating Expenses", rows: ["Salaries", "Rent & Utilities", "Marketing", "Distribution"] },
+  { label: "EBITDA", rows: [] },
+];
+
 export default async function FinanceResultsPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
   const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
   const periodLabel = periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod;
-
-  const sections = [
-    { label: "Revenue", rows: ["Gross Revenue", "Discounts & Returns", "Net Revenue"] },
-    { label: "Cost of Goods Sold", rows: ["Raw Materials", "Packaging", "Manufacturing"] },
-    { label: "Gross Profit", rows: [] },
-    { label: "Operating Expenses", rows: ["Salaries", "Rent & Utilities", "Marketing", "Distribution"] },
-    { label: "EBITDA", rows: [] },
-  ];
 
   return (
     <div className="space-y-6">
@@ -55,7 +58,6 @@ export default async function FinanceResultsPage({ searchParams }: Props) {
         </div>
       </section>
 
-      {/* P&L Table */}
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <h2 className="text-lg font-semibold text-slate-900">P&L Summary</h2>
         <p className="mt-1 text-sm text-slate-500">Finance results integration pending — structure ready for data.</p>
@@ -72,8 +74,8 @@ export default async function FinanceResultsPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {sections.map(({ label, rows }) => (
-                <>
-                  <tr key={label} className="border-t border-slate-200 bg-slate-50">
+                <React.Fragment key={label}>
+                  <tr className="border-t border-slate-200 bg-slate-50">
                     <td colSpan={4} className="py-2 px-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                       {label}
                     </td>
@@ -86,7 +88,7 @@ export default async function FinanceResultsPage({ searchParams }: Props) {
                       <td className="py-2.5 text-right text-slate-400">—</td>
                     </tr>
                   ))}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
