@@ -361,9 +361,9 @@ export function SalesForecastWorkspace({ forecast }: Props) {
             </div>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Full SKU Forecast</p>
-              <h2 className="text-lg font-semibold text-slate-900">Clearstock Forecast — Toàn bộ SKU</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Clearstock Forecast — Full SKU</h2>
               <p className="mt-0.5 text-sm text-slate-500">
-                Dựa vào lực bán thực tế tháng này, tính forecast clearstock cho từng SKU trong danh mục.
+                Based on this month&apos;s actual sell-through rate, calculates clearstock forecast for each SKU in the catalog.
               </p>
             </div>
           </div>
@@ -371,7 +371,7 @@ export function SalesForecastWorkspace({ forecast }: Props) {
             href={`/sales-performance/sku-forecast?period=${forecast.selectedPeriod}`}
             className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            Xem SKU Forecast
+            View SKU Forecast
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
