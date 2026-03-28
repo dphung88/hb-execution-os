@@ -1,16 +1,20 @@
+"use client";
+
 import Link from "next/link";
-import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, CheckSquare, Filter, TimerReset } from "lucide-react";
 
 import { createMarketingTaskAction, updateMarketingTaskAction } from "@/app/(app)/marketing-performance/tasks/actions";
-import { marketingHeadcountPlan, marketingWorkbookContext } from "@/lib/demo-data";
-import { getMarketingExecutionScore } from "@/lib/marketing/execution";
+import { marketingHeadcountPlan } from "@/lib/demo-data";
 import type { MarketingTaskRecord } from "@/lib/marketing/tasks";
-
 import type { PeriodConfig } from "@/lib/config/periods";
 import { PeriodSelector } from "@/components/ui/period-selector";
 import { marketingToneClass } from "./marketing-shared";
 
-type MarketingTasksWorkspaceProps = {
+const MARKETING_OWNERS = marketingHeadcountPlan.map((r) => r.role);
+const MARKETING_STATUSES = ["Planned", "In Progress", "Under Review", "Completed", "Failed"];
+
+type Props = {
   tasks: MarketingTaskRecord[];
   source: "live" | "demo";
   periods?: PeriodConfig[];
@@ -19,84 +23,59 @@ type MarketingTasksWorkspaceProps = {
     period?: string;
     owner?: string;
     status?: string;
-    requester?: string;
     saved?: string;
     error?: string;
   };
 };
 
-function normalize(value: string) {
-  return value.trim().toLowerCase();
-}
+function normalize(v: string) { return v.trim().toLowerCase(); }
 
-export function MarketingTasksWorkspace({ tasks, source, searchParams, periods = [], selectedPeriod = "" }: MarketingTasksWorkspaceProps) {
-  const ownerFilter = searchParams?.owner ?? "all";
+export function MarketingTasksWorkspace({ tasks, source, searchParams, periods = [], selectedPeriod = "" }: Props) {
+  const [createPeriod, setCreatePeriod] = useState(selectedPeriod);
+
+  function handleDueDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const d = e.target.value;
+    if (!d) return;
+    const match = periods.find((p) => d >= p.startDate && d <= p.endDate);
+    if (match) setCreatePeriod(match.key); else setCreatePeriod(d.slice(0, 7));
+  }
+
+  const ownerFilter  = searchParams?.owner  ?? "all";
   const statusFilter = searchParams?.status ?? "all";
-  const requesterFilter = searchParams?.requester ?? "all";
-  const savedState = searchParams?.saved;
-  const errorState = searchParams?.error;
+  const savedState   = searchParams?.saved;
+  const errorState   = searchParams?.error;
 
-  const roleOwners = marketingHeadcountPlan.map((role) => role.role);
-  const owners = roleOwners;
-  const statuses = Array.from(new Set(tasks.map((task) => task.status))).sort();
-  const requesters = Array.from(new Set(tasks.map((task) => task.requester))).sort();
+  const allStatuses = Array.from(new Set([...MARKETING_STATUSES, ...tasks.map((t) => t.status)]));
 
-  const filteredTasks = tasks.filter((task) => {
-    const ownerMatches = ownerFilter === "all" || normalize(task.owner) === normalize(ownerFilter);
-    const statusMatches = statusFilter === "all" || normalize(task.status) === normalize(statusFilter);
-    const requesterMatches = requesterFilter === "all" || normalize(task.requester) === normalize(requesterFilter);
-    return ownerMatches && statusMatches && requesterMatches;
+  const filtered = tasks.filter((t) => {
+    const ownerOk  = ownerFilter  === "all" || normalize(t.owner)  === normalize(ownerFilter);
+    const statusOk = statusFilter === "all" || normalize(t.status) === normalize(statusFilter);
+    return ownerOk && statusOk;
   });
 
-  const plannedTasks = filteredTasks.filter((task) => normalize(task.status) === "planned").length;
-  const inProgressTasks = filteredTasks.filter((task) => normalize(task.status) === "in progress").length;
-  const notStartedTasks = filteredTasks.filter((task) => normalize(task.status) === "not started").length;
-  const failedTasks = filteredTasks.filter((task) => normalize(task.status) === "failed").length;
-  const overdueTasks = filteredTasks.filter((task) => new Date(task.dueDate) < new Date("2025-03-20") && task.status !== "Completed");
-  const activeTasks = filteredTasks.filter((task) => !["Completed", "Failed"].includes(task.status));
-  const reviewerGroups = Array.from(
-    filteredTasks.reduce((map, task) => {
-      const key = task.requester;
-      const list = map.get(key) ?? [];
-      list.push(task);
-      map.set(key, list);
-      return map;
-    }, new Map<string, typeof filteredTasks>())
-  );
+  const counts = {
+    planned:    filtered.filter((t) => normalize(t.status) === "planned").length,
+    inProgress: filtered.filter((t) => normalize(t.status) === "in progress").length,
+    completed:  filtered.filter((t) => normalize(t.status) === "completed").length,
+    failed:     filtered.filter((t) => normalize(t.status) === "failed").length,
+  };
 
-  const workloadRows = Array.from(
-    filteredTasks
-      .reduce((map, task) => {
-        const existing = map.get(task.owner) ?? {
-          owner: task.owner,
-          total: 0,
-          active: 0,
-          completed: 0,
-          avgProgress: 0,
-          progressRaw: 0,
-        };
-        existing.total += 1;
-        if (!["Completed", "Failed"].includes(task.status)) existing.active += 1;
-        if (task.status === "Completed") existing.completed += 1;
-        existing.progressRaw += task.progressPercent;
-        map.set(task.owner, existing);
-        return map;
-      }, new Map<string, { owner: string; total: number; active: number; completed: number; avgProgress: number; progressRaw: number }>())
-      .values()
-  ).map((row) => ({ ...row, avgProgress: row.total ? Math.round(row.progressRaw / row.total) : 0 }));
+  const today = new Date().toISOString().slice(0, 10);
+  const overdue = filtered.filter((t) => t.dueDate && t.dueDate < today && !["Completed", "Failed"].includes(t.status));
 
-  const latestBoardRows = roleOwners.map((owner) => {
-    const roleTasks = filteredTasks
-      .filter((task) => normalize(task.owner) === normalize(owner))
-      .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime());
-    return {
-      owner,
-      task: roleTasks[0] ?? null,
-    };
-  });
+  const workloadMap = new Map<string, { total: number; active: number; completed: number; progressRaw: number }>();
+  for (const t of filtered) {
+    const r = workloadMap.get(t.owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0 };
+    r.total++;
+    if (!["Completed", "Failed"].includes(t.status)) r.active++;
+    if (t.status === "Completed") r.completed++;
+    r.progressRaw += t.progressPercent;
+    workloadMap.set(t.owner, r);
+  }
 
   return (
     <div className="space-y-6">
+      {/* Hero */}
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
@@ -105,31 +84,31 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
               Daily task workspace for the Marketing team.
             </h1>
             <p className="mt-4 text-sm leading-7 text-slate-300">
-      Create and update Marketing tasks in one place, then let completion quality feed directly into KPI execution scoring.
+              Create and track Marketing tasks — let completion quality feed directly into KPI execution scoring.
             </p>
           </div>
-
           <div className="flex flex-wrap items-center gap-3">
             {periods.length > 0 && (
               <PeriodSelector periods={periods} selectedPeriod={selectedPeriod} basePath="/marketing-performance/tasks" />
             )}
-            <div className="h-6 w-px bg-white/15 hidden sm:block" />
+            <div className="hidden h-6 w-px bg-white/15 sm:block" />
             <Link
-              href="/marketing-performance/results"
+              href="/marketing-performance"
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
             >
-              Marketing Results
+              Marketing Dashboard
             </Link>
           </div>
         </div>
       </section>
 
+      {/* Summary cards */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Planned", value: String(plannedTasks), note: "Queued for execution" },
-          { label: "In progress", value: String(inProgressTasks), note: "Currently being worked" },
-          { label: "Not started", value: String(notStartedTasks), note: "Assigned but untouched" },
-          { label: "Failed", value: String(failedTasks), note: "Tasks needing reset" },
+          { label: "Planned",     value: counts.planned,    note: "Queued for execution" },
+          { label: "In Progress", value: counts.inProgress, note: "Currently being worked" },
+          { label: "Completed",   value: counts.completed,  note: "Done this period" },
+          { label: "Failed",      value: counts.failed,     note: "Needs reset or escalation" },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
@@ -139,85 +118,85 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
         ))}
       </section>
 
-      {savedState ? (
+      {/* Saved / Error banners */}
+      {savedState && (
         <section className="rounded-3xl border border-emerald-200 bg-emerald-50/90 p-5 shadow-panel">
           <p className="text-sm font-semibold text-emerald-900">Task saved</p>
-          <p className="mt-2 text-sm text-emerald-800">
-            {savedState === "create" ? "A new Marketing task has been created." : "The Marketing task update has been saved."}
+          <p className="mt-1 text-sm text-emerald-800">
+            {savedState === "create" ? "New Marketing task created." : "Task updated successfully."}
           </p>
         </section>
-      ) : null}
-
-      {errorState ? (
+      )}
+      {errorState && (
         <section className="rounded-3xl border border-rose-200 bg-rose-50/90 p-5 shadow-panel">
-          <p className="text-sm font-semibold text-rose-900">Task save failed</p>
-          <p className="mt-2 text-sm text-rose-800">
+          <p className="text-sm font-semibold text-rose-900">Save failed</p>
+          <p className="mt-1 text-sm text-rose-800">
             {errorState === "missing-table"
-              ? "Supabase is missing the marketing_tasks table or required columns."
+              ? "The marketing_tasks table is missing — run the SQL migration first."
               : errorState === "rls-blocked"
-                ? "Supabase row-level security is still blocking Marketing task writes."
-                : "The write connection is not ready yet for Marketing tasks."}
+              ? "Row-level security is blocking writes."
+              : "Write connection not configured."}
           </p>
         </section>
-      ) : null}
+      )}
 
+      {/* Create task form */}
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center gap-3">
           <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
             <CheckSquare className="h-5 w-5" />
           </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">NEW TASK</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Create A Marketing Task Directly On The Web</h2>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">New Task</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Create A Marketing Task</h2>
           </div>
         </div>
 
         <form action={createMarketingTaskAction} className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <input type="hidden" name="month_key" value={marketingWorkbookContext.monthKey} />
-
           <label className="block xl:col-span-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Task name</span>
-            <input name="task_name" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+            <input name="task_name" required className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+          </label>
+          <label className="block">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Reporting period</span>
+            <select name="month_key" value={createPeriod} onChange={(e) => setCreatePeriod(e.target.value)} className="mt-2 h-11 w-full rounded-2xl border border-sky-200 bg-sky-50 px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
+              {periods.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
+              {periods.length === 0 && <option value={selectedPeriod}>{selectedPeriod}</option>}
+            </select>
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Owner</span>
             <select name="owner_name" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
-              {owners.map((owner) => <option key={owner} value={owner}>{owner}</option>)}
+              {MARKETING_OWNERS.map((o) => <option key={o} value={o}>{o}</option>)}
             </select>
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Requester</span>
-            <select name="request_source" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
-              {requesters.map((requester) => <option key={requester} value={requester}>{requester}</option>)}
-            </select>
+            <input name="request_source" placeholder="e.g. CEO, CMO" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Status</span>
             <select name="status" defaultValue="Planned" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
-              {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
+              {MARKETING_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Priority</span>
             <select name="priority" defaultValue="Medium" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
-              {["Low", "Medium", "High", "Critical"].map((priority) => <option key={priority} value={priority}>{priority}</option>)}
+              {["Low", "Medium", "High", "Critical"].map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Due date</span>
-            <input type="date" name="due_date" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
+            <input type="date" name="due_date" onChange={handleDueDateChange} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Progress %</span>
             <input type="number" name="progress_percent" defaultValue={0} min={0} max={100} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <label className="block xl:col-span-2">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Result note</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Note</span>
             <input name="result_note" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
-          </label>
-          <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">File link</span>
-            <input name="file_link" className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400" />
           </label>
           <div className="xl:col-span-3 flex justify-end">
             <button type="submit" className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800">
@@ -227,289 +206,101 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
         </form>
       </section>
 
+      {/* Filters */}
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-            <Filter className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">TASK FILTERS</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Slice The Marketing Task Queue By Owner And Status</h2>
+          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700"><Filter className="h-5 w-5" /></div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Filters</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Filter By Owner And Status</h2>
           </div>
         </div>
-
-        <form method="get" className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-[1fr,1fr,1fr,140px]">
+        <form method="get" className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-[1fr,1fr,140px]">
+          <input type="hidden" name="period" value={selectedPeriod} />
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Owner</span>
-            <select
-              name="owner"
-              defaultValue={ownerFilter}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-            >
+            <select name="owner" defaultValue={ownerFilter} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
               <option value="all">All owners</option>
-              {owners.map((owner) => (
-                <option key={owner} value={owner}>
-                  {owner}
-                </option>
-              ))}
+              {MARKETING_OWNERS.map((o) => <option key={o} value={o}>{o}</option>)}
             </select>
           </label>
-
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Status</span>
-            <select
-              name="status"
-              defaultValue={statusFilter}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-            >
+            <select name="status" defaultValue={statusFilter} className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400">
               <option value="all">All statuses</option>
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
+              {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
-
-          <label className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Requester</span>
-            <select
-              name="requester"
-              defaultValue={requesterFilter}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-            >
-              <option value="all">All requesters</option>
-              {requesters.map((requester) => (
-                <option key={requester} value={requester}>
-                  {requester}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <button
-            type="submit"
-            className="mt-[1.55rem] inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
+          <button type="submit" className="mt-[1.55rem] inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800">
             Apply
           </button>
         </form>
       </section>
 
-      <section className="space-y-6">
-        <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-amber-100 p-3 text-amber-700">
-                <FolderKanban className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">TASK BOARD</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Execution Tracker By Owner</h2>
-              </div>
-          </div>
-
-            <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white md:overflow-hidden">
-              <div className="min-w-[980px] md:min-w-0">
-                <div className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 md:grid-cols-[minmax(160px,1fr)_minmax(112px,0.62fr)_100px_96px_minmax(160px,0.92fr)_84px] md:gap-3 md:px-4 md:text-[11px] md:tracking-[0.12em] xl:grid-cols-[minmax(190px,1.08fr)_minmax(126px,0.68fr)_110px_104px_minmax(180px,0.96fr)_92px] xl:gap-4 xl:px-5 xl:text-xs">
-                <div>Task</div>
-                <div>Status</div>
-                <div>Due date</div>
-                <div>Progress</div>
-                <div>Result note</div>
-                <div className="text-right">Action</div>
-              </div>
-
-              <div className="divide-y divide-slate-100">
-                {latestBoardRows.map(({ owner, task }) => (
-                  <form
-                    key={task?.id ?? owner}
-                    action={task ? updateMarketingTaskAction : undefined}
-                    className="grid grid-cols-[minmax(240px,1.25fr)_minmax(140px,0.7fr)_minmax(130px,0.55fr)_minmax(130px,0.55fr)_minmax(220px,1fr)_120px] items-start gap-4 px-5 py-4 md:grid-cols-[minmax(160px,1fr)_minmax(112px,0.62fr)_100px_96px_minmax(160px,0.92fr)_84px] md:gap-3 md:px-4 xl:grid-cols-[minmax(190px,1.08fr)_minmax(126px,0.68fr)_110px_104px_minmax(180px,0.96fr)_92px] xl:gap-4 xl:px-5"
-                  >
-                    {task ? <input type="hidden" name="task_id" value={task.id} /> : null}
-                    {task ? <input type="hidden" name="file_link" value={task.fileLink ?? ""} /> : null}
-
-                    <div>
-                      <p className="text-sm font-semibold leading-6 text-slate-900 md:text-[12px] md:leading-5">
-                        {task?.title ?? "No task logged yet"}
-                      </p>
-                      <p className="mt-2 text-sm text-slate-600 md:text-[12px]">
-                        {owner}
-                        {task ? ` · ${task.requester}` : " · Awaiting first task"}
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 md:px-2 md:py-0.5 md:text-[10px]">
-                          Priority {task?.priority ?? "-"}
-                        </span>
-                        {task ? (
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold md:px-2 md:py-0.5 md:text-[10px] ${marketingToneClass(task.status)}`}>
-                            {task.status}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div>
-                      <select
-                        name="status"
-                        defaultValue={task?.status ?? "Planned"}
-                        disabled={!task}
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
-                      >
-                        {statuses.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="pt-2 text-sm text-slate-700 md:text-[12px]">{task?.dueDate || "-"}</div>
-
-                    <div>
-                      <input
-                        type="number"
-                        name="progress_percent"
-                        defaultValue={task?.progressPercent ?? 0}
-                        min={0}
-                        max={100}
-                        disabled={!task}
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
-                      />
-                    </div>
-
-                    <div>
-                      <input
-                        name="result_note"
-                        defaultValue={task?.notes ?? ""}
-                        disabled={!task}
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 md:h-9 md:px-2.5 md:text-[12px]"
-                      />
-                      <p className="mt-2 text-xs text-slate-500 md:text-[10px]">
-                        {task ? (task.fileLink ? "File link attached" : "No file link yet") : "Create a task from the form above"}
-                      </p>
-                    </div>
-
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        disabled={!task}
-                        className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 md:h-9 md:px-3 md:text-[12px]"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </form>
-                ))}
-
-                {!latestBoardRows.length ? (
-                  <div className="px-5 py-8 text-center text-sm text-slate-500">No Marketing tasks matched the current filters.</div>
-                ) : null}
-              </div>
-            </div>
+      {/* Workload */}
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700"><CalendarDays className="h-5 w-5" /></div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Workload</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Task Count By Owner</h2>
           </div>
         </div>
-
-        <div className="grid gap-6 xl:grid-cols-3">
-          <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-rose-100 p-3 text-rose-700">
-                <TimerReset className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">OVERDUE WATCH</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Tasks Needing Intervention</h2>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {overdueTasks.length ? (
-                overdueTasks.map((task) => (
-                  <div key={`${task.owner}-${task.dueDate}`} className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-4">
-                    <p className="font-medium text-rose-900">{task.owner}</p>
-                    <p className="mt-1 text-sm text-rose-700">
-                      {task.status} · Due {task.dueDate}
-                    </p>
-                    <p className="mt-2 text-sm text-rose-800">{task.notes}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
-                  No overdue tasks in the current filtered view.
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {MARKETING_OWNERS.map((owner) => {
+            const r = workloadMap.get(owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0 };
+            const avg = r.total ? Math.round(r.progressRaw / r.total) : 0;
+            return (
+              <div key={owner} className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold text-slate-900">{owner}</p>
+                  <span className="shrink-0 rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-semibold text-sky-700">
+                    {r.total} task{r.total !== 1 ? "s" : ""}
+                  </span>
                 </div>
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700">
-                <CalendarDays className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">WORKLOAD</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Task Count By Owner</h2>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {workloadRows.map((row) => (
-                <div key={row.owner} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium text-slate-900">{row.owner}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                      {row.total} task{row.total > 1 ? "s" : ""}
-                    </span>
+                <p className="mt-2 text-xs text-slate-500">
+                  Active <span className="font-medium text-slate-700">{r.active}</span>
+                  {" · "}Completed <span className="font-medium text-slate-700">{r.completed}</span>
+                  {" · "}Avg <span className="font-medium text-slate-700">{avg}%</span>
+                </p>
+                {r.total > 0 && (
+                  <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${Math.round((r.completed / r.total) * 100)}%` }} />
                   </div>
-                  {(() => {
-                    const execution = getMarketingExecutionScore(row.owner, filteredTasks);
-                    return (
-                      <p className="mt-2 text-sm text-slate-500">
-                        Active {row.active} · Completed {row.completed} · Avg progress {row.avgProgress}% · Execution {execution.executionScore}/40
-                      </p>
-                    );
-                  })()}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
-                <CheckSquare className="h-5 w-5" />
+                )}
               </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">REQUEST LANES</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Task Queue By Requester</h2>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {reviewerGroups.map(([requester, tasks]) => (
-                <div key={requester} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium text-slate-900">{requester}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                      {tasks.length} item{tasks.length > 1 ? "s" : ""}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {tasks.map((task) => (
-                      <span
-                        key={`${requester}-${task.owner}-${task.dueDate}`}
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${marketingToneClass(task.status)}`}
-                      >
-                        {task.owner} · {task.status}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+            );
+          })}
         </div>
       </section>
+
+      {/* Overdue Watch */}
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-rose-100 p-3 text-rose-700"><TimerReset className="h-5 w-5" /></div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Overdue Watch</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Tasks Needing Intervention</h2>
+          </div>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {overdue.length ? overdue.map((t) => (
+            <div key={t.id} className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+              <p className="text-sm font-semibold text-rose-900">{t.owner}</p>
+              <p className="mt-0.5 text-xs text-rose-700">{t.status} · Due {t.dueDate}</p>
+              <p className="mt-1 text-xs font-medium text-rose-800">{t.title}</p>
+            </div>
+          )) : (
+            <div className="col-span-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
+              No overdue tasks — all good!
+            </div>
+          )}
+        </div>
+      </section>
+
+      {source === "demo" && (
+        <p className="text-center text-xs text-slate-400">Showing demo data — run the SQL migration and add real tasks to see live data.</p>
+      )}
     </div>
   );
 }

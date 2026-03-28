@@ -7,7 +7,6 @@ type MarketingTasksPageProps = {
     period?: string;
     owner?: string;
     status?: string;
-    requester?: string;
     saved?: string;
     error?: string;
   }>;
