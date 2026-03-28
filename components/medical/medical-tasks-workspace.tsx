@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CalendarDays, CheckSquare, Filter, FolderKanban, TimerReset } from "lucide-react";
-import { createMedicalTaskAction, updateMedicalTaskAction } from "@/app/(app)/medical/tasks/actions";
+import { CalendarDays, CheckSquare, Filter, TimerReset } from "lucide-react";
+import { createMedicalTaskAction } from "@/app/(app)/medical/tasks/actions";
 import { MEDICAL_OWNERS, MEDICAL_STATUSES, type MedicalTaskRecord } from "@/lib/medical/config";
 import type { PeriodConfig } from "@/lib/config/periods";
 import { PeriodSelector } from "@/components/ui/period-selector";
@@ -68,12 +68,6 @@ export function MedicalTasksWorkspace({ tasks, source, searchParams, periods = [
     workloadMap.set(t.owner, r);
   }
 
-  const boardRows = MEDICAL_OWNERS.map((owner) => {
-    const ownerTasks = filtered
-      .filter((t) => normalize(t.owner) === normalize(owner))
-      .sort((a, b) => new Date(b.dueDate || "").getTime() - new Date(a.dueDate || "").getTime());
-    return { owner, task: ownerTasks[0] ?? null };
-  });
 
   return (
     <div className="space-y-6">
@@ -229,119 +223,78 @@ export function MedicalTasksWorkspace({ tasks, source, searchParams, periods = [
         </form>
       </section>
 
-      {/* Task board */}
+      {/* Workload — full width, clickable owner cards */}
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-amber-100 p-3 text-amber-700"><FolderKanban className="h-5 w-5" /></div>
+          <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700"><CalendarDays className="h-5 w-5" /></div>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Task Board</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Execution Tracker By Owner</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Workload</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Task Count By Owner</h2>
           </div>
         </div>
-        <div className="mt-6 overflow-x-auto rounded-3xl border border-slate-200 bg-white">
-          <div className="min-w-[860px]">
-            <div className="grid grid-cols-[1fr,140px,100px,90px,1fr,80px] gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-              <div>Task</div><div>Status</div><div>Due date</div><div>Progress</div><div>Note</div><div className="text-right">Action</div>
-            </div>
-            <div className="divide-y divide-slate-100">
-              {boardRows.map(({ owner, task }) => {
-                if (!task) {
-                  return (
-                    <div key={owner} className="flex items-center gap-3 px-5 py-4">
-                      <p className="text-sm font-medium text-slate-700">{owner}</p>
-                      <p className="text-xs text-slate-400">· No task logged yet</p>
-                    </div>
-                  );
-                }
-                return (
-                  <form key={task.id} action={updateMedicalTaskAction}
-                    className="grid grid-cols-[1fr,140px,100px,90px,1fr,80px] items-start gap-3 px-5 py-4">
-                    <input type="hidden" name="task_id" value={task.id} />
-                    <input type="hidden" name="file_link" value={task.fileLink ?? ""} />
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">{task.title}</p>
-                      <p className="mt-1 text-xs text-slate-500">{owner} · {task.requester}</p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">{task.priority}</span>
-                        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${toneClass(task.status)}`}>{task.status}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <select name="status" defaultValue={task.status}
-                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400">
-                        {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </div>
-                    <div className="pt-2 text-xs text-slate-600">{task.dueDate || "—"}</div>
-                    <div>
-                      <input type="number" name="progress_percent" defaultValue={task.progressPercent} min={0} max={100}
-                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400" />
-                    </div>
-                    <div>
-                      <input name="result_note" defaultValue={task.notes}
-                        className="h-9 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs text-slate-900 outline-none transition focus:border-sky-400" />
-                    </div>
-                    <div className="flex justify-end">
-                      <button type="submit"
-                        className="inline-flex h-9 items-center justify-center rounded-xl bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800">
-                        Save
-                      </button>
-                    </div>
-                  </form>
-                );
-              })}
-            </div>
-          </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {MEDICAL_OWNERS.map((owner) => {
+            const r = workloadMap.get(owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0 };
+            const avg = r.total ? Math.round(r.progressRaw / r.total) : 0;
+            return (
+              <Link
+                key={owner}
+                href={`/medical/tasks/owner/${encodeURIComponent(owner)}?period=${selectedPeriod}`}
+                className="group rounded-2xl border border-slate-200 bg-white px-5 py-4 transition hover:border-sky-300 hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold text-slate-900 group-hover:text-sky-700">{owner}</p>
+                  <span className="shrink-0 rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-semibold text-sky-700">
+                    {r.total} task{r.total !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-slate-500">
+                  Active <span className="font-medium text-slate-700">{r.active}</span>
+                  {" · "}Completed <span className="font-medium text-slate-700">{r.completed}</span>
+                  {" · "}Avg <span className="font-medium text-slate-700">{avg}%</span>
+                </p>
+                {r.total > 0 && (
+                  <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${Math.round((r.completed / r.total) * 100)}%` }} />
+                  </div>
+                )}
+                <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-sky-500 opacity-0 transition group-hover:opacity-100">
+                  View tasks →
+                </p>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* Bottom panels */}
-      <div className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-rose-100 p-3 text-rose-700"><TimerReset className="h-5 w-5" /></div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Overdue Watch</p>
-              <h2 className="text-xl font-semibold text-slate-900">Tasks Needing Intervention</h2>
+      {/* Overdue Watch — full width */}
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-rose-100 p-3 text-rose-700"><TimerReset className="h-5 w-5" /></div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Overdue Watch</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Tasks Needing Intervention</h2>
+          </div>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {overdue.length ? overdue.map((t) => (
+            <Link
+              key={t.id}
+              href={`/medical/tasks/owner/${encodeURIComponent(t.owner)}?period=${selectedPeriod}`}
+              className="group rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 transition hover:border-rose-400 hover:shadow-md"
+            >
+              <p className="text-sm font-semibold text-rose-900 group-hover:text-rose-700">{t.owner}</p>
+              <p className="mt-0.5 text-xs text-rose-700">{t.status} · Due {t.dueDate}</p>
+              <p className="mt-1 text-xs font-medium text-rose-800">{t.title}</p>
+              <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-rose-500 opacity-0 transition group-hover:opacity-100">View & update →</p>
+            </Link>
+          )) : (
+            <div className="col-span-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
+              No overdue tasks — all good!
             </div>
-          </div>
-          <div className="mt-5 space-y-3">
-            {overdue.length ? overdue.map((t) => (
-              <div key={t.id} className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
-                <p className="text-sm font-semibold text-rose-900">{t.owner}</p>
-                <p className="mt-0.5 text-xs text-rose-700">{t.status} · Due {t.dueDate}</p>
-                <p className="mt-1 text-xs text-rose-800">{t.title}</p>
-              </div>
-            )) : (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">No overdue tasks.</div>
-            )}
-          </div>
-        </section>
-        <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700"><CalendarDays className="h-5 w-5" /></div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Workload</p>
-              <h2 className="text-xl font-semibold text-slate-900">Task Count By Owner</h2>
-            </div>
-          </div>
-          <div className="mt-5 space-y-3">
-            {MEDICAL_OWNERS.map((owner) => {
-              const r = workloadMap.get(owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0 };
-              const avg = r.total ? Math.round(r.progressRaw / r.total) : 0;
-              return (
-                <div key={owner} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-slate-900">{owner}</p>
-                    <span className="rounded-full bg-white px-3 py-0.5 text-xs font-semibold text-slate-700">{r.total} task{r.total !== 1 ? "s" : ""}</span>
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500">Active {r.active} · Completed {r.completed} · Avg progress {avg}%</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      </div>
+          )}
+        </div>
+      </section>
 
       {source === "demo" && (
         <p className="text-center text-xs text-slate-400">Showing demo data — run the SQL migration and add real tasks to see live data.</p>
