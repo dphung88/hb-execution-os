@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getPeriods, savePeriods, type PeriodConfig } from "@/lib/config/periods";
+import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function upsertPeriodAction(formData: FormData) {
   const originalKey = formData.get("original_key") as string | null;
@@ -41,6 +43,14 @@ export async function upsertPeriodAction(formData: FormData) {
 export async function deletePeriodAction(formData: FormData) {
   const key = formData.get("key") as string;
   if (!key) return;
+
+  // Delete from Supabase first (upsert in savePeriods won't remove old rows)
+  if (hasSupabaseAdminEnv()) {
+    const admin = createAdminClient();
+    await admin.from("app_periods").delete().eq("key", key);
+  }
+
+  // Update cookie + local file with the filtered list
   const periods = (await getPeriods()).filter((p) => p.key !== key);
   await savePeriods(periods);
   revalidatePath("/settings/periods");
