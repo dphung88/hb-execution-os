@@ -15,7 +15,7 @@ export default async function LoginPage({
     <div className="rounded-[2rem] border border-white/70 bg-white/80 p-8 shadow-panel backdrop-blur">
       <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600">
-          HB Execution OS
+          Execution OS
         </p>
         <h1 className="mt-2 text-3xl font-semibold text-slate-900">Sign in</h1>
         <p className="mt-3 text-sm text-slate-500">

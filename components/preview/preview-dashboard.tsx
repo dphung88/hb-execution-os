@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Sparkles
 } from "lucide-react";
+import { QuickReportButton } from "@/components/preview/quick-report-button";
 
 import { TaskList } from "@/components/tasks/task-list";
 import { Button } from "@/components/ui/button";
@@ -71,22 +72,20 @@ export function PreviewDashboard() {
               One operating system for revenue, execution, and CEO readiness.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-              This is the public preview layer for HB Execution OS. It shows the kind of
+              This is the public preview layer for Execution OS. It shows the kind of
               leadership cockpit you will eventually run with real team data, live tasks,
               alerts, and executive briefings.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/login">
+            <Link href="/tasks">
               <Button className="gap-2">
-                Open live app
+                Task Module
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/tasks">
-              <Button variant="secondary">Task module</Button>
-            </Link>
+            <QuickReportButton />
           </div>
         </div>
       </section>
@@ -298,12 +297,6 @@ export function PreviewDashboard() {
             <Link href="/preview">
               <Button className="w-full justify-between">
                 Open preview mode
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="secondary" className="w-full justify-between">
-                Open secure workspace
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
