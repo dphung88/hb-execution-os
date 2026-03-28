@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { demoSalesAsms, lookupSkuName, marketingChannelSetup, marketingReportSummary } from "@/lib/demo-data";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,6 +28,8 @@ export type MarketingData = {
   totalTarget: number;
   totalSpend: number;
   overallRoas: number | null;
+  aov: number | null;
+  totalPO: number | null;
   channels: { name: string; revenue: number; target: number; spend: number; roas: number | null; pct: number }[];
 };
 
@@ -116,7 +119,18 @@ export async function buildSalesData(periodKey: string): Promise<SalesData | nul
 
     const targetMap = new Map((targetRes.data ?? []).map((r: Record<string, unknown>) => [r.asm_id, Number(r.dt_target ?? 0)]));
 
-    const totalRevenue = kpiRows.reduce((s, r) => s + Number(r.dt_thuc_dat ?? 0), 0);
+    // ASM id → display name lookup
+    const asmNameMap = new Map(demoSalesAsms.map((a) => [a.id, a.name]));
+
+    // Normalize revenue: dt_thuc_dat is raw VND; targets are in millions
+    function normalizeRevenue(actual: number, target: number): number {
+      return target <= 10_000 && actual >= 1_000_000 ? actual / 1_000_000 : actual;
+    }
+
+    const totalRevenue = kpiRows.reduce((s, r) => {
+      const target = targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0);
+      return s + normalizeRevenue(Number(r.dt_thuc_dat ?? 0), target);
+    }, 0);
     const totalTarget  = kpiRows.reduce((s, r) => s + (targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0)), 0);
     const newCustomers = kpiRows.reduce((s, r) => s + Number(r.kh_moi ?? 0), 0);
     const achievementPct = totalTarget > 0 ? Math.round((totalRevenue / totalTarget) * 100) : 0;
@@ -140,12 +154,13 @@ export async function buildSalesData(periodKey: string): Promise<SalesData | nul
 
     const topAsms = kpiRows
       .map((r) => {
-        const target = targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0);
+        const target  = targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0);
+        const revenue = normalizeRevenue(Number(r.dt_thuc_dat ?? 0), target);
         return {
-          name:    String(r.asm_id),
-          revenue: Number(r.dt_thuc_dat ?? 0),
+          name:    asmNameMap.get(String(r.asm_id)) ?? String(r.asm_id),
+          revenue,
           target,
-          pct:     target > 0 ? Math.round((Number(r.dt_thuc_dat ?? 0) / target) * 100) : 0,
+          pct:     target > 0 ? Math.round((revenue / target) * 100) : 0,
         };
       })
       .sort((a, b) => b.revenue - a.revenue)
@@ -173,10 +188,10 @@ export async function buildSalesData(periodKey: string): Promise<SalesData | nul
     );
 
     const skus = [
-      { code: "HB031", name: "HB031",       actual: hb031, target: skuTargets.hb031, pct: skuTargets.hb031 > 0 ? Math.round((hb031 / skuTargets.hb031) * 100) : 0 },
-      { code: "HB035", name: "HB035",       actual: hb035, target: skuTargets.hb035, pct: skuTargets.hb035 > 0 ? Math.round((hb035 / skuTargets.hb035) * 100) : 0 },
-      { code: "HB006", name: "HB006 (CS)",  actual: hb006, target: skuTargets.hb006, pct: skuTargets.hb006 > 0 ? Math.round((hb006 / skuTargets.hb006) * 100) : 0 },
-      { code: "HB034", name: "HB034 (CS)",  actual: hb034, target: skuTargets.hb034, pct: skuTargets.hb034 > 0 ? Math.round((hb034 / skuTargets.hb034) * 100) : 0 },
+      { code: "HB031", name: lookupSkuName("HB031"), actual: hb031, target: skuTargets.hb031, pct: skuTargets.hb031 > 0 ? Math.round((hb031 / skuTargets.hb031) * 100) : 0 },
+      { code: "HB035", name: lookupSkuName("HB035"), actual: hb035, target: skuTargets.hb035, pct: skuTargets.hb035 > 0 ? Math.round((hb035 / skuTargets.hb035) * 100) : 0 },
+      { code: "HB006", name: lookupSkuName("HB006"), actual: hb006, target: skuTargets.hb006, pct: skuTargets.hb006 > 0 ? Math.round((hb006 / skuTargets.hb006) * 100) : 0 },
+      { code: "HB034", name: lookupSkuName("HB034"), actual: hb034, target: skuTargets.hb034, pct: skuTargets.hb034 > 0 ? Math.round((hb034 / skuTargets.hb034) * 100) : 0 },
     ];
 
     return { totalRevenue, totalTarget, achievementPct, forecastPct, newCustomers, topAsms, skus };
@@ -193,9 +208,17 @@ export async function buildMarketingData(periodKey: string): Promise<MarketingDa
       .select("channel_name, revenue_target, revenue_actual, budget_actual")
       .eq("month_key", periodKey);
 
-    if (error || !data || data.length === 0) return null;
+    // Use demo fallback when no real data exists for the period
+    const rows: Record<string, unknown>[] = (!error && data && data.length > 0)
+      ? (data as Record<string, unknown>[])
+      : marketingChannelSetup.map((c) => ({
+          channel_name:   c.channel,
+          revenue_target: c.revenueTarget,
+          revenue_actual: c.revenueActual,
+          budget_actual:  c.actualBudget,
+        }));
 
-    const channels = (data as Record<string, unknown>[]).map((r) => {
+    const channels = rows.map((r) => {
       const revenue = Number(r.revenue_actual ?? 0);
       const target  = Number(r.revenue_target ?? 0);
       const spend   = Number(r.budget_actual  ?? 0);
@@ -209,7 +232,11 @@ export async function buildMarketingData(periodKey: string): Promise<MarketingDa
     const totalSpend   = channels.reduce((s, c) => s + c.spend,   0);
     const overallRoas  = totalSpend > 0 ? Math.round((totalRevenue / totalSpend) * 10) / 10 : null;
 
-    return { totalRevenue, totalTarget, totalSpend, overallRoas, channels };
+    // AOV & Total PO from summary (demo or real)
+    const aov     = marketingReportSummary.averageOrderValue ?? null;
+    const totalPO = marketingReportSummary.totalPurchaseOrders ?? null;
+
+    return { totalRevenue, totalTarget, totalSpend, overallRoas, aov, totalPO, channels };
   } catch {
     return null;
   }
@@ -219,14 +246,39 @@ export async function buildMarketingData(periodKey: string): Promise<MarketingDa
 
 function pctBadge(pct: number) {
   const bg = pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626";
-  return `<span style="background:${bg};color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:700;">${pct}%</span>`;
+  return `<span style="background:${bg};color:#fff;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;">${pct}%</span>`;
 }
 
 function sectionHeader(icon: string, title: string) {
-  return `<tr><td colspan="10" style="padding:24px 0 10px;">
+  return `<tr><td style="padding:24px 0 10px;">
     <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#64748b;">${icon} ${title}</p>
     <hr style="margin:8px 0 0;border:none;border-top:2px solid #e2e8f0;">
   </td></tr>`;
+}
+
+// Renders KPI items as a responsive 3-per-row card grid (works without media queries on Android Gmail)
+function kpiGrid(items: { label: string; value: string }[]) {
+  const rows: { label: string; value: string }[][] = [];
+  for (let i = 0; i < items.length; i += 3) rows.push(items.slice(i, i + 3));
+  return rows.map((row) => `
+    <tr>
+      ${row.map(({ label, value }) => `
+        <td width="33%" style="padding:4px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;">
+            <tr><td style="padding:11px 8px;text-align:center;">
+              <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">${label}</p>
+              <p style="margin:5px 0 0;font-size:18px;font-weight:700;color:#0f172a;">${value}</p>
+            </td></tr>
+          </table>
+        </td>
+      `).join("")}
+      ${row.length < 3 ? Array(3 - row.length).fill('<td width="33%" style="padding:4px;"></td>').join("") : ""}
+    </tr>`).join("");
+}
+
+// Scrollable wrapper for wide tables on Android (overflow-x:auto)
+function scrollWrap(tableHtml: string) {
+  return `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">${tableHtml}</div>`;
 }
 
 export function buildReportHtml(
@@ -240,121 +292,128 @@ export function buildReportHtml(
   const totalCompleted = taskSummaries.reduce((s, d) => s + d.completed, 0);
   const totalOverdue   = taskSummaries.reduce((s, d) => s + d.overdue, 0);
   const totalThisWeek  = taskSummaries.reduce((s, d) => s + d.dueThisWeek, 0);
+  const totalInProgress = taskSummaries.reduce((s, d) => s + d.inProgress, 0);
+
+  // ── Executive summary strip (3-per-row grid on dark bg) ───────────────────
+  const execKpis = [
+    { label: "Total Tasks",   value: String(totalTasks),       color: "#fff" },
+    { label: "Completed",     value: String(totalCompleted),   color: "#4ade80" },
+    { label: "In Progress",   value: String(totalInProgress),  color: "#60a5fa" },
+    { label: "Due This Week", value: String(totalThisWeek),    color: "#fbbf24" },
+    { label: "Overdue",       value: String(totalOverdue),     color: totalOverdue > 0 ? "#f87171" : "#4ade80" },
+  ];
+  const execRows: typeof execKpis[] = [];
+  for (let i = 0; i < execKpis.length; i += 3) execRows.push(execKpis.slice(i, i + 3));
+  const execHtml = execRows.map((row) => `
+    <tr>
+      ${row.map(({ label, value, color }) => `
+        <td width="33%" style="padding:12px 8px;text-align:center;">
+          <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">${label}</p>
+          <p style="margin:4px 0 0;font-size:24px;font-weight:800;color:${color};">${value}</p>
+        </td>
+      `).join("")}
+      ${row.length < 3 ? Array(3 - row.length).fill('<td width="33%"></td>').join("") : ""}
+    </tr>`).join("");
 
   // ── Sales section ──────────────────────────────────────────────────────────
   const salesHtml = sales ? `
-    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
       ${sectionHeader("📊", "Sales Performance")}
-
-      <!-- Revenue KPI -->
-      <tr>
-        <td style="padding:4px 0 16px;" colspan="10">
-          <table style="width:100%;border-collapse:collapse;">
-            <tr>
-              ${[
-                { label: "Revenue Actual",  value: `${sales.totalRevenue.toFixed(1)}M` },
-                { label: "Revenue Target",  value: `${sales.totalTarget.toFixed(1)}M` },
-                { label: "Achievement",     value: pctBadge(sales.achievementPct) },
-                { label: "Month-end Forecast", value: pctBadge(Math.min(150, sales.forecastPct)) },
-                { label: "New Customers",   value: String(sales.newCustomers) },
-              ].map(({ label, value }) => `
-                <td style="width:20%;padding:12px;background:#f8fafc;border-radius:10px;text-align:center;margin:4px;">
-                  <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">${label}</p>
-                  <p style="margin:6px 0 0;font-size:20px;font-weight:700;color:#0f172a;">${value}</p>
-                </td>
-              `).join('<td style="width:8px;"></td>')}
-            </tr>
-          </table>
-        </td>
-      </tr>
-
-      <!-- SKU progress -->
-      <tr><td colspan="10" style="padding-bottom:8px;">
-        <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Key SKU Progress</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;background:#f8fafc;border-radius:10px;overflow:hidden;">
-          <tr style="background:#f1f5f9;">
-            <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">SKU</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Actual</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Target</th>
-            <th style="padding:8px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">%</th>
-          </tr>
-          ${sales.skus.map((sku) => `
-          <tr style="border-top:1px solid #e2e8f0;">
-            <td style="padding:8px 12px;font-weight:600;color:#0f172a;">${sku.name}</td>
-            <td style="padding:8px 12px;text-align:right;color:#0f172a;">${sku.actual}</td>
-            <td style="padding:8px 12px;text-align:right;color:#64748b;">${sku.target > 0 ? sku.target : "—"}</td>
-            <td style="padding:8px 12px;text-align:center;">${sku.target > 0 ? pctBadge(sku.pct) : "—"}</td>
-          </tr>`).join("")}
+      <tr><td style="padding-bottom:12px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          ${kpiGrid([
+            { label: "Revenue Actual",     value: `${sales.totalRevenue.toFixed(1)}M` },
+            { label: "Revenue Target",     value: `${sales.totalTarget.toFixed(1)}M` },
+            { label: "Achievement",        value: pctBadge(sales.achievementPct) },
+            { label: "Month-end Forecast", value: pctBadge(Math.min(150, sales.forecastPct)) },
+            { label: "New Customers",      value: String(sales.newCustomers) },
+          ])}
         </table>
       </td></tr>
 
-      <!-- Top ASMs -->
-      <tr><td colspan="10" style="padding-bottom:4px;">
-        <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Top ASMs</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;background:#f8fafc;border-radius:10px;overflow:hidden;">
+      <tr><td style="padding-bottom:10px;">
+        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Key SKU Progress</p>
+        ${scrollWrap(`
+        <table width="100%" cellpadding="0" cellspacing="0" style="min-width:380px;font-size:13px;border-collapse:collapse;background:#f8fafc;">
           <tr style="background:#f1f5f9;">
-            <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">ASM</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Revenue</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Target</th>
-            <th style="padding:8px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">%</th>
+            <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Product</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Actual</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Target</th>
+            <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">%</th>
+          </tr>
+          ${sales.skus.map((sku) => `
+          <tr style="border-top:1px solid #e2e8f0;">
+            <td style="padding:8px 10px;font-weight:600;color:#0f172a;white-space:nowrap;">${sku.name}</td>
+            <td style="padding:8px 10px;text-align:right;color:#0f172a;">${sku.actual}</td>
+            <td style="padding:8px 10px;text-align:right;color:#64748b;">${sku.target > 0 ? sku.target : "—"}</td>
+            <td style="padding:8px 10px;text-align:center;">${sku.target > 0 ? pctBadge(sku.pct) : "—"}</td>
+          </tr>`).join("")}
+        </table>`)}
+      </td></tr>
+
+      <tr><td style="padding-bottom:4px;">
+        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Top ASMs</p>
+        ${scrollWrap(`
+        <table width="100%" cellpadding="0" cellspacing="0" style="min-width:360px;font-size:13px;border-collapse:collapse;background:#f8fafc;">
+          <tr style="background:#f1f5f9;">
+            <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">ASM</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Revenue</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Target</th>
+            <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">%</th>
           </tr>
           ${sales.topAsms.map((asm) => `
           <tr style="border-top:1px solid #e2e8f0;">
-            <td style="padding:8px 12px;font-weight:600;color:#0f172a;">${asm.name}</td>
-            <td style="padding:8px 12px;text-align:right;color:#0f172a;">${asm.revenue.toFixed(1)}M</td>
-            <td style="padding:8px 12px;text-align:right;color:#64748b;">${asm.target > 0 ? `${asm.target.toFixed(1)}M` : "—"}</td>
-            <td style="padding:8px 12px;text-align:center;">${asm.target > 0 ? pctBadge(asm.pct) : "—"}</td>
+            <td style="padding:8px 10px;font-weight:600;color:#0f172a;white-space:nowrap;">${asm.name}</td>
+            <td style="padding:8px 10px;text-align:right;color:#0f172a;">${asm.revenue.toFixed(1)}M</td>
+            <td style="padding:8px 10px;text-align:right;color:#64748b;">${asm.target > 0 ? `${asm.target.toFixed(1)}M` : "—"}</td>
+            <td style="padding:8px 10px;text-align:center;">${asm.target > 0 ? pctBadge(asm.pct) : "—"}</td>
           </tr>`).join("")}
-        </table>
+        </table>`)}
       </td></tr>
     </table>` : "";
 
   // ── Marketing section ──────────────────────────────────────────────────────
   const marketingHtml = marketing ? `
-    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin-top:8px;">
       ${sectionHeader("📣", "Marketing Performance")}
-      <tr><td colspan="10" style="padding-bottom:4px;">
-        <!-- Summary KPIs -->
-        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
-          <tr>
-            ${[
-              { label: "Total Revenue",  value: `${marketing.totalRevenue.toFixed(1)}M` },
-              { label: "Revenue Target", value: `${marketing.totalTarget.toFixed(1)}M` },
-              { label: "Achievement",    value: pctBadge(marketing.totalTarget > 0 ? Math.round((marketing.totalRevenue / marketing.totalTarget) * 100) : 0) },
-              { label: "Total Ad Spend", value: `${marketing.totalSpend.toFixed(1)}M` },
-              { label: "Overall ROAS",   value: marketing.overallRoas !== null ? `${marketing.overallRoas}x` : "—" },
-            ].map(({ label, value }) => `
-              <td style="width:18%;padding:12px;background:#f8fafc;border-radius:10px;text-align:center;">
-                <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">${label}</p>
-                <p style="margin:6px 0 0;font-size:20px;font-weight:700;color:#0f172a;">${value}</p>
-              </td>
-            `).join('<td style="width:8px;"></td>')}
-          </tr>
+      <tr><td style="padding-bottom:10px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          ${kpiGrid([
+            { label: "Total Revenue",  value: `${marketing.totalRevenue.toFixed(1)}M` },
+            { label: "Revenue Target", value: `${marketing.totalTarget.toFixed(1)}M` },
+            { label: "Achievement",    value: pctBadge(marketing.totalTarget > 0 ? Math.round((marketing.totalRevenue / marketing.totalTarget) * 100) : 0) },
+            { label: "Total Ad Spend", value: `${marketing.totalSpend.toFixed(2)}M` },
+            { label: "Overall ROAS",   value: marketing.overallRoas !== null ? `${marketing.overallRoas}x` : "—" },
+            { label: "AOV",            value: marketing.aov !== null ? `${marketing.aov.toFixed(2)}M` : "—" },
+            { label: "Total Orders",   value: marketing.totalPO !== null ? String(marketing.totalPO) : "—" },
+          ])}
         </table>
-
-        <!-- Channel table -->
-        <table style="width:100%;border-collapse:collapse;font-size:13px;background:#f8fafc;border-radius:10px;overflow:hidden;">
+      </td></tr>
+      <tr><td style="padding-bottom:4px;">
+        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Channel Breakdown</p>
+        ${scrollWrap(`
+        <table width="100%" cellpadding="0" cellspacing="0" style="min-width:420px;font-size:13px;border-collapse:collapse;background:#f8fafc;">
           <tr style="background:#f1f5f9;">
-            <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Channel</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Revenue</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Target</th>
-            <th style="padding:8px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">%</th>
-            <th style="padding:8px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">Ad Spend</th>
-            <th style="padding:8px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">ROAS</th>
+            <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Channel</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Revenue</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Target</th>
+            <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">%</th>
+            <th style="padding:8px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Spend</th>
+            <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">ROAS</th>
           </tr>
           ${marketing.channels.map((ch) => {
             const roasColor = ch.roas === null ? "#64748b" : ch.roas >= 5 ? "#16a34a" : ch.roas >= 2 ? "#d97706" : "#dc2626";
             return `
           <tr style="border-top:1px solid #e2e8f0;">
-            <td style="padding:8px 12px;font-weight:600;color:#0f172a;">${ch.name}</td>
-            <td style="padding:8px 12px;text-align:right;color:#0f172a;">${ch.revenue.toFixed(1)}M</td>
-            <td style="padding:8px 12px;text-align:right;color:#64748b;">${ch.target > 0 ? `${ch.target.toFixed(1)}M` : "—"}</td>
-            <td style="padding:8px 12px;text-align:center;">${ch.target > 0 ? pctBadge(ch.pct) : "—"}</td>
-            <td style="padding:8px 12px;text-align:right;color:#64748b;">${ch.spend > 0 ? `${ch.spend.toFixed(2)}M` : "—"}</td>
-            <td style="padding:8px 12px;text-align:center;font-weight:700;color:${roasColor};">${ch.roas !== null ? `${ch.roas}x` : "—"}</td>
+            <td style="padding:8px 10px;font-weight:600;color:#0f172a;white-space:nowrap;">${ch.name}</td>
+            <td style="padding:8px 10px;text-align:right;color:#0f172a;">${ch.revenue.toFixed(1)}M</td>
+            <td style="padding:8px 10px;text-align:right;color:#64748b;">${ch.target > 0 ? `${ch.target.toFixed(1)}M` : "—"}</td>
+            <td style="padding:8px 10px;text-align:center;">${ch.target > 0 ? pctBadge(ch.pct) : "—"}</td>
+            <td style="padding:8px 10px;text-align:right;color:#64748b;">${ch.spend > 0 ? `${ch.spend.toFixed(2)}M` : "—"}</td>
+            <td style="padding:8px 10px;text-align:center;font-weight:700;color:${roasColor};">${ch.roas !== null ? `${ch.roas}x` : "—"}</td>
           </tr>`;
           }).join("")}
-        </table>
+        </table>`)}
       </td></tr>
     </table>` : "";
 
@@ -365,61 +424,63 @@ export function buildReportHtml(
       ? s.criticalOverdue.map((o) => {
           const priColor = o.priority === "Critical" ? "#dc2626" : o.priority === "High" ? "#d97706" : "#64748b";
           return `<div style="margin-top:4px;font-size:11px;color:#991b1b;">
-            <span style="background:${priColor};color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;">${o.priority}</span>
+            <span style="background:${priColor};color:#fff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;">${o.priority}</span>
             &nbsp;${o.task} — <em>${o.owner}</em> (due ${o.due})
           </div>`;
         }).join("")
       : "";
 
+    // Compact row: Dept | Total | Done | Overdue+badge | Detail
     return `<tr>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#0f172a;vertical-align:top;">${s.dept}</td>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;text-align:center;vertical-align:top;">${s.total}</td>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#16a34a;font-weight:600;vertical-align:top;">${s.completed}</td>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#2563eb;vertical-align:top;">${s.inProgress}</td>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#d97706;font-weight:600;vertical-align:top;">${s.dueThisWeek > 0 ? `⚠ ${s.dueThisWeek}` : "—"}</td>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;text-align:center;vertical-align:top;">${pctBadge(pct)}</td>
-      <td style="padding:12px 14px;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+      <td style="padding:10px 10px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#0f172a;vertical-align:top;white-space:nowrap;">${s.dept}</td>
+      <td style="padding:10px 10px;border-bottom:1px solid #f1f5f9;text-align:center;vertical-align:top;">${s.total}</td>
+      <td style="padding:10px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#16a34a;font-weight:600;vertical-align:top;">${s.completed}</td>
+      <td style="padding:10px 10px;border-bottom:1px solid #f1f5f9;text-align:center;vertical-align:top;">${pctBadge(pct)}</td>
+      <td style="padding:10px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top;">
         ${s.overdue > 0
           ? `<span style="color:#dc2626;font-weight:700;">${s.overdue} overdue</span>${criticalHtml}`
           : `<span style="color:#16a34a;font-size:12px;">✓ All clear</span>`}
+        ${s.dueThisWeek > 0 ? `<div style="margin-top:3px;font-size:11px;color:#d97706;font-weight:600;">⚠ ${s.dueThisWeek} due this week</div>` : ""}
       </td>
     </tr>`;
   }).join("");
 
   return `<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-<div style="max-width:740px;margin:32px auto;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,.10);">
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <style>
+    @media screen and (max-width:480px) {
+      .email-wrap { padding: 0 !important; border-radius: 0 !important; }
+      .email-body { padding: 16px !important; }
+      h1.report-title { font-size: 22px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;">
+  <tr><td align="center" style="padding:24px 8px;">
+
+<table class="email-wrap" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;background:#fff;border-radius:16px;overflow:hidden;">
 
   <!-- Header -->
-  <div style="background:#0f172a;padding:32px 32px 24px;">
+  <tr><td style="background:#0f172a;padding:28px 28px 20px;">
     <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:#7dd3fc;">HB Execution OS</p>
-    <h1 style="margin:8px 0 0;font-size:28px;font-weight:700;color:#fff;">Weekly Business Report</h1>
-    <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">Period: <strong style="color:#e2e8f0;">${periodKey}</strong> &nbsp;·&nbsp; Generated: ${generatedAt}</p>
-  </div>
+    <h1 class="report-title" style="margin:8px 0 0;font-size:26px;font-weight:700;color:#fff;">Weekly Business Report</h1>
+    <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">Period: <strong style="color:#e2e8f0;">${periodKey}</strong> &nbsp;·&nbsp; ${generatedAt}</p>
+  </td></tr>
 
-  <!-- Executive summary strip -->
-  <div style="background:#0f172a;border-top:1px solid #1e293b;padding:0 32px 24px;">
-    <table style="width:100%;border-collapse:collapse;">
-      <tr>
-        ${[
-          { label: "Total Tasks",  value: String(totalTasks),    color: "#fff" },
-          { label: "Completed",    value: String(totalCompleted), color: "#4ade80" },
-          { label: "In Progress",  value: String(taskSummaries.reduce((s,d)=>s+d.inProgress,0)), color: "#60a5fa" },
-          { label: "Due This Week",value: String(totalThisWeek), color: "#fbbf24" },
-          { label: "Overdue",      value: String(totalOverdue),  color: totalOverdue > 0 ? "#f87171" : "#4ade80" },
-        ].map(({ label, value, color }) => `
-          <td style="padding:16px 12px;text-align:center;">
-            <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#64748b;">${label}</p>
-            <p style="margin:4px 0 0;font-size:26px;font-weight:800;color:${color};">${value}</p>
-          </td>
-        `).join("")}
-      </tr>
+  <!-- Executive summary strip (3-col grid, mobile-safe) -->
+  <tr><td style="background:#0f172a;border-top:1px solid #1e293b;padding:4px 20px 20px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      ${execHtml}
     </table>
-  </div>
+  </td></tr>
 
-  <div style="padding:24px 32px 32px;">
+  <!-- Body -->
+  <tr><td class="email-body" style="padding:20px 28px 28px;">
 
     <!-- Sales -->
     ${salesHtml}
@@ -428,33 +489,35 @@ export function buildReportHtml(
     ${marketingHtml}
 
     <!-- Tasks -->
-    <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin-top:8px;">
       ${sectionHeader("✅", "Department Task Tracker")}
-      <tr><td colspan="10">
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr><td>
+        ${scrollWrap(`
+        <table width="100%" cellpadding="0" cellspacing="0" style="min-width:420px;font-size:13px;border-collapse:collapse;">
           <thead>
             <tr style="background:#f8fafc;">
-              <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Department</th>
-              <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Total</th>
-              <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Done</th>
-              <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">In Progress</th>
-              <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Due 7 Days</th>
-              <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Completion</th>
-              <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Overdue Detail</th>
+              <th style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;white-space:nowrap;">Department</th>
+              <th style="padding:9px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Total</th>
+              <th style="padding:9px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Done</th>
+              <th style="padding:9px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">%</th>
+              <th style="padding:9px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;border-bottom:2px solid #e2e8f0;">Status</th>
             </tr>
           </thead>
           <tbody>${taskRows}</tbody>
-        </table>
+        </table>`)}
       </td></tr>
     </table>
 
-  </div>
+  </td></tr>
 
   <!-- Footer -->
-  <div style="padding:18px 32px 24px;border-top:1px solid #f1f5f9;background:#f8fafc;">
-    <p style="margin:0;font-size:12px;color:#94a3b8;">Auto-generated by <strong>HB Execution OS</strong> · Every Monday 08:00 Vietnam time · Reply to this email to contact the system admin.</p>
-  </div>
-</div>
+  <tr><td style="padding:16px 28px 20px;border-top:1px solid #f1f5f9;background:#f8fafc;">
+    <p style="margin:0;font-size:12px;color:#94a3b8;">Auto-generated by <strong>HB Execution OS</strong> · Every Monday 08:00 Vietnam time</p>
+  </td></tr>
+
+</table>
+  </td></tr>
+</table>
 </body>
 </html>`;
 }

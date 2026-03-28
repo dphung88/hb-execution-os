@@ -24,7 +24,7 @@ type AssetSection = {
 
 const ASSET_STRUCTURE: AssetSection[] = [
   {
-    label: "Fixed Assets (Tài sản cố định)",
+    label: "Fixed Assets",
     key: "fixed",
     color: "text-sky-700",
     items: [
@@ -36,7 +36,7 @@ const ASSET_STRUCTURE: AssetSection[] = [
     ],
   },
   {
-    label: "Current Assets (Tài sản ngắn hạn)",
+    label: "Current Assets",
     key: "current",
     color: "text-emerald-700",
     items: [
@@ -48,7 +48,7 @@ const ASSET_STRUCTURE: AssetSection[] = [
     ],
   },
   {
-    label: "Intangible Assets (Tài sản vô hình)",
+    label: "Intangible Assets",
     key: "intangible",
     color: "text-violet-700",
     items: [
@@ -59,7 +59,7 @@ const ASSET_STRUCTURE: AssetSection[] = [
     ],
   },
   {
-    label: "Liabilities (Nợ phải trả)",
+    label: "Liabilities",
     key: "liability",
     color: "text-rose-700",
     items: [
