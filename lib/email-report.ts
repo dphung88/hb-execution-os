@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildSalesData, buildMarketingData } from "@/lib/email/task-report";
-import { renderDailyReportEmail, type DeptStats } from "./email-template";
+import { renderDailyReportEmail, type DeptStats, type FinanceData } from "./email-template";
 
 const DEPT_TABLES: { dept: string; table: string; isCeo?: boolean }[] = [
   { dept: "CEO Office",   table: "tasks",          isCeo: true },
@@ -74,6 +74,34 @@ async function buildDeptStats(): Promise<DeptStats[]> {
   return result;
 }
 
+// Try to read finance P&L data for the period. Falls back gracefully if table
+// doesn't exist or has no data yet.
+async function buildFinanceData(periodKey: string): Promise<FinanceData> {
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("finance_results")
+      .select("total_expense, gross_profit_pct, budget_utilized_pct")
+      .eq("month_key", periodKey)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      return { totalExpense: null, grossProfitPct: null, budgetUtilized: null, source: "pending" };
+    }
+
+    return {
+      totalExpense:    data.total_expense    != null ? Number(data.total_expense)    : null,
+      grossProfitPct:  data.gross_profit_pct != null ? Number(data.gross_profit_pct) : null,
+      budgetUtilized:  data.budget_utilized_pct != null ? Number(data.budget_utilized_pct) : null,
+      source: "live",
+    };
+  } catch {
+    return { totalExpense: null, grossProfitPct: null, budgetUtilized: null, source: "pending" };
+  }
+}
+
 // Current period key — e.g. "2026-03"
 function currentPeriodKey() {
   const now = new Date();
@@ -94,10 +122,11 @@ export async function sendDailyReport(): Promise<{ ok: boolean; id?: string; err
   const periodKey = currentPeriodKey();
 
   // Fetch all data in parallel
-  const [depts, sales, marketing] = await Promise.all([
+  const [depts, sales, marketing, finance] = await Promise.all([
     buildDeptStats(),
     buildSalesData(periodKey),
     buildMarketingData(periodKey),
+    buildFinanceData(periodKey),
   ]);
 
   if (depts.length === 0) return { ok: false, error: "No department data found" };
@@ -107,12 +136,9 @@ export async function sendDailyReport(): Promise<{ ok: boolean; id?: string; err
     timeZone: "Asia/Ho_Chi_Minh",
   });
 
-  const totalCritical = depts.reduce((s, d) => s + d.critical, 0);
-  const totalOverdue  = depts.reduce((s, d) => s + d.overdue,  0);
-  const flag    = totalCritical > 0 ? "🔴" : totalOverdue > 0 ? "⚠️" : "✅";
-  const subject = `[Business Report] ${flag} ${reportDate}`;
+  const subject = `[Business Report] ${reportDate}`;
 
-  const html = renderDailyReportEmail(depts, sales, marketing, reportDate, appUrl);
+  const html = renderDailyReportEmail(depts, sales, marketing, reportDate, appUrl, finance);
 
   const resend = new Resend(apiKey);
   const { data, error } = await resend.emails.send({ from, to, subject, html });

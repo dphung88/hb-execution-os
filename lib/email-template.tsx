@@ -1,5 +1,12 @@
 // HTML email template — Business Report
-// Combines Sales Performance + Marketing Performance + Department Breakdown
+// Combines Sales Performance + Marketing Performance + Finance Summary + Department Breakdown
+//
+// Mobile-safe rules observed throughout:
+//  - max 3 columns per KPI row (nested table, width="33%")
+//  - all wide tables wrapped in scrollWrap (overflow-x:auto)
+//  - no media queries needed for KPI grids
+//  - header overview strip uses the same 3-col grid (no 5-col single row)
+//  - channel breakdown: 5 cols max to fit 360px screens without horizontal scroll
 
 import type { SalesData, MarketingData } from "@/lib/email/task-report";
 
@@ -14,6 +21,13 @@ export type DeptStats = {
   topOverdue: { title: string; owner: string; due: string; priority: string }[];
 };
 
+export type FinanceData = {
+  totalExpense: number | null;   // total expenses this period (M VND)
+  grossProfitPct: number | null; // gross profit % if computable
+  budgetUtilized: number | null; // % of monthly budget consumed
+  source: "live" | "derived" | "pending";
+};
+
 // ─── Shared helpers ────────────────────────────────────────────────────────
 
 function pctBadge(pct: number) {
@@ -26,11 +40,11 @@ function sectionHeader(icon: string, title: string) {
   <hr style="margin:0 0 12px;border:none;border-top:2px solid #e2e8f0;">`;
 }
 
-// 3-per-row KPI card grid (mobile-safe, no media queries needed)
+// 3-per-row KPI card grid — works on all email clients without media queries
 function kpiGrid(items: { label: string; value: string }[]) {
   const rows: { label: string; value: string }[][] = [];
   for (let i = 0; i < items.length; i += 3) rows.push(items.slice(i, i + 3));
-  return `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;table-layout:fixed;">
     ${rows.map((row) => `
     <tr>
       ${row.map(({ label, value }) => `
@@ -48,8 +62,9 @@ function kpiGrid(items: { label: string; value: string }[]) {
   </table>`;
 }
 
+// Scroll wrapper for wide tables — set as block on a div for Android + iOS
 function scrollWrap(tableHtml: string) {
-  return `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">${tableHtml}</div>`;
+  return `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;display:block;">${tableHtml}</div>`;
 }
 
 // ─── Sales section ─────────────────────────────────────────────────────────
@@ -67,7 +82,7 @@ function salesSection(sales: SalesData) {
 
   <p style="margin:0 0 5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Key SKU Progress</p>
   ${scrollWrap(`
-  <table width="100%" cellpadding="0" cellspacing="0" style="min-width:360px;border-collapse:collapse;background:#f8fafc;font-size:13px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="min-width:340px;border-collapse:collapse;background:#f8fafc;font-size:13px;">
     <tr style="background:#f1f5f9;">
       <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Product</th>
       <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Actual</th>
@@ -85,7 +100,7 @@ function salesSection(sales: SalesData) {
 
   <p style="margin:10px 0 5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Top ASMs</p>
   ${scrollWrap(`
-  <table width="100%" cellpadding="0" cellspacing="0" style="min-width:340px;border-collapse:collapse;background:#f8fafc;font-size:13px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="min-width:300px;border-collapse:collapse;background:#f8fafc;font-size:13px;">
     <tr style="background:#f1f5f9;">
       <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">ASM</th>
       <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Revenue</th>
@@ -103,6 +118,8 @@ function salesSection(sales: SalesData) {
 }
 
 // ─── Marketing section ─────────────────────────────────────────────────────
+// Channel table uses 5 cols (Revenue, %, Spend, ROAS — Target dropped) to fit
+// 360px screens without requiring horizontal scroll.
 
 function marketingSection(marketing: MarketingData) {
   const achievePct = marketing.totalTarget > 0
@@ -122,12 +139,11 @@ function marketingSection(marketing: MarketingData) {
 
   <p style="margin:0 0 5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;">Channel Breakdown</p>
   ${scrollWrap(`
-  <table width="100%" cellpadding="0" cellspacing="0" style="min-width:400px;border-collapse:collapse;background:#f8fafc;font-size:13px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="min-width:320px;border-collapse:collapse;background:#f8fafc;font-size:13px;">
     <tr style="background:#f1f5f9;">
       <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Channel</th>
       <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Revenue</th>
-      <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Target</th>
-      <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">%</th>
+      <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Achieve</th>
       <th style="padding:7px 10px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">Spend</th>
       <th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;">ROAS</th>
     </tr>
@@ -137,13 +153,40 @@ function marketingSection(marketing: MarketingData) {
     <tr style="border-top:1px solid #e2e8f0;">
       <td style="padding:7px 10px;font-weight:600;color:#0f172a;white-space:nowrap;">${ch.name}</td>
       <td style="padding:7px 10px;text-align:right;color:#0f172a;">${ch.revenue.toFixed(1)}M</td>
-      <td style="padding:7px 10px;text-align:right;color:#64748b;">${ch.target > 0 ? `${ch.target.toFixed(1)}M` : "—"}</td>
       <td style="padding:7px 10px;text-align:center;">${ch.target > 0 ? pctBadge(ch.pct) : "—"}</td>
       <td style="padding:7px 10px;text-align:right;color:#64748b;">${ch.spend > 0 ? `${ch.spend.toFixed(2)}M` : "—"}</td>
       <td style="padding:7px 10px;text-align:center;font-weight:700;color:${roasColor};">${ch.roas !== null ? `${ch.roas}x` : "—"}</td>
     </tr>`;
     }).join("")}
   </table>`)}`;
+}
+
+// ─── Finance section ────────────────────────────────────────────────────────
+
+function financeSection(finance: FinanceData, sales: SalesData | null, marketing: MarketingData | null) {
+  // Derive best-effort values
+  const revenue   = sales?.totalRevenue ?? null;
+  const adSpend   = marketing?.totalSpend ?? null;
+  const expense   = finance.totalExpense ?? adSpend;
+  const gpPct     = finance.grossProfitPct;
+  const budgetPct = finance.budgetUtilized;
+
+  const kpiItems: { label: string; value: string }[] = [
+    { label: "Revenue (Sales)",    value: revenue   !== null ? `${revenue.toFixed(1)}M`  : "—" },
+    { label: "Total Expense",      value: expense   !== null ? `${expense.toFixed(2)}M`  : "—" },
+    { label: "Gross Profit %",     value: gpPct     !== null ? `${gpPct.toFixed(1)}%`    : "—" },
+    { label: "Budget Utilized",    value: budgetPct !== null ? `${budgetPct.toFixed(0)}%` : "—" },
+    { label: "Ad Spend (Mktg)",    value: adSpend   !== null ? `${adSpend.toFixed(2)}M`  : "—" },
+  ];
+
+  const pendingNote = finance.source === "pending"
+    ? `<p style="margin:4px 0 10px;font-size:11px;color:#94a3b8;font-style:italic;">P&L data integration pending — expense &amp; GP% shown when available.</p>`
+    : "";
+
+  return `
+  ${sectionHeader("💰", "Finance Summary")}
+  ${pendingNote}
+  ${kpiGrid(kpiItems)}`;
 }
 
 // ─── Dept card (2-col grid) ────────────────────────────────────────────────
@@ -210,6 +253,7 @@ export function renderDailyReportEmail(
   marketing: MarketingData | null,
   reportDate: string,
   appUrl: string,
+  finance?: FinanceData,
 ): string {
   const totalTasks    = depts.reduce((s, d) => s + d.total,    0);
   const totalDone     = depts.reduce((s, d) => s + d.done,     0);
@@ -218,16 +262,37 @@ export function renderDailyReportEmail(
   const totalOverdue  = depts.reduce((s, d) => s + d.overdue,  0);
   const overallPct    = totalTasks > 0 ? Math.round((totalDone / totalTasks) * 100) : 0;
 
+  // Header overview: 3-col rows (mobile-safe, max 3 per row)
   const overviewItems = [
-    { label: "Total",    value: String(totalTasks),    color: "#fff" },
-    { label: "Done",     value: String(totalDone),     color: "#4ade80" },
-    { label: "Critical", value: String(totalCritical), color: totalCritical > 0 ? "#f87171" : "#4ade80" },
-    { label: "Blocked",  value: String(totalBlocked),  color: totalBlocked  > 0 ? "#fb923c" : "#4ade80" },
-    { label: "Overdue",  value: String(totalOverdue),  color: totalOverdue  > 0 ? "#f87171" : "#4ade80" },
+    { label: "Total Tasks", value: String(totalTasks),    color: "#fff" },
+    { label: "Done",        value: String(totalDone),     color: "#4ade80" },
+    { label: "Critical",    value: String(totalCritical), color: totalCritical > 0 ? "#f87171" : "#4ade80" },
+    { label: "Blocked",     value: String(totalBlocked),  color: totalBlocked  > 0 ? "#fb923c" : "#4ade80" },
+    { label: "Overdue",     value: String(totalOverdue),  color: totalOverdue  > 0 ? "#f87171" : "#4ade80" },
   ];
+  // Build rows of 3 for the dark header strip
+  const overviewRows: typeof overviewItems[] = [];
+  for (let i = 0; i < overviewItems.length; i += 3) overviewRows.push(overviewItems.slice(i, i + 3));
+  const overviewHtml = overviewRows.map((row) => `
+    <tr>
+      ${row.map(({ label, value, color }) => `
+        <td width="33%" style="text-align:center;padding:10px 6px;">
+          <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#475569;">${label}</p>
+          <p style="margin:4px 0 0;font-size:24px;font-weight:800;color:${color};line-height:1;">${value}</p>
+        </td>`).join("")}
+      ${row.length < 3 ? Array(3 - row.length).fill('<td width="33%"></td>').join("") : ""}
+    </tr>`).join("");
 
   const col1 = depts.filter((_, i) => i % 2 === 0);
   const col2 = depts.filter((_, i) => i % 2 === 1);
+
+  // Finance fallback: "pending" section if no finance data passed
+  const financeData: FinanceData = finance ?? {
+    totalExpense: null,
+    grossProfitPct: null,
+    budgetUtilized: null,
+    source: "pending",
+  };
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -254,16 +319,10 @@ export function renderDailyReportEmail(
     <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;">${reportDate}</p>
   </td></tr>
 
-  <!-- Overview strip (3-col, mobile-safe) -->
+  <!-- Overview strip (3-col rows, mobile-safe) -->
   <tr><td style="background:#0f172a;border-top:1px solid #1e293b;padding:6px 20px 20px;">
     <table width="100%" cellpadding="0" cellspacing="0">
-      <tr>
-        ${overviewItems.map(({ label, value, color }) => `
-          <td style="text-align:center;padding:10px 6px;">
-            <p style="margin:0;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#475569;">${label}</p>
-            <p style="margin:4px 0 0;font-size:24px;font-weight:800;color:${color};line-height:1;">${value}</p>
-          </td>`).join("")}
-      </tr>
+      ${overviewHtml}
     </table>
     <div style="margin-top:4px;background:#1e293b;border-radius:999px;height:5px;overflow:hidden;">
       <div style="height:5px;width:${overallPct}%;background:#38bdf8;border-radius:999px;"></div>
@@ -279,6 +338,9 @@ export function renderDailyReportEmail(
 
     <!-- Marketing Performance -->
     ${marketing ? marketingSection(marketing) : ""}
+
+    <!-- Finance Summary -->
+    ${financeSection(financeData, sales, marketing)}
 
     <!-- Department Breakdown -->
     ${sectionHeader("✅", "Department Breakdown")}
