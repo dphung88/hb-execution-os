@@ -315,7 +315,11 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     breakdownsByAsm.set(row.asm_id, asmBreakdowns);
   });
 
-  // Build a zero-actual stub for ASMs with no ERP row yet (targets already saved)
+  // Only show ASMs that have ERP data OR targets configured for this period.
+  // If neither exists (e.g. April not yet synced) return empty so the dashboard
+  // shows "no data" instead of zero-filled stubs for every demo ASM.
+  const asmIdsWithData = new Set([...latestByAsm.keys(), ...targetsByAsm.keys()]);
+
   const emptyKpiRow = (asmId: string): KpiDataRow => ({
     asm_id: asmId,
     month: effectivePeriod,
@@ -335,16 +339,18 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
     updated_at: null,
   });
 
-  const resolved = demoSalesAsms.map((asm) => {
-    const liveRow = latestByAsm.get(asm.id) ?? emptyKpiRow(asm.id);
-    return toResolvedAsm(
-      asm,
-      liveRow,
-      breakdownsByAsm.get(asm.id) ?? new Map<string, number>(),
-      targetsByAsm.get(asm.id),
-      reviewsByAsm.get(asm.id),
-    );
-  });
+  const resolved = demoSalesAsms
+    .filter((asm) => asmIdsWithData.has(asm.id))
+    .map((asm) => {
+      const liveRow = latestByAsm.get(asm.id) ?? emptyKpiRow(asm.id);
+      return toResolvedAsm(
+        asm,
+        liveRow,
+        breakdownsByAsm.get(asm.id) ?? new Map<string, number>(),
+        targetsByAsm.get(asm.id),
+        reviewsByAsm.get(asm.id),
+      );
+    });
 
   return resolved;
 }
