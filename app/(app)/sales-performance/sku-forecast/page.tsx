@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { getPeriods } from "@/lib/config/periods";
 import { getAvailableSalesPeriods } from "@/lib/sales/queries";
+import { lookupSkuName } from "@/lib/demo-data";
 import { SkuForecastWorkspace, type SkuForecastRow } from "@/components/sales/sku-forecast-workspace";
 
 type Props = {
@@ -73,7 +74,7 @@ export default async function SkuForecastPage({ searchParams }: Props) {
 
       const stockOnHand = lot?.stock_on_hand ?? 0;
       const lotDate = lot?.lot_date ?? "";
-      const name = sales?.name ?? lot?.name ?? code;
+      const name = sales?.name ?? lot?.name ?? lookupSkuName(code);
 
       const daysUntilExpiry = lotDate
         ? Math.max(Math.floor((new Date(`${lotDate}T00:00:00`).getTime() - TODAY.getTime()) / 86400000), 1)

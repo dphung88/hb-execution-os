@@ -202,6 +202,12 @@ export function SkuForecastWorkspace({ rows, selectedPeriod, periods, elapsedDay
                       {row.requiredDailySell > 0 ? `${fmt(row.requiredDailySell)}/day` : "—"}
                     </p>
                   </div>
+                  <div className="rounded-2xl bg-white/70 px-3 py-2">
+                    <p className="text-[10px] font-semibold text-slate-500">Coverage</p>
+                    <p className={`mt-1 text-sm font-semibold ${row.coverageMonths === 0 ? "text-slate-400" : row.coverageMonths > 9999 ? "text-slate-400" : row.coverageMonths <= 3 ? "text-rose-700" : "text-slate-900"}`}>
+                      {row.coverageMonths === 0 || row.coverageMonths > 9000 ? "—" : `${fmt(row.coverageMonths)} mo`}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Gap & push */}
