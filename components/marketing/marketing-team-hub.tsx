@@ -73,25 +73,40 @@ export function MarketingTeamHub({ periods = [], selectedPeriod = "" }: Marketin
             <Megaphone className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Channel Setup</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Budget Mix By Channel</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Channel Performance</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Revenue vs Target By Channel</h2>
           </div>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {marketingChannelSetup.map((channel) => (
-            <div key={channel.channel} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-medium text-slate-900">{channel.channel}</p>
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                  {(channel.actualRatio * 100).toFixed(1)}% actual ratio
-                </span>
+          {marketingChannelSetup.map((channel) => {
+            const pct = channel.revenueTarget > 0 ? Math.min(100, Math.round((channel.revenueActual / channel.revenueTarget) * 100)) : 0;
+            const barColor = pct >= 80 ? "bg-emerald-400" : pct >= 50 ? "bg-amber-400" : "bg-rose-400";
+            return (
+              <div key={channel.channel} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-semibold text-slate-900">{channel.channel}</p>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${pct >= 80 ? "bg-emerald-100 text-emerald-700" : pct >= 50 ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"}`}>
+                    {pct}%
+                  </span>
+                </div>
+
+                <div className="mt-3">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-xl font-semibold text-slate-900">{channel.revenueActual}M</p>
+                    <p className="text-xs text-slate-400">/ {channel.revenueTarget}M target</p>
+                  </div>
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                    <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+
+                {channel.actualBudget > 0 && (
+                  <p className="mt-2 text-xs text-slate-500">Ad spend {channel.actualBudget}M</p>
+                )}
               </div>
-              <p className="mt-2 text-sm text-slate-500">
-                Actual spend {channel.actualBudget}M
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

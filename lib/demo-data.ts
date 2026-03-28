@@ -825,12 +825,12 @@ export const marketingTaskTracker = [
 ];
 
 export const marketingChannelSetup = [
-  { channel: "Shopee", budgetRatio: 0, actualRatio: 0.471, budget: 0, actualBudget: 7.1, remainingBudget: 0 },
-  { channel: "Facebook", budgetRatio: 0, actualRatio: 0, budget: 0, actualBudget: 0, remainingBudget: 0 },
-  { channel: "Google", budgetRatio: 0, actualRatio: 0, budget: 0, actualBudget: 0, remainingBudget: 0 },
-  { channel: "Lazada", budgetRatio: 0, actualRatio: 0.036, budget: 0, actualBudget: 0.5, remainingBudget: 0 },
-  { channel: "Tiktok", budgetRatio: 0, actualRatio: 0.078, budget: 0, actualBudget: 1.2, remainingBudget: 0 },
-  { channel: "Zalo", budgetRatio: 0, actualRatio: 0, budget: 0, actualBudget: 0, remainingBudget: 0 },
+  { channel: "Shopee",   budgetRatio: 0, actualRatio: 0.471, budget: 0, actualBudget: 7.1, remainingBudget: 0, revenueTarget: 75.0, revenueActual: 51.2 },
+  { channel: "Lazada",   budgetRatio: 0, actualRatio: 0.036, budget: 0, actualBudget: 0.5, remainingBudget: 0, revenueTarget: 18.8, revenueActual: 12.8 },
+  { channel: "Tiktok",   budgetRatio: 0, actualRatio: 0.078, budget: 0, actualBudget: 1.2, remainingBudget: 0, revenueTarget: 12.5, revenueActual:  8.5 },
+  { channel: "Facebook", budgetRatio: 0, actualRatio: 0,     budget: 0, actualBudget: 0,   remainingBudget: 0, revenueTarget: 10.0, revenueActual:  7.0 },
+  { channel: "Google",   budgetRatio: 0, actualRatio: 0,     budget: 0, actualBudget: 0,   remainingBudget: 0, revenueTarget:  6.0, revenueActual:  5.1 },
+  { channel: "Zalo",     budgetRatio: 0, actualRatio: 0,     budget: 0, actualBudget: 0,   remainingBudget: 0, revenueTarget:  2.7, revenueActual:  0.7 },
 ];
 
 export const demoErpPipeline = [
