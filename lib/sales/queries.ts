@@ -210,30 +210,12 @@ export async function getAvailableSalesPeriods(): Promise<SalesPeriodOption[]> {
       .sort((a, b) => b.key.localeCompare(a.key));
   }
 
-  const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
-  const { data, error } = await supabase
-    .from("kpi_data")
-    .select("month")
-    .not("month", "is", null)
-    .order("month", { ascending: false });
-
+  // Period list is driven solely by app_periods config — do NOT merge in raw
+  // kpi_data months, which would cause deleted periods to reappear.
   const configPeriods = await getPeriods();
-  const monthSet = new Set<string>(configPeriods.map((p) => p.key));
-
-  if (!error && data?.length) {
-    data.forEach((row) => {
-      if (row.month) {
-        monthSet.add(row.month);
-      }
-    });
-  }
-
-  return Array.from(monthSet)
-    .sort((a, b) => b.localeCompare(a))
-    .map((periodKey) => {
-      const found = configPeriods.find((p) => p.key === periodKey);
-      return { key: periodKey, label: found?.label ?? formatPeriodLabel(periodKey) };
-    });
+  return [...configPeriods]
+    .sort((a, b) => b.key.localeCompare(a.key))
+    .map((p) => ({ key: p.key, label: p.label }));
 }
 
 export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmResolved[]> {

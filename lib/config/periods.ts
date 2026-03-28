@@ -15,9 +15,7 @@ const COOKIE_NAME = "periods-config";
 const DATA_PATH = path.join(process.cwd(), "lib/config/periods-data.json");
 
 export const DEFAULT_PERIODS: PeriodConfig[] = [
-  { key: "2026-03", label: "March 2026",    startDate: "2026-03-01", endDate: "2026-03-31" },
-  { key: "2026-04", label: "April 2026",    startDate: "2026-04-01", endDate: "2026-04-30" },
-  { key: "2026-05", label: "May 2026",      startDate: "2026-05-01", endDate: "2026-05-31" },
+  { key: "2026-03", label: "March 2026", startDate: "2026-03-01", endDate: "2026-03-31" },
 ];
 
 /** Read periods from Supabase app_periods table */

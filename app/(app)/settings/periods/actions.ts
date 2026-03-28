@@ -38,6 +38,8 @@ export async function upsertPeriodAction(formData: FormData) {
   periods.sort((a, b) => b.key.localeCompare(a.key));
   await savePeriods(periods);
   revalidatePath("/settings/periods");
+  revalidatePath("/sales-performance");
+  revalidatePath("/dashboard");
 }
 
 export async function deletePeriodAction(formData: FormData) {
@@ -54,4 +56,6 @@ export async function deletePeriodAction(formData: FormData) {
   const periods = (await getPeriods()).filter((p) => p.key !== key);
   await savePeriods(periods);
   revalidatePath("/settings/periods");
+  revalidatePath("/sales-performance");
+  revalidatePath("/dashboard");
 }
