@@ -677,7 +677,7 @@ export const salesScoringRules = [
   {
     name: "Discipline And Reporting",
     description: "Manager enters the discipline KPI and qualitative reporting review after the weekly check-in.",
-    score: "5 pts + notes",
+    score: "5 pts",
     source: "Manager input"
   }
 ];
