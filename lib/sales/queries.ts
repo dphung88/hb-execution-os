@@ -1,5 +1,5 @@
 import { demoSalesAsms, lookupSkuName, salesKpiProducts, salesPeriods } from "@/lib/demo-data";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { hasSupabaseClientEnv, hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -350,9 +350,11 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
 }
 
 export async function getSalesScorecardsData(periodKey?: string | null) {
-  const [asms, periods] = await Promise.all([getSalesAsms(periodKey), getAvailableSalesPeriods()]);
+  const configPeriods = await getPeriods();
+  const defaultPeriod = periodKey ?? getCurrentPeriod(configPeriods);
+  const [asms, periods] = await Promise.all([getSalesAsms(defaultPeriod), getAvailableSalesPeriods()]);
   const scorecards = await getSalesScorecards(asms);
-  const selectedPeriod = periodKey ?? asms[0]?.periodKey ?? periods[0]?.key ?? salesPeriods[0]?.key ?? "";
+  const selectedPeriod = defaultPeriod;
 
   return {
     asms,
