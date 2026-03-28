@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { loadItTasks } from "@/lib/it/tasks";
 import { IT_STATUSES } from "@/lib/it/config";
 import { updateItTaskAction } from "@/app/(app)/it/tasks/actions";
@@ -33,7 +33,7 @@ export default async function ItOwnerDetailPage({ params, searchParams }: Props)
   const sp = searchParams ? await searchParams : undefined;
 
   const periods = await getPeriods();
-  const selectedPeriod = sp?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = sp?.period ?? getCurrentPeriod(periods);
   const periodLabel = periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod;
   const savedState = sp?.saved ? true : false;
 

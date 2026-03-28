@@ -108,6 +108,17 @@ export async function savePeriods(periods: PeriodConfig[]): Promise<void> {
   } catch { /* ignore on Vercel */ }
 }
 
+/**
+ * Returns the period key that contains today's date.
+ * Falls back to the first period if none matches (e.g. periods are all in the future).
+ */
+export function getCurrentPeriod(periods: PeriodConfig[]): string {
+  if (periods.length === 0) return "";
+  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const match = periods.find((p) => today >= p.startDate && today <= p.endDate);
+  return match?.key ?? periods[0].key;
+}
+
 /** Format a period key "YYYY-MM" → readable label using stored config */
 export async function getPeriodLabel(key: string): Promise<string> {
   const periods = await getPeriods();

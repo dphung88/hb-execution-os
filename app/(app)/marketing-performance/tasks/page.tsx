@@ -1,5 +1,5 @@
 import { MarketingTasksWorkspace } from "@/components/marketing/marketing-tasks-workspace";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { loadMarketingTasks } from "@/lib/marketing/tasks";
 
 type MarketingTasksPageProps = {
@@ -16,7 +16,7 @@ type MarketingTasksPageProps = {
 export default async function MarketingTasksPage({ searchParams }: MarketingTasksPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
-  const selectedPeriod = resolvedSearchParams?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = resolvedSearchParams?.period ?? getCurrentPeriod(periods);
   const { tasks, source } = await loadMarketingTasks(selectedPeriod);
 
   return (

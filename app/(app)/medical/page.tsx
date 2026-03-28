@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { ArrowRight, FlaskConical, ShieldCheck, FileText, AlertTriangle, ClipboardList, CheckCircle } from "lucide-react";
 
 type Props = { searchParams?: Promise<{ period?: string }> };
@@ -7,7 +7,7 @@ type Props = { searchParams?: Promise<{ period?: string }> };
 export default async function MedicalDashboard({ searchParams }: Props) {
   const params = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
-  const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = params?.period ?? getCurrentPeriod(periods);
   const periodLabel = periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod;
 
   const kpiCards = [

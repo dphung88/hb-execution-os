@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -78,7 +78,7 @@ const STATUS_STYLE: Record<Status, string> = {
 export default async function TaskReportPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
-  const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = params?.period ?? getCurrentPeriod(periods);
   const periodLabel = periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod;
 
   const { depts, fromDb } = await loadDeptStats(selectedPeriod);

@@ -1,13 +1,13 @@
 import { MedicalTasksWorkspace } from "@/components/medical/medical-tasks-workspace";
 import { loadMedicalTasks } from "@/lib/medical/tasks";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 
 type Props = { searchParams?: Promise<{ period?: string; owner?: string; status?: string; saved?: string; error?: string }> };
 
 export default async function MedicalTasksPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
-  const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = params?.period ?? getCurrentPeriod(periods);
   const { tasks, source } = await loadMedicalTasks(selectedPeriod);
 
   return (

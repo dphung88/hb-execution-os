@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -50,7 +50,7 @@ function fmt(n: number) {
 export default async function ScInventoryPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
-  const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = params?.period ?? getCurrentPeriod(periods);
   const periodLabel = periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod;
 
   const skus = await loadSkuInventory();

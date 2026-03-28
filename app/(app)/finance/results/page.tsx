@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getPeriods } from "@/lib/config/periods";
+import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 
 type Props = { searchParams?: Promise<{ period?: string }> };
 
@@ -18,7 +18,7 @@ const sections: Section[] = [
 export default async function FinanceResultsPage({ searchParams }: Props) {
   const params = searchParams ? await searchParams : undefined;
   const periods = await getPeriods();
-  const selectedPeriod = params?.period ?? periods[0]?.key ?? "";
+  const selectedPeriod = params?.period ?? getCurrentPeriod(periods);
   const periodLabel = periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod;
 
   return (
