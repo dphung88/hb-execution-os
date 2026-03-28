@@ -173,18 +173,57 @@ export function MarketingTeamHub({
         <form action={upsertChannelSpendAction} className="mt-6">
           <input type="hidden" name="period_key" value={selectedPeriod} />
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            {/* Table header */}
-            <div className="grid grid-cols-[1fr_140px_140px_100px] gap-0 border-b border-slate-200 bg-slate-50 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          {/* Mobile: stacked cards */}
+          <div className="space-y-3 md:hidden">
+            {channelRows.map((ch) => (
+              <div key={ch.channel} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-slate-800">{ch.channel}</p>
+                  <span className={`text-sm font-semibold ${roasColor(ch.roas)}`}>
+                    ROAS {ch.roas !== null ? `${ch.roas}x` : "—"}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Ad Spend (M)</span>
+                    <input
+                      type="number"
+                      name={`spend_${ch.channel}`}
+                      defaultValue={ch.budgetActual || ""}
+                      min={0}
+                      step={0.01}
+                      placeholder="0.00"
+                      className="mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Rev. Target (M)</span>
+                    <input
+                      type="number"
+                      name={`rev_target_${ch.channel}`}
+                      defaultValue={ch.revenueTarget || ""}
+                      min={0}
+                      step={0.1}
+                      placeholder="0.0"
+                      className="mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:bg-white"
+                    />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table layout */}
+          <div className="hidden overflow-hidden rounded-2xl border border-slate-200 md:block">
+            <div className="grid grid-cols-[1fr_140px_140px_100px] border-b border-slate-200 bg-slate-50 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <div>Channel</div>
               <div>Ad Spend (M)</div>
               <div>Rev. Target (M)</div>
               <div>ROAS</div>
             </div>
-
             <div className="divide-y divide-slate-100 bg-white">
               {channelRows.map((ch) => (
-                <div key={ch.channel} className="grid grid-cols-[1fr_140px_140px_100px] items-center gap-0 px-4 py-3">
+                <div key={ch.channel} className="grid grid-cols-[1fr_140px_140px_100px] items-center px-4 py-3">
                   <p className="text-sm font-medium text-slate-800">{ch.channel}</p>
                   <div className="pr-3">
                     <input
