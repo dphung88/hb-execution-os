@@ -57,5 +57,9 @@ export async function updateItTaskAction(formData: FormData) {
 
   revalidatePath("/it");
   revalidatePath("/it/tasks");
+  revalidatePath("/it/tasks/owner");
+
+  const returnTo = String(formData.get("redirect_to") ?? "").trim();
+  if (returnTo && returnTo.startsWith("/")) redirect(`${returnTo}?saved=1`);
   redirect(`/it/tasks?saved=${taskId}`);
 }
