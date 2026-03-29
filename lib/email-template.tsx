@@ -283,8 +283,8 @@ export function renderDailyReportEmail(
       ${row.length < 3 ? Array(3 - row.length).fill('<td width="33%"></td>').join("") : ""}
     </tr>`).join("");
 
-  const col1 = depts.filter((_, i) => i % 2 === 0);
-  const col2 = depts.filter((_, i) => i % 2 === 1);
+  // Dept cards rendered as a single column — 2-col layouts break on Android Gmail
+  // because media queries are stripped. Single-column is universally safe.
 
   // Finance fallback: "pending" section if no finance data passed
   const financeData: FinanceData = finance ?? {
@@ -301,8 +301,7 @@ export function renderDailyReportEmail(
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="x-apple-disable-message-reformatting">
   <style>
-    @media screen and (max-width:600px) {
-      .two-col td { display:block !important; width:100% !important; }
+    @media screen and (max-width:480px) {
       .email-body { padding:16px !important; }
     }
   </style>
@@ -342,18 +341,9 @@ export function renderDailyReportEmail(
     <!-- Finance Summary -->
     ${financeSection(financeData, sales, marketing)}
 
-    <!-- Department Breakdown -->
+    <!-- Department Breakdown — single column, works on all email clients -->
     ${sectionHeader("✅", "Department Breakdown")}
-    <table class="two-col" width="100%" cellpadding="0" cellspacing="0">
-      <tr>
-        <td width="50%" style="vertical-align:top;padding-right:6px;">
-          ${col1.map(deptCard).join("")}
-        </td>
-        <td width="50%" style="vertical-align:top;padding-left:6px;">
-          ${col2.map(deptCard).join("")}
-        </td>
-      </tr>
-    </table>
+    ${depts.map(deptCard).join("")}
 
     <!-- CTA -->
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
