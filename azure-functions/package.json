@@ -1,0 +1,16 @@
+{
+  "name": "execution-os-cron",
+  "version": "1.0.0",
+  "description": "Azure Functions cron — fires Business Report email every 2h",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "start": "func start",
+    "deploy": "func azure functionapp publish execution-os-cron"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "REPORT_ENDPOINT": "https://vp.edisonyang.store/api/send-report",
+    "CRON_SECRET": "exec-os-cron-2026"
+  }
+}

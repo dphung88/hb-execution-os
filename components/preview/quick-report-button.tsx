@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { triggerReport } from "@/app/actions/send-report";
 
 export function QuickReportButton() {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -10,9 +11,8 @@ export function QuickReportButton() {
   async function handleSend() {
     setState("sending");
     try {
-      const res = await fetch("/api/send-report", { method: "POST" });
-      const json = await res.json();
-      setState(json.ok ? "sent" : "error");
+      const result = await triggerReport();
+      setState(result.ok ? "sent" : "error");
     } catch {
       setState("error");
     }
