@@ -121,6 +121,13 @@ export async function buildSalesData(periodKey: string): Promise<SalesData | nul
 
     // ASM id → display name lookup
     const asmNameMap = new Map(demoSalesAsms.map((a) => [a.id, a.name]));
+    // ASM id → configured target (from demoSalesAsms, used as fallback when DB has no target)
+    const asmConfigTargetMap = new Map(demoSalesAsms.map((a) => [String(a.id), a.revenueTarget]));
+
+    // Resolve target: DB table → demoSalesAsms config → kpi_data field
+    function resolveTarget(asmId: string): number {
+      return targetMap.get(asmId) ?? asmConfigTargetMap.get(String(asmId)) ?? 0;
+    }
 
     // Normalize revenue: dt_thuc_dat is raw VND; targets are in millions
     function normalizeRevenue(actual: number, target: number): number {
@@ -128,10 +135,10 @@ export async function buildSalesData(periodKey: string): Promise<SalesData | nul
     }
 
     const totalRevenue = kpiRows.reduce((s, r) => {
-      const target = targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0);
+      const target = resolveTarget(r.asm_id);
       return s + normalizeRevenue(Number(r.dt_thuc_dat ?? 0), target);
     }, 0);
-    const totalTarget  = kpiRows.reduce((s, r) => s + (targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0)), 0);
+    const totalTarget  = kpiRows.reduce((s, r) => s + resolveTarget(r.asm_id), 0);
     const newCustomers = kpiRows.reduce((s, r) => s + Number(r.kh_moi ?? 0), 0);
     const achievementPct = totalTarget > 0 ? Math.round((totalRevenue / totalTarget) * 100) : 0;
 
@@ -154,7 +161,7 @@ export async function buildSalesData(periodKey: string): Promise<SalesData | nul
 
     const topAsms = kpiRows
       .map((r) => {
-        const target  = targetMap.get(r.asm_id) ?? Number(r.dt_target ?? 0);
+        const target  = resolveTarget(r.asm_id);
         const revenue = normalizeRevenue(Number(r.dt_thuc_dat ?? 0), target);
         return {
           name:    asmNameMap.get(String(r.asm_id)) ?? String(r.asm_id),
