@@ -228,28 +228,29 @@ function deptCard(s: DeptStats) {
     ? badges + overdueHtml
     : `<span style="font-size:11px;color:#94a3b8;">No active tasks</span>`;
 
+  // Use <div> outer wrapper — Gmail iOS (WebKit WebView) renders divs to full
+  // width reliably; nested <table width="100%"> is often ignored by Gmail.
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;width:100%;border-collapse:separate;border:1px solid #e2e8f0;border-radius:12px;background:#fff;">
-    <tr><td style="padding:14px 16px;border-bottom:1px solid #f1f5f9;width:100%;">
-      <table width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td>
+  <div style="display:block;width:100%;margin-bottom:12px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;">
+    <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;"><tr>
+        <td style="vertical-align:top;">
           <p style="margin:0;font-size:13px;font-weight:700;color:#0f172a;">${s.dept}</p>
           <p style="margin:3px 0 0;font-size:11px;color:#94a3b8;">${s.total} task${s.total !== 1 ? "s" : ""} total</p>
         </td>
-        <td style="text-align:right;vertical-align:top;">
+        <td style="text-align:right;vertical-align:top;white-space:nowrap;">
           <p style="margin:0;font-size:20px;font-weight:800;color:#0f172a;">${pct}%</p>
           <p style="margin:0;font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">complete</p>
         </td>
       </tr></table>
       <div style="margin-top:8px;height:5px;background:#f1f5f9;border-radius:999px;">
-        <div style="height:5px;width:${pct}%;background:${barColor};border-radius:999px;"></div>
+        <div style="height:5px;width:${pct}%;background:${barColor};border-radius:999px;min-height:5px;"></div>
       </div>
-    </td></tr>
-    <tr><td style="padding:10px 16px;width:100%;">
+    </div>
+    <div style="padding:10px 16px;">
       ${bottomContent}
-    </td></tr>
-    <tr><td style="font-size:0;line-height:0;height:0;min-width:260px;">&zwnj;</td></tr>
-  </table>`;
+    </div>
+  </div>`;
 }
 
 // ─── Main render ───────────────────────────────────────────────────────────
