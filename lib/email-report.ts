@@ -131,17 +131,28 @@ export async function sendDailyReport(): Promise<{ ok: boolean; id?: string; err
 
   if (depts.length === 0) return { ok: false, error: "No department data found" };
 
-  const reportDate = new Date().toLocaleDateString("en-US", {
+  const now = new Date();
+  const reportDate = now.toLocaleDateString("en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
     timeZone: "Asia/Ho_Chi_Minh",
   });
+  const reportTime = now.toLocaleTimeString("en-US", {
+    hour: "2-digit", minute: "2-digit", hour12: false,
+    timeZone: "Asia/Ho_Chi_Minh",
+  });
 
-  const subject = `[Business Report] ${reportDate}`;
+  const subject = `[Business Report] ${reportDate} ${reportTime}`;
 
   const html = renderDailyReportEmail(depts, sales, marketing, reportDate, appUrl, finance);
 
   const resend = new Resend(apiKey);
-  const { data, error } = await resend.emails.send({ from, to, subject, html });
+  const { data, error } = await resend.emails.send({
+    from, to, subject, html,
+    headers: {
+      // Unique per send — prevents Gmail/Apple Mail from threading into previous reports
+      "X-Entity-Ref-ID": `exec-os-report-${Date.now()}`,
+    },
+  });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, id: data?.id };

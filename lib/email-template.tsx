@@ -218,7 +218,7 @@ function deptCard(s: DeptStats) {
   }).join("");
 
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;width:100%;border:1px solid #e2e8f0;border-radius:12px;background:#fff;">
     <tr><td style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
       <table width="100%" cellpadding="0" cellspacing="0"><tr>
         <td>
