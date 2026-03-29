@@ -217,9 +217,20 @@ function deptCard(s: DeptStats) {
     </div>`;
   }).join("");
 
+  const badges = [
+    statusBadge("Critical", "critical", s.critical),
+    statusBadge("Blocked",  "blocked",  s.blocked),
+    statusBadge("On Track", "onTrack",  s.onTrack),
+    statusBadge("Done",     "done",     s.done),
+    s.overdue > 0 ? statusBadge("Overdue", "overdue", s.overdue) : "",
+  ].join("");
+  const bottomContent = badges || overdueHtml
+    ? badges + overdueHtml
+    : `<span style="font-size:11px;color:#94a3b8;">No active tasks</span>`;
+
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;width:100%;border:1px solid #e2e8f0;border-radius:12px;background:#fff;">
-    <tr><td style="padding:14px 16px;border-bottom:1px solid #f1f5f9;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;width:100%;border-collapse:separate;border:1px solid #e2e8f0;border-radius:12px;background:#fff;">
+    <tr><td style="padding:14px 16px;border-bottom:1px solid #f1f5f9;width:100%;">
       <table width="100%" cellpadding="0" cellspacing="0"><tr>
         <td>
           <p style="margin:0;font-size:13px;font-weight:700;color:#0f172a;">${s.dept}</p>
@@ -230,18 +241,14 @@ function deptCard(s: DeptStats) {
           <p style="margin:0;font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">complete</p>
         </td>
       </tr></table>
-      <div style="margin-top:8px;height:5px;background:#f1f5f9;border-radius:999px;overflow:hidden;">
+      <div style="margin-top:8px;height:5px;background:#f1f5f9;border-radius:999px;">
         <div style="height:5px;width:${pct}%;background:${barColor};border-radius:999px;"></div>
       </div>
     </td></tr>
-    <tr><td style="padding:10px 16px;">
-      ${statusBadge("Critical", "critical", s.critical)}
-      ${statusBadge("Blocked",  "blocked",  s.blocked)}
-      ${statusBadge("On Track", "onTrack",  s.onTrack)}
-      ${statusBadge("Done",     "done",     s.done)}
-      ${s.overdue > 0 ? statusBadge("Overdue", "overdue", s.overdue) : ""}
-      ${overdueHtml}
+    <tr><td style="padding:10px 16px;width:100%;">
+      ${bottomContent}
     </td></tr>
+    <tr><td style="font-size:0;line-height:0;height:0;min-width:260px;">&zwnj;</td></tr>
   </table>`;
 }
 
