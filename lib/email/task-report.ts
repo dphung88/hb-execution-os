@@ -242,7 +242,7 @@ export async function buildMarketingData(periodKey: string): Promise<MarketingDa
   }
 }
 
-// ─── HTML builder ─────────────────────────────────────────────────────────────
+// ─── HTML builder (legacy — kept for reference, no longer called) ──────────────
 
 function pctBadge(pct: number) {
   const bg = pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626";
