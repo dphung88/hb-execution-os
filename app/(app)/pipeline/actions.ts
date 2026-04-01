@@ -135,6 +135,11 @@ export async function deleteActualsAction(formData: FormData) {
 
 function num(v: FormDataEntryValue | null): number | null {
   if (v === null || v === "") return null;
-  const n = parseFloat(v as string);
+  // Support vi-VN format: dots as thousand separators, comma as decimal
+  // e.g. "1.375.000" → 1375000, "1,5" → 1.5
+  const cleaned = (v as string)
+    .replace(/\./g, "")   // strip thousand-separator dots
+    .replace(",", ".");   // swap decimal comma → dot
+  const n = parseFloat(cleaned);
   return isNaN(n) ? null : n;
 }

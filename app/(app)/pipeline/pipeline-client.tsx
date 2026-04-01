@@ -38,6 +38,44 @@ function fmtB(n: number | null | undefined) {
 
 const STAGES = ["Qualify", "Develop", "Propose", "Close"] as const;
 
+// ── Formatted number input (vi-VN thousand separators) ───────────────────────
+
+function NumInput({
+  name,
+  placeholder,
+  defaultValue,
+  required,
+}: {
+  name: string;
+  placeholder?: number;
+  defaultValue?: number;
+  required?: boolean;
+}) {
+  const [value, setValue] = useState(
+    defaultValue != null ? defaultValue.toLocaleString("vi-VN") : ""
+  );
+
+  function handleBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\./g, "").replace(",", ".");
+    const n = parseFloat(raw);
+    if (!isNaN(n)) setValue(n.toLocaleString("vi-VN"));
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      name={name}
+      value={value}
+      placeholder={placeholder != null ? placeholder.toLocaleString("vi-VN") : ""}
+      required={required}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={handleBlur}
+      className={inputCls}
+    />
+  );
+}
+
 const inputCls =
   "h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400";
 const labelCls =
@@ -184,7 +222,7 @@ function ConfigTab({
             <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
               <label className="block">
                 <span className={labelCls}>Universe</span>
-                <input name="universe" type="number" placeholder="4000" className={inputCls} />
+                <NumInput name="universe" placeholder={4000} />
               </label>
               <label className="block">
                 <span className={labelCls}>F (orders/mo)</span>
@@ -227,7 +265,7 @@ function ConfigTab({
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <label className="block">
                 <span className={labelCls}>ASP (VND)</span>
-                <input name="asp" type="number" placeholder="1375000" className={inputCls} />
+                <NumInput name="asp" placeholder={1375000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Discount (0–1)</span>
@@ -235,15 +273,15 @@ function ConfigTab({
               </label>
               <label className="block">
                 <span className={labelCls}>COGS (VND)</span>
-                <input name="cogs" type="number" placeholder="825000" className={inputCls} />
+                <NumInput name="cogs" placeholder={825000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Baseline Qty (units)</span>
-                <input name="baseline_qty" type="number" placeholder="5276" className={inputCls} />
+                <NumInput name="baseline_qty" placeholder={5276} />
               </label>
               <label className="block">
                 <span className={labelCls}>Target Revenue (VND)</span>
-                <input name="target_revenue" type="number" placeholder="3500000000" className={inputCls} />
+                <NumInput name="target_revenue" placeholder={3500000000} />
               </label>
             </div>
           </div>
@@ -345,7 +383,7 @@ function PipelineTab({
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <label className="block">
               <span className={labelCls}>New Listings (outlets)</span>
-              <input name="new_listings" type="number" placeholder="120" className={inputCls} />
+              <NumInput name="new_listings" placeholder={120} />
             </label>
             <label className="block">
               <span className={labelCls}>CRM Stage</span>
@@ -480,19 +518,19 @@ function ActualsTab({
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <label className="block">
                 <span className={labelCls}>Listed Outlets</span>
-                <input name="listed_outlets" type="number" placeholder="3000" className={inputCls} />
+                <NumInput name="listed_outlets" placeholder={3000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Ordering Outlets</span>
-                <input name="ordering_outlets" type="number" placeholder="2100" className={inputCls} />
+                <NumInput name="ordering_outlets" placeholder={2100} />
               </label>
               <label className="block">
                 <span className={labelCls}>Volume Sold (units)</span>
-                <input name="volume_sold" type="number" placeholder="2000" className={inputCls} />
+                <NumInput name="volume_sold" placeholder={2000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Revenue Actual (VND)</span>
-                <input name="revenue_actual" type="number" placeholder="2800000000" className={inputCls} />
+                <NumInput name="revenue_actual" placeholder={2800000000} />
               </label>
             </div>
           </div>
@@ -505,19 +543,19 @@ function ActualsTab({
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <label className="block">
                 <span className={labelCls}>Opening Inventory</span>
-                <input name="opening_inventory" type="number" placeholder="4000" className={inputCls} />
+                <NumInput name="opening_inventory" placeholder={4000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Inflow (Purchases)</span>
-                <input name="inflow" type="number" placeholder="2000" className={inputCls} />
+                <NumInput name="inflow" placeholder={2000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Risk Inventory</span>
-                <input name="risk_inventory" type="number" placeholder="4524" className={inputCls} />
+                <NumInput name="risk_inventory" placeholder={4524} />
               </label>
               <label className="block">
                 <span className={labelCls}>Risk Sold</span>
-                <input name="risk_sold" type="number" placeholder="500" className={inputCls} />
+                <NumInput name="risk_sold" placeholder={500} />
               </label>
             </div>
           </div>
@@ -530,11 +568,11 @@ function ActualsTab({
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               <label className="block">
                 <span className={labelCls}>Baseline Sold (units)</span>
-                <input name="baseline_sold" type="number" placeholder="2000" className={inputCls} />
+                <NumInput name="baseline_sold" placeholder={2000} />
               </label>
               <label className="block">
                 <span className={labelCls}>Promo Sell (units/day)</span>
-                <input name="promo_sell" type="number" placeholder="20" className={inputCls} />
+                <NumInput name="promo_sell" placeholder={20} />
               </label>
             </div>
           </div>
