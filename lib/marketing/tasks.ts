@@ -2,6 +2,8 @@ import { marketingTaskTracker, marketingWorkbookContext } from "@/lib/demo-data"
 import { hasSupabaseClientEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
+export type MarketingTasksSourceType = "live" | "sheet" | "demo" | "empty";
+
 export type MarketingTaskRecord = {
   id: string;
   monthKey: string;
@@ -18,7 +20,7 @@ export type MarketingTaskRecord = {
 
 export type MarketingTasksSource = {
   tasks: MarketingTaskRecord[];
-  source: "live" | "demo";
+  source: MarketingTasksSourceType;
   error?: string;
 };
 
@@ -68,11 +70,14 @@ export async function loadMarketingTasks(monthKey = marketingWorkbookContext.mon
       .order("due_date", { ascending: true });
 
     if (error) {
+      // Only show demo when Supabase is NOT reachable at all
       return { tasks: getMarketingDemoTasks(), source: "demo", error: error.message };
     }
 
+    // DB connected but empty → return empty (not demo)
+    // Page will merge Google Sheet tasks if available
     if (!data?.length) {
-      return { tasks: getMarketingDemoTasks(), source: "demo" };
+      return { tasks: [], source: "empty" };
     }
 
     return {
