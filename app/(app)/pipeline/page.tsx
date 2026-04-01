@@ -211,9 +211,12 @@ export default async function PipelinePage() {
     skus = Object.entries(erpSkuNames).map(([code, name]) => ({ code, name }));
   }
 
-  if (configs.length  === 0) configs  = demoConfigs;
-  if (pipeline.length === 0) pipeline = demoPipeline;
-  if (actuals.length  === 0) actuals  = demoActuals;
+  // Only show demo data when Supabase is NOT connected (isDemo = true)
+  if (isDemo) {
+    if (configs.length  === 0) configs  = demoConfigs;
+    if (pipeline.length === 0) pipeline = demoPipeline;
+    if (actuals.length  === 0) actuals  = demoActuals;
+  }
 
   return (
     <PipelineClient
