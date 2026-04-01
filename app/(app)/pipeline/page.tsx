@@ -1,6 +1,7 @@
 import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
+import { demoSalesAsms, erpSkuNames } from "@/lib/demo-data";
 import { PipelineClient } from "./pipeline-client";
 import {
   upsertForecastConfigAction,
@@ -10,6 +11,8 @@ import {
   upsertActualsAction,
   deleteActualsAction,
 } from "./actions";
+
+export type SkuOption = { code: string; name: string };
 
 export type ForecastConfig = {
   id: string;
@@ -155,6 +158,17 @@ const demoActuals: ForecastActuals[] = [
   },
 ];
 
+// ── Build province list from ASM territories ─────────────────────────────────
+
+function buildProvinceList(): string[] {
+  const set = new Set<string>();
+  demoSalesAsms.forEach((asm) => {
+    if (asm.region === "Nationwide") return;
+    asm.region.split(" - ").forEach((p) => set.add(p.trim()));
+  });
+  return [...set].sort((a, b) => a.localeCompare(b, "vi"));
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function PipelinePage() {
@@ -166,21 +180,35 @@ export default async function PipelinePage() {
   let actuals: ForecastActuals[] = [];
   let isDemo = true;
 
+  // Province list (from ASM territory config)
+  const provinces = buildProvinceList();
+
+  // SKU list: try Supabase sku_lot_dates first, fallback to erpSkuNames
+  let skus: SkuOption[] = [];
   if (hasSupabaseAdminEnv()) {
     try {
       const admin = createAdminClient();
-      const [cfgRes, plRes, actRes] = await Promise.all([
+      const [cfgRes, plRes, actRes, skuRes] = await Promise.all([
         admin.from("forecast_config").select("*").order("period", { ascending: false }),
         admin.from("forecast_pipeline").select("*").order("period", { ascending: false }),
         admin.from("forecast_actuals").select("*").order("period", { ascending: false }),
+        admin.from("sku_lot_dates").select("code, name").order("code"),
       ]);
       configs  = (cfgRes.data  ?? []) as ForecastConfig[];
       pipeline = (plRes.data   ?? []) as ForecastPipeline[];
       actuals  = (actRes.data  ?? []) as ForecastActuals[];
-      isDemo   = false;
+      if (skuRes.data && skuRes.data.length > 0) {
+        skus = skuRes.data as SkuOption[];
+      }
+      isDemo = false;
     } catch {
       // fall through to demo
     }
+  }
+
+  // SKU fallback: use erpSkuNames from demo-data
+  if (skus.length === 0) {
+    skus = Object.entries(erpSkuNames).map(([code, name]) => ({ code, name }));
   }
 
   if (configs.length  === 0) configs  = demoConfigs;
@@ -194,6 +222,8 @@ export default async function PipelinePage() {
       actuals={actuals}
       periods={periods}
       currentPeriod={currentPeriod}
+      provinces={provinces}
+      skus={skus}
       isDemo={isDemo}
       upsertConfig={upsertForecastConfigAction}
       deleteConfig={deleteForecastConfigAction}

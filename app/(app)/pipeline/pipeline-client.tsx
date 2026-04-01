@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import type { ForecastConfig, ForecastPipeline, ForecastActuals } from "./page";
+import type { ForecastConfig, ForecastPipeline, ForecastActuals, SkuOption } from "./page";
 import type { PeriodConfig } from "@/lib/config/periods";
 import { Trash2, Plus, TrendingUp, Store, Activity, PackageOpen } from "lucide-react";
 
 type Tab = "config" | "pipeline" | "actuals";
+
+const CHANNELS = ["OTC", "ETC", "Online"] as const;
 
 type Props = {
   configs:         ForecastConfig[];
@@ -13,6 +15,8 @@ type Props = {
   actuals:         ForecastActuals[];
   periods:         PeriodConfig[];
   currentPeriod:   string;
+  provinces:       string[];
+  skus:            SkuOption[];
   isDemo:          boolean;
   upsertConfig:    (fd: FormData) => Promise<void>;
   deleteConfig:    (fd: FormData) => Promise<void>;
@@ -85,6 +89,41 @@ const btnPrimary =
 const btnDanger =
   "inline-flex h-8 w-8 items-center justify-center rounded-xl border border-rose-200 text-rose-400 transition hover:bg-rose-50 hover:text-rose-600";
 
+// ── Province / Channel / SKU selects ─────────────────────────────────────────
+
+function ProvinceSelect({ provinces }: { provinces: string[] }) {
+  return (
+    <select name="province" required className={inputCls}>
+      <option value="">— chọn tỉnh —</option>
+      {provinces.map((p) => (
+        <option key={p} value={p}>{p}</option>
+      ))}
+    </select>
+  );
+}
+
+function ChannelSelect() {
+  return (
+    <select name="channel" required className={inputCls}>
+      <option value="">— chọn kênh —</option>
+      {CHANNELS.map((c) => (
+        <option key={c} value={c}>{c}</option>
+      ))}
+    </select>
+  );
+}
+
+function SkuSelect({ skus }: { skus: SkuOption[] }) {
+  return (
+    <select name="sku" required className={inputCls}>
+      <option value="">— chọn SKU —</option>
+      {skus.map((s) => (
+        <option key={s.code} value={s.code}>{s.code} — {s.name}</option>
+      ))}
+    </select>
+  );
+}
+
 // ── Summary KPI bar ──────────────────────────────────────────────────────────
 
 function SummaryBar({ configs, actuals }: { configs: ForecastConfig[]; actuals: ForecastActuals[] }) {
@@ -126,11 +165,13 @@ function SummaryBar({ configs, actuals }: { configs: ForecastConfig[]; actuals: 
 // ── Config Tab ────────────────────────────────────────────────────────────────
 
 function ConfigTab({
-  configs, periods, currentPeriod, upsertConfig, deleteConfig,
+  configs, periods, currentPeriod, provinces, skus, upsertConfig, deleteConfig,
 }: {
   configs: ForecastConfig[];
   periods: PeriodConfig[];
   currentPeriod: string;
+  provinces: string[];
+  skus: SkuOption[];
   upsertConfig: (fd: FormData) => Promise<void>;
   deleteConfig:  (fd: FormData) => Promise<void>;
 }) {
@@ -201,16 +242,16 @@ function ConfigTab({
               </select>
             </label>
             <label className="block">
-              <span className={labelCls}>Province</span>
-              <input name="province" placeholder="HCM" required className={inputCls} />
+              <span className={labelCls}>Province / Tỉnh</span>
+              <ProvinceSelect provinces={provinces} />
             </label>
             <label className="block">
-              <span className={labelCls}>Channel</span>
-              <input name="channel" placeholder="OTC" required className={inputCls} />
+              <span className={labelCls}>Channel / Kênh</span>
+              <ChannelSelect />
             </label>
             <label className="block">
               <span className={labelCls}>SKU</span>
-              <input name="sku" placeholder="Collagen 1375" required className={inputCls} />
+              <SkuSelect skus={skus} />
             </label>
           </div>
 
@@ -298,11 +339,13 @@ function ConfigTab({
 // ── Pipeline Tab ──────────────────────────────────────────────────────────────
 
 function PipelineTab({
-  pipeline, periods, currentPeriod, upsertPipeline, deletePipeline,
+  pipeline, periods, currentPeriod, provinces, skus, upsertPipeline, deletePipeline,
 }: {
   pipeline:        ForecastPipeline[];
   periods:         PeriodConfig[];
   currentPeriod:   string;
+  provinces:       string[];
+  skus:            SkuOption[];
   upsertPipeline:  (fd: FormData) => Promise<void>;
   deletePipeline:  (fd: FormData) => Promise<void>;
 }) {
@@ -367,16 +410,16 @@ function PipelineTab({
               </select>
             </label>
             <label className="block">
-              <span className={labelCls}>Province</span>
-              <input name="province" placeholder="HCM" required className={inputCls} />
+              <span className={labelCls}>Province / Tỉnh</span>
+              <ProvinceSelect provinces={provinces} />
             </label>
             <label className="block">
-              <span className={labelCls}>Channel</span>
-              <input name="channel" placeholder="OTC" required className={inputCls} />
+              <span className={labelCls}>Channel / Kênh</span>
+              <ChannelSelect />
             </label>
             <label className="block">
               <span className={labelCls}>SKU</span>
-              <input name="sku" placeholder="Collagen 1375" required className={inputCls} />
+              <SkuSelect skus={skus} />
             </label>
           </div>
 
@@ -420,11 +463,13 @@ function PipelineTab({
 // ── Actuals Tab ───────────────────────────────────────────────────────────────
 
 function ActualsTab({
-  actuals, periods, currentPeriod, upsertActuals, deleteActuals,
+  actuals, periods, currentPeriod, provinces, skus, upsertActuals, deleteActuals,
 }: {
   actuals:       ForecastActuals[];
   periods:       PeriodConfig[];
   currentPeriod: string;
+  provinces:     string[];
+  skus:          SkuOption[];
   upsertActuals: (fd: FormData) => Promise<void>;
   deleteActuals: (fd: FormData) => Promise<void>;
 }) {
@@ -497,16 +542,16 @@ function ActualsTab({
               </select>
             </label>
             <label className="block">
-              <span className={labelCls}>Province</span>
-              <input name="province" placeholder="HCM" required className={inputCls} />
+              <span className={labelCls}>Province / Tỉnh</span>
+              <ProvinceSelect provinces={provinces} />
             </label>
             <label className="block">
-              <span className={labelCls}>Channel</span>
-              <input name="channel" placeholder="OTC" required className={inputCls} />
+              <span className={labelCls}>Channel / Kênh</span>
+              <ChannelSelect />
             </label>
             <label className="block">
               <span className={labelCls}>SKU</span>
-              <input name="sku" placeholder="Collagen 1375" required className={inputCls} />
+              <SkuSelect skus={skus} />
             </label>
           </div>
 
@@ -589,7 +634,7 @@ function ActualsTab({
 // ── Main Client Component ─────────────────────────────────────────────────────
 
 export function PipelineClient({
-  configs, pipeline, actuals, periods, currentPeriod, isDemo,
+  configs, pipeline, actuals, periods, currentPeriod, provinces, skus, isDemo,
   upsertConfig, deleteConfig, upsertPipeline, deletePipeline,
   upsertActuals, deleteActuals,
 }: Props) {
@@ -651,6 +696,8 @@ export function PipelineClient({
           configs={configs}
           periods={periods}
           currentPeriod={currentPeriod}
+          provinces={provinces}
+          skus={skus}
           upsertConfig={upsertConfig}
           deleteConfig={deleteConfig}
         />
@@ -660,6 +707,8 @@ export function PipelineClient({
           pipeline={pipeline}
           periods={periods}
           currentPeriod={currentPeriod}
+          provinces={provinces}
+          skus={skus}
           upsertPipeline={upsertPipeline}
           deletePipeline={deletePipeline}
         />
@@ -669,6 +718,8 @@ export function PipelineClient({
           actuals={actuals}
           periods={periods}
           currentPeriod={currentPeriod}
+          provinces={provinces}
+          skus={skus}
           upsertActuals={upsertActuals}
           deleteActuals={deleteActuals}
         />
