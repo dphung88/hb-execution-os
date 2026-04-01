@@ -42,7 +42,9 @@ export type SheetSyncResult = {
 };
 
 const SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets";
-const CACHE_SECONDS = 300; // 5 minutes
+// Always fetch fresh — Google Sheets data changes frequently
+// Use Next.js revalidation at the page level instead of fetch cache
+const FETCH_OPTIONS: RequestInit = { cache: "no-store" };
 
 // ── Main fetch function ───────────────────────────────────────────────────────
 
@@ -85,10 +87,10 @@ async function fetchViaApi(sheetId: string, apiKey: string): Promise<SheetSyncRe
     // Fetch spreadsheet metadata (title) + values in parallel
     const [metaRes, valuesRes] = await Promise.all([
       fetch(`${SHEETS_API}/${sheetId}?fields=properties.title&key=${apiKey}`, {
-        next: { revalidate: CACHE_SECONDS },
+        ...FETCH_OPTIONS,
       }),
       fetch(`${SHEETS_API}/${sheetId}/values/A2:I?key=${apiKey}`, {
-        next: { revalidate: CACHE_SECONDS },
+        ...FETCH_OPTIONS,
       }),
     ]);
 
@@ -117,7 +119,7 @@ async function fetchViaApi(sheetId: string, apiKey: string): Promise<SheetSyncRe
 
 async function fetchViaCsv(csvUrl: string): Promise<SheetSyncResult> {
   try {
-    const res = await fetch(csvUrl, { next: { revalidate: CACHE_SECONDS } });
+    const res = await fetch(csvUrl, { ...FETCH_OPTIONS });
 
     if (!res.ok) return empty("csv", `csv-fetch-error-${res.status}`);
 
@@ -163,6 +165,8 @@ function parseRows(rows: string[][]): SheetTask[] {
 
 function parseCsvToRows(csv: string): string[][] {
   return csv
+    .replace(/\r\n/g, "\n") // normalize Windows line endings
+    .replace(/\r/g, "\n")
     .split("\n")
     .map((line) => {
       const cols: string[] = [];
