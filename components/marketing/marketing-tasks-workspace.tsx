@@ -54,10 +54,11 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
   });
 
   const counts = {
-    planned:    filtered.filter((t) => normalize(t.status) === "planned").length,
-    inProgress: filtered.filter((t) => normalize(t.status) === "in progress").length,
-    completed:  filtered.filter((t) => normalize(t.status) === "completed").length,
-    failed:     filtered.filter((t) => normalize(t.status) === "failed").length,
+    planned:     filtered.filter((t) => normalize(t.status) === "planned").length,
+    inProgress:  filtered.filter((t) => normalize(t.status) === "in progress").length,
+    underReview: filtered.filter((t) => normalize(t.status) === "under review").length,
+    completed:   filtered.filter((t) => normalize(t.status) === "completed").length,
+    failed:      filtered.filter((t) => normalize(t.status) === "failed").length,
   };
 
   const today = new Date().toISOString().slice(0, 10);
@@ -103,16 +104,50 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
       </section>
 
       {/* Summary cards */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {[
-          { label: "Planned",     value: counts.planned,    note: "Queued for execution" },
-          { label: "In Progress", value: counts.inProgress, note: "Currently being worked" },
-          { label: "Completed",   value: counts.completed,  note: "Done this period" },
-          { label: "Failed",      value: counts.failed,     note: "Needs reset or escalation" },
+          {
+            label: "Planned",
+            value: counts.planned,
+            note: "Queued for execution",
+            dot: "bg-slate-400",
+            num: "text-slate-800",
+          },
+          {
+            label: "In Progress",
+            value: counts.inProgress,
+            note: "Currently being worked",
+            dot: "bg-sky-500",
+            num: "text-sky-700",
+          },
+          {
+            label: "Under Review",
+            value: counts.underReview,
+            note: "Awaiting approval",
+            dot: "bg-amber-400",
+            num: "text-amber-700",
+          },
+          {
+            label: "Completed",
+            value: counts.completed,
+            note: "Done this period",
+            dot: "bg-emerald-500",
+            num: "text-emerald-700",
+          },
+          {
+            label: "Failed",
+            value: counts.failed,
+            note: "Needs reset or escalation",
+            dot: "bg-rose-500",
+            num: "text-rose-700",
+          },
         ].map((card) => (
           <div key={card.label} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-slate-950">{card.value}</p>
+            <div className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${card.dot}`} />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{card.label}</p>
+            </div>
+            <p className={`mt-3 text-3xl font-semibold ${card.num}`}>{card.value}</p>
             <p className="mt-2 text-sm text-slate-500">{card.note}</p>
           </div>
         ))}

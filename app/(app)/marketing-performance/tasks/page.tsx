@@ -123,13 +123,13 @@ export default async function MarketingTasksPage({ searchParams }: MarketingTask
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm">
           <Table2 className="h-4 w-4 text-emerald-600 shrink-0" />
           <span className="text-emerald-700">
-            Đang hiển thị <strong>{workspaceTasks.length} tasks</strong> từ Google Sheet.
-            Khi team tạo task trực tiếp trên web, data từ DB sẽ được ưu tiên.
+            Showing <strong>{workspaceTasks.length} tasks</strong> from Google Sheet.
+            Once tasks are created directly on this page, the database will take priority.
           </span>
           {sheetUrl && (
             <a href={sheetUrl} target="_blank" rel="noopener noreferrer"
               className="ml-auto shrink-0 text-xs font-semibold text-emerald-700 underline underline-offset-2">
-              Mở Sheet ↗
+              Open Sheet ↗
             </a>
           )}
         </div>
@@ -137,7 +137,7 @@ export default async function MarketingTasksPage({ searchParams }: MarketingTask
       {activeTab !== "sheet" && workspaceSource === "demo" && (
         <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm">
           <span className="text-amber-700">
-            ⚠ Đang hiển thị <strong>demo data</strong> — chưa có task thật trong DB và chưa kết nối Google Sheet.
+            ⚠ Showing <strong>demo data</strong> — no real tasks in database and no Google Sheet connected.
           </span>
         </div>
       )}

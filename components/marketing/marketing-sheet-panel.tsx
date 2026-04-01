@@ -143,12 +143,12 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
         <Table2 className="mx-auto h-10 w-10 text-slate-300 mb-3" />
-        <p className="font-semibold text-slate-700">Google Sheet chưa được kết nối</p>
-        <p className="mt-1 text-sm text-slate-400">Thêm env vars vào Vercel để bật tính năng này.</p>
+        <p className="font-semibold text-slate-700">Google Sheet not connected</p>
+        <p className="mt-1 text-sm text-slate-400">Add the following env vars to Vercel to enable this feature.</p>
         <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-left text-xs font-mono text-slate-600 space-y-1">
           <p><span className="text-sky-600">GOOGLE_SHEETS_API_KEY</span>=your_api_key</p>
           <p><span className="text-sky-600">MARKETING_SHEET_ID</span>=spreadsheet_id_from_url</p>
-          <p className="text-slate-400 pt-1">-- hoặc dùng CSV (sheet phải publish) --</p>
+          <p className="text-slate-400 pt-1">-- or use CSV (sheet must be published) --</p>
           <p><span className="text-sky-600">MARKETING_SHEET_CSV_URL</span>=published_csv_url</p>
         </div>
       </div>
@@ -161,9 +161,9 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
       <div className="rounded-3xl border border-red-100 bg-red-50 p-6 flex items-start gap-3">
         <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
         <div>
-          <p className="font-semibold text-red-700">Không thể đọc Google Sheet</p>
+          <p className="font-semibold text-red-700">Unable to read Google Sheet</p>
           <p className="text-sm text-red-500 mt-1 font-mono">{error}</p>
-          <p className="text-xs text-red-400 mt-2">Kiểm tra lại API key, Sheet ID, và quyền truy cập của sheet.</p>
+          <p className="text-xs text-red-400 mt-2">Check the API key, Sheet ID, and sheet access permissions.</p>
         </div>
       </div>
     );
@@ -205,7 +205,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            {tasks.length} tasks · Sync {syncAgo}
+            {tasks.length} tasks · Last sync {syncAgo}
             {error && <span className="ml-2 text-amber-500">⚠ {error}</span>}
           </p>
         </div>
@@ -243,7 +243,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
       <div className="flex flex-wrap gap-2">
         <input
           type="text"
-          placeholder="Tìm task..."
+          placeholder="Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-8 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400 w-40"
@@ -260,7 +260,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
                   : "bg-white border border-slate-200 text-slate-600 hover:border-brand-300"
               }`}
             >
-              {s === "all" ? "Tất cả" : s === "overdue" ? "⚠ Overdue" : s}
+              {s === "all" ? "All" : s}
             </button>
           ))}
           <button
@@ -280,7 +280,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
           onChange={(e) => setOwner(e.target.value)}
           className="h-8 rounded-xl border border-slate-200 bg-white px-2 text-xs outline-none focus:border-brand-400"
         >
-          <option value="all">Tất cả owner</option>
+          <option value="all">All owners</option>
           {owners.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       </div>
@@ -289,7 +289,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
       <div className="rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-12 text-center text-sm text-slate-400">
-            Không có task nào phù hợp với bộ lọc
+            No tasks match the current filters
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -351,8 +351,8 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
           </div>
         )}
         <div className="border-t border-slate-100 px-4 py-2 text-[11px] text-slate-400 flex justify-between">
-          <span>Hiển thị {filtered.length} / {tasks.length} tasks</span>
-          <span>Nguồn: Google Sheets row {tasks[0]?.row ?? "—"} – {tasks[tasks.length - 1]?.row ?? "—"}</span>
+          <span>Showing {filtered.length} / {tasks.length} tasks</span>
+          <span>Source: Google Sheets rows {tasks[0]?.row ?? "—"} – {tasks[tasks.length - 1]?.row ?? "—"}</span>
         </div>
       </div>
     </div>
