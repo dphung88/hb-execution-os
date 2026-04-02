@@ -29,7 +29,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 type Props = {
   tasks: SalesTaskRecord[];
-  source: "live" | "demo";
+  source: "live" | "sheet" | "empty";
   periods?: PeriodConfig[];
   selectedPeriod?: string;
   searchParams?: {
@@ -416,9 +416,9 @@ export function SalesTasksWorkspace({ tasks, source, searchParams, periods = [],
         </div>
       </section>
 
-      {source === "demo" && (
+      {source === "empty" && (
         <p className="text-center text-xs text-slate-400">
-          Showing demo data — run the SQL migration and add real tasks to see live data.
+          No tasks yet for this period — create one above, or connect a Google Sheet via env var.
         </p>
       )}
     </div>
