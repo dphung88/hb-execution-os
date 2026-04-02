@@ -4,8 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { getPeriods, getCurrentPeriod } from "@/lib/config/periods";
 import { hasSupabaseAdminEnv } from "@/lib/supabase/env";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { fetchMarketingSheetTasks } from "@/lib/marketing/google-sheets";
 
 // Demo fallback data from each module's config
+import { DEMO_SALES_TASKS } from "@/lib/sales/config";
 import { DEMO_FINANCE_TASKS } from "@/lib/finance/config";
 import { DEMO_HR_TASKS } from "@/lib/hr/config";
 import { DEMO_MEDICAL_TASKS } from "@/lib/medical/config";
@@ -37,7 +39,9 @@ async function loadDeptStats(period: string): Promise<{ depts: DeptStat[]; fromD
   if (hasSupabaseAdminEnv()) {
     try {
       const admin = createAdminClient();
-      const [finance, hr, medical, it, sc] = await Promise.all([
+      const [sales, marketing, finance, hr, medical, it, sc] = await Promise.all([
+        admin.from("sales_tasks").select("status").eq("month_key", period),
+        admin.from("marketing_tasks").select("status").eq("month_key", period),
         admin.from("finance_tasks").select("status").eq("month_key", period),
         admin.from("hr_tasks").select("status").eq("month_key", period),
         admin.from("medical_tasks").select("status").eq("month_key", period),
@@ -45,12 +49,25 @@ async function loadDeptStats(period: string): Promise<{ depts: DeptStat[]; fromD
         admin.from("sc_tasks").select("status").eq("month_key", period),
       ]);
 
+      // Marketing: fall back to Google Sheet when DB table is empty
+      let marketingRows = (marketing.data ?? []) as { status: string }[];
+      if (marketingRows.length === 0) {
+        try {
+          const sheet = await fetchMarketingSheetTasks();
+          if (sheet.tasks.length > 0) {
+            marketingRows = sheet.tasks.map((t) => ({ status: t.status }));
+          }
+        } catch { /* ignore */ }
+      }
+
       const depts: DeptStat[] = [
-        { name: "Finance",      tasksHref: `/finance/tasks?period=${period}`,      counts: countByStatus((finance.data ?? []) as {status:string}[]),      total: (finance.data  ?? []).length },
-        { name: "HR",           tasksHref: `/hr/tasks?period=${period}`,           counts: countByStatus((hr.data ?? []) as {status:string}[]),           total: (hr.data       ?? []).length },
-        { name: "Medical",      tasksHref: `/medical/tasks?period=${period}`,      counts: countByStatus((medical.data ?? []) as {status:string}[]),      total: (medical.data  ?? []).length },
-        { name: "IT",           tasksHref: `/it/tasks?period=${period}`,           counts: countByStatus((it.data ?? []) as {status:string}[]),           total: (it.data       ?? []).length },
-        { name: "Supply Chain", tasksHref: `/supply-chain/tasks?period=${period}`, counts: countByStatus((sc.data ?? []) as {status:string}[]),           total: (sc.data       ?? []).length },
+        { name: "Sales",        tasksHref: `/sales-performance/tasks?period=${period}`,  counts: countByStatus((sales.data ?? []) as {status:string}[]),  total: (sales.data    ?? []).length },
+        { name: "Marketing",    tasksHref: `/marketing-performance/tasks?period=${period}`, counts: countByStatus(marketingRows),                             total: marketingRows.length         },
+        { name: "Finance",      tasksHref: `/finance/tasks?period=${period}`,            counts: countByStatus((finance.data ?? []) as {status:string}[]),  total: (finance.data  ?? []).length },
+        { name: "HR",           tasksHref: `/hr/tasks?period=${period}`,                 counts: countByStatus((hr.data ?? []) as {status:string}[]),       total: (hr.data       ?? []).length },
+        { name: "Medical",      tasksHref: `/medical/tasks?period=${period}`,            counts: countByStatus((medical.data ?? []) as {status:string}[]),  total: (medical.data  ?? []).length },
+        { name: "IT",           tasksHref: `/it/tasks?period=${period}`,                 counts: countByStatus((it.data ?? []) as {status:string}[]),       total: (it.data       ?? []).length },
+        { name: "Supply Chain", tasksHref: `/supply-chain/tasks?period=${period}`,       counts: countByStatus((sc.data ?? []) as {status:string}[]),       total: (sc.data       ?? []).length },
       ];
       return { depts, fromDb: true };
     } catch { /* fall through to demo */ }
@@ -58,11 +75,13 @@ async function loadDeptStats(period: string): Promise<{ depts: DeptStat[]; fromD
 
   // Demo fallback
   const depts: DeptStat[] = [
-    { name: "Finance",      tasksHref: `/finance/tasks?period=${period}`,      counts: countByStatus(DEMO_FINANCE_TASKS),  total: DEMO_FINANCE_TASKS.length  },
-    { name: "HR",           tasksHref: `/hr/tasks?period=${period}`,           counts: countByStatus(DEMO_HR_TASKS),       total: DEMO_HR_TASKS.length       },
-    { name: "Medical",      tasksHref: `/medical/tasks?period=${period}`,      counts: countByStatus(DEMO_MEDICAL_TASKS),  total: DEMO_MEDICAL_TASKS.length  },
-    { name: "IT",           tasksHref: `/it/tasks?period=${period}`,           counts: countByStatus(DEMO_IT_TASKS),       total: DEMO_IT_TASKS.length       },
-    { name: "Supply Chain", tasksHref: `/supply-chain/tasks?period=${period}`, counts: countByStatus(DEMO_SC_TASKS),       total: DEMO_SC_TASKS.length       },
+    { name: "Sales",        tasksHref: `/sales-performance/tasks?period=${period}`,     counts: countByStatus(DEMO_SALES_TASKS),    total: DEMO_SALES_TASKS.length    },
+    { name: "Marketing",    tasksHref: `/marketing-performance/tasks?period=${period}`, counts: countByStatus([]),                   total: 0                          },
+    { name: "Finance",      tasksHref: `/finance/tasks?period=${period}`,               counts: countByStatus(DEMO_FINANCE_TASKS),  total: DEMO_FINANCE_TASKS.length  },
+    { name: "HR",           tasksHref: `/hr/tasks?period=${period}`,                    counts: countByStatus(DEMO_HR_TASKS),       total: DEMO_HR_TASKS.length       },
+    { name: "Medical",      tasksHref: `/medical/tasks?period=${period}`,               counts: countByStatus(DEMO_MEDICAL_TASKS),  total: DEMO_MEDICAL_TASKS.length  },
+    { name: "IT",           tasksHref: `/it/tasks?period=${period}`,                    counts: countByStatus(DEMO_IT_TASKS),       total: DEMO_IT_TASKS.length       },
+    { name: "Supply Chain", tasksHref: `/supply-chain/tasks?period=${period}`,          counts: countByStatus(DEMO_SC_TASKS),       total: DEMO_SC_TASKS.length       },
   ];
   return { depts, fromDb: false };
 }
@@ -136,7 +155,7 @@ export default async function TaskReportPage({ searchParams }: Props) {
         <div className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">All Tasks</p>
           <p className="mt-3 text-2xl font-semibold text-slate-900">{grandTotal}</p>
-          <p className="mt-1 text-xs text-slate-400">5 departments</p>
+          <p className="mt-1 text-xs text-slate-400">{depts.length} departments</p>
         </div>
         {ALL_STATUSES.map((status) => (
           <div key={status} className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-panel">
