@@ -64,12 +64,19 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
   const today = new Date().toISOString().slice(0, 10);
   const overdue = filtered.filter((t) => t.dueDate && t.dueDate < today && !["Completed", "Failed"].includes(t.status));
 
-  const workloadMap = new Map<string, { total: number; active: number; completed: number; progressRaw: number }>();
+  const workloadMap = new Map<string, {
+    total: number; active: number; completed: number; progressRaw: number;
+    inProgress: number; underReview: number; failed: number; planned: number;
+  }>();
   for (const t of filtered) {
-    const r = workloadMap.get(t.owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0 };
+    const r = workloadMap.get(t.owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0, inProgress: 0, underReview: 0, failed: 0, planned: 0 };
     r.total++;
     if (!["Completed", "Failed"].includes(t.status)) r.active++;
-    if (t.status === "Completed") r.completed++;
+    if (t.status === "Completed")    r.completed++;
+    if (normalize(t.status) === "in progress")   r.inProgress++;
+    if (normalize(t.status) === "under review")  r.underReview++;
+    if (normalize(t.status) === "failed")        r.failed++;
+    if (normalize(t.status) === "planned")       r.planned++;
     r.progressRaw += t.progressPercent;
     workloadMap.set(t.owner, r);
   }
@@ -283,7 +290,7 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {MARKETING_OWNERS.map((owner) => {
-            const r = workloadMap.get(owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0 };
+            const r = workloadMap.get(owner) ?? { total: 0, active: 0, completed: 0, progressRaw: 0, inProgress: 0, underReview: 0, failed: 0, planned: 0 };
             const avg = r.total ? Math.round(r.progressRaw / r.total) : 0;
             return (
               <div key={owner} className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
@@ -295,12 +302,27 @@ export function MarketingTasksWorkspace({ tasks, source, searchParams, periods =
                 </div>
                 <p className="mt-2 text-xs text-slate-500">
                   Active <span className="font-medium text-slate-700">{r.active}</span>
-                  {" · "}Completed <span className="font-medium text-slate-700">{r.completed}</span>
+                  {" · "}Done <span className="font-medium text-emerald-600">{r.completed}</span>
                   {" · "}Avg <span className="font-medium text-slate-700">{avg}%</span>
                 </p>
+                {/* Status-breakdown mini legend */}
                 {r.total > 0 && (
-                  <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${Math.round((r.completed / r.total) * 100)}%` }} />
+                  <div className="mt-2 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px]">
+                    {r.planned    > 0 && <span className="text-slate-500">● {r.planned} Planned</span>}
+                    {r.inProgress > 0 && <span className="text-sky-600">● {r.inProgress} In Progress</span>}
+                    {r.underReview > 0 && <span className="text-amber-600">● {r.underReview} Review</span>}
+                    {r.completed  > 0 && <span className="text-emerald-600">● {r.completed} Done</span>}
+                    {r.failed     > 0 && <span className="text-rose-600">● {r.failed} Failed</span>}
+                  </div>
+                )}
+                {/* Stacked status bar */}
+                {r.total > 0 && (
+                  <div className="mt-2 flex h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    {r.planned    > 0 && <div className="h-full bg-slate-400 transition-all" style={{ width: `${(r.planned    / r.total) * 100}%` }} />}
+                    {r.inProgress > 0 && <div className="h-full bg-sky-500 transition-all"   style={{ width: `${(r.inProgress / r.total) * 100}%` }} />}
+                    {r.underReview > 0 && <div className="h-full bg-amber-400 transition-all" style={{ width: `${(r.underReview / r.total) * 100}%` }} />}
+                    {r.completed  > 0 && <div className="h-full bg-emerald-500 transition-all" style={{ width: `${(r.completed  / r.total) * 100}%` }} />}
+                    {r.failed     > 0 && <div className="h-full bg-rose-500 transition-all"  style={{ width: `${(r.failed     / r.total) * 100}%` }} />}
                   </div>
                 )}
               </div>

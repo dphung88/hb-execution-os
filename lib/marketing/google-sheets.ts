@@ -164,24 +164,45 @@ function parseRows(rows: string[][]): SheetTask[] {
 }
 
 function parseCsvToRows(csv: string): string[][] {
-  return csv
-    .replace(/\r\n/g, "\n") // normalize Windows line endings
-    .replace(/\r/g, "\n")
-    .split("\n")
-    .map((line) => {
-      const cols: string[] = [];
-      let cur = "";
-      let inQuote = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') { inQuote = !inQuote; }
-        else if (ch === "," && !inQuote) { cols.push(cur); cur = ""; }
-        else { cur += ch; }
+  // Normalize line endings first
+  const text = csv.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  const rows: string[][] = [];
+  let cols: string[] = [];
+  let cur = "";
+  let inQuote = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuote) {
+      if (ch === '"') {
+        // RFC 4180: escaped quote is ""
+        if (text[i + 1] === '"') { cur += '"'; i++; }
+        else { inQuote = false; }
+      } else {
+        cur += ch; // allows newlines inside quoted fields
       }
-      cols.push(cur);
-      return cols;
-    })
-    .filter((row) => row.some((c) => c.trim()));
+    } else {
+      if (ch === '"') {
+        inQuote = true;
+      } else if (ch === ",") {
+        cols.push(cur); cur = "";
+      } else if (ch === "\n") {
+        cols.push(cur); cur = "";
+        if (cols.some((c) => c.trim())) rows.push(cols);
+        cols = [];
+      } else {
+        cur += ch;
+      }
+    }
+  }
+  // flush last field / row
+  if (cur || cols.length > 0) {
+    cols.push(cur);
+    if (cols.some((c) => c.trim())) rows.push(cols);
+  }
+
+  return rows;
 }
 
 // ── Normalisers ───────────────────────────────────────────────────────────────

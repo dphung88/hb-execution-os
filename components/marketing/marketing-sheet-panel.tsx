@@ -186,7 +186,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
   const syncAgo = lastSync
     ? (() => {
         const mins = Math.round((Date.now() - new Date(lastSync).getTime()) / 60000);
-        return mins < 1 ? "vừa xong" : `${mins} phút trước`;
+        return mins < 1 ? "just now" : `${mins} min ago`;
       })()
     : "—";
 
@@ -205,7 +205,11 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            {tasks.length} tasks · Last sync {syncAgo}
+            {tasks.length} tasks
+            {result.totalRows !== tasks.length && (
+              <span className="ml-1 text-amber-500">({result.totalRows} raw rows)</span>
+            )}
+            {" · "}Last sync {syncAgo}
             {error && <span className="ml-2 text-amber-500">⚠ {error}</span>}
           </p>
         </div>
@@ -218,7 +222,7 @@ export function MarketingSheetPanel({ result, sheetUrl, monthKey }: Props) {
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:border-brand-300 hover:text-brand-700 transition"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              Mở Sheet
+              Open Sheet
             </a>
           )}
           <form method="GET">

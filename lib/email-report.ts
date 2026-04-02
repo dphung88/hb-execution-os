@@ -1,10 +1,12 @@
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildSalesData, buildMarketingData } from "@/lib/email/task-report";
+import { fetchMarketingSheetTasks } from "@/lib/marketing/google-sheets";
 import { renderDailyReportEmail, type DeptStats, type FinanceData } from "./email-template";
 
 const DEPT_TABLES: { dept: string; table: string; isCeo?: boolean }[] = [
   { dept: "CEO Office",   table: "tasks",          isCeo: true },
+  { dept: "Sales",        table: "sales_tasks" },
   { dept: "Marketing",    table: "marketing_tasks" },
   { dept: "Finance",      table: "finance_tasks" },
   { dept: "HR",           table: "hr_tasks" },
@@ -36,10 +38,28 @@ async function buildDeptStats(): Promise<DeptStats[]> {
         ? "id, title, status, priority, due_date, owner"
         : "id, task_name, status, priority, due_date, owner_name";
 
-      const { data, error } = await admin.from(table).select(select);
-      if (error || !data) continue;
+      let { data, error } = await admin.from(table).select(select);
+      if (error) continue;
 
-      const rows = data as Record<string, string>[];
+      // Marketing: fall back to Google Sheet tasks when DB table is empty
+      let rows = (data ?? []) as Record<string, string>[];
+      if (dept === "Marketing" && rows.length === 0) {
+        try {
+          const sheetResult = await fetchMarketingSheetTasks();
+          if (sheetResult.tasks.length > 0) {
+            rows = sheetResult.tasks.map((t) => ({
+              task_name: t.taskName,
+              owner_name: t.owner,
+              status: t.status,
+              priority: t.priority,
+              due_date: t.dueDate,
+            }));
+          }
+        } catch { /* ignore sheet errors */ }
+      }
+
+      if (rows.length === 0) continue;
+
       const stats: DeptStats = {
         dept, total: rows.length,
         critical: 0, blocked: 0, onTrack: 0, done: 0, overdue: 0,

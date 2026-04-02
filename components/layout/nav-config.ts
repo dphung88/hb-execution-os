@@ -51,6 +51,7 @@ export const appNavLinks: NavLinkItem[] = [
       { href: "/sales-performance/forecast", label: "Sales Forecast" },
       { href: "/sales-performance/sku-forecast", label: "SKU Forecast" },
       { href: "/sales-performance/targets", label: "Sales Targets" },
+      { href: "/sales-performance/tasks", label: "Sales Tasks" },
       { href: "/pipeline", label: "Pipeline & Forecast" },
     ],
   },
