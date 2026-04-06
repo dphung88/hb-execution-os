@@ -94,7 +94,7 @@ const btnDanger =
 function ProvinceSelect({ provinces }: { provinces: string[] }) {
   return (
     <select name="province" required className={inputCls}>
-      <option value="">— chọn tỉnh —</option>
+      <option value="">— select province —</option>
       {provinces.map((p) => (
         <option key={p} value={p}>{p}</option>
       ))}
@@ -105,7 +105,7 @@ function ProvinceSelect({ provinces }: { provinces: string[] }) {
 function ChannelSelect() {
   return (
     <select name="channel" required className={inputCls}>
-      <option value="">— chọn kênh —</option>
+      <option value="">— select channel —</option>
       {CHANNELS.map((c) => (
         <option key={c} value={c}>{c}</option>
       ))}
@@ -116,7 +116,7 @@ function ChannelSelect() {
 function SkuSelect({ skus }: { skus: SkuOption[] }) {
   return (
     <select name="sku" required className={inputCls}>
-      <option value="">— chọn SKU —</option>
+      <option value="">— select SKU —</option>
       {skus.map((s) => (
         <option key={s.code} value={s.code}>{s.code} — {s.name}</option>
       ))}
