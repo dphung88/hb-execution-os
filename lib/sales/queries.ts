@@ -87,14 +87,19 @@ export type SalesPeriodOption = {
   label: string;
 };
 
-function normalizeRevenueActual(actual: number | null, target: number) {
+// Convert a raw-VND value to millions if it looks like raw VND (>= 1,000,000).
+function toMillions(v: number): number {
+  return v >= 1_000_000 ? Number((v / 1_000_000).toFixed(2)) : v;
+}
+
+function normalizeRevenueActual(actual: number | null, targetM: number) {
   if (actual == null) return 0;
-
-  // If ERP writes raw VND while targets are still stored in millions, normalize for scoring/display.
-  if (target <= 10000 && actual >= 1000000) {
-    return Number((actual / 1000000).toFixed(2));
+  // targetM is already in millions at this point.
+  // If actual looks like raw VND (>= 1,000,000) while target is in millions, convert.
+  if (targetM <= 10_000 && actual >= 1_000_000) {
+    return Number((actual / 1_000_000).toFixed(2));
   }
-
+  // Both in same unit (either both millions or both raw VND already normalised).
   return Number(actual);
 }
 
@@ -105,7 +110,9 @@ function toResolvedAsm(
   target?: SalesTargetRow,
   review?: SalesReviewRow
 ): SalesAsmResolved {
-  const revenueTarget = Number(target?.revenue_target ?? row.dt_target ?? baseAsm.revenueTarget);
+  // Normalise target to millions regardless of how it was stored in DB.
+  const rawTarget = Number(target?.revenue_target ?? row.dt_target ?? baseAsm.revenueTarget);
+  const revenueTarget = toMillions(rawTarget);
   const disciplineScore = Math.max(
     0,
     Math.min(5, Number(review?.discipline_score ?? row.noiquy ?? 0))
