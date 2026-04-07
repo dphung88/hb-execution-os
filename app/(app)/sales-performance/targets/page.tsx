@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { NumInput } from "@/components/sales/num-input";
 import { MobileSalesTargetsSelector } from "@/components/sales/mobile-sales-targets-selector";
 import {
   saveSalesTargetDefaultsAction,
@@ -51,6 +52,10 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
           { data: null, error: null },
         ];
 
+  function toM(v: number): number {
+    return v >= 1_000_000 ? Math.round((v / 1_000_000) * 100) / 100 : v;
+  }
+
   const targetsByAsm = new Map((targetsError ? [] : targets ?? []).map((row) => [row.asm_id, row]));
   const reviewsByAsm = new Map((reviewsError ? [] : reviews ?? []).map((row) => [row.asm_id, row]));
   const actualsByAsm = new Map((actualsError ? [] : actuals ?? []).map((row) => [row.asm_id, row]));
@@ -81,7 +86,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       region: asm.region,
       saved: savedAsm === asm.id,
       target: {
-        revenue_target: target?.revenue_target ?? 500,
+        revenue_target: toM(target?.revenue_target ?? 500),
         new_customers_target: target?.new_customers_target ?? 10,
         key_sku_code_1: String(targetRow?.key_sku_code_1 ?? "HB031"),
         key_sku_code_2: String(targetRow?.key_sku_code_2 ?? "HB035"),
@@ -203,12 +208,20 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
               ].map((field) => (
                 <label key={field.name} className="block">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{field.label}</span>
-                  <input
-                    type="number"
-                    name={field.name}
-                    defaultValue={field.value}
-                    className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                  />
+                  {field.name === "revenue_target" ? (
+                    <NumInput
+                      name={field.name}
+                      defaultValue={field.value}
+                      className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      name={field.name}
+                      defaultValue={field.value}
+                      className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                    />
+                  )}
                   {"note" in field ? <span className="mt-2 block text-xs text-slate-500">{field.note}</span> : null}
                 </label>
               ))}
@@ -366,19 +379,27 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         {
                           name: "revenue_target",
                           label: "Sales Target",
-                          value: target?.revenue_target ?? 500,
+                          value: toM(target?.revenue_target ?? 500),
                           note: "Unit: million VND",
                         },
                         { name: "new_customers_target", label: "Dealers Code", value: target?.new_customers_target ?? 10 },
                       ].map((field) => (
                         <label key={field.name} className="block">
                           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{field.label}</span>
-                          <input
-                            type="number"
-                            name={field.name}
-                            defaultValue={field.value}
-                            className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
-                          />
+                          {field.name === "revenue_target" ? (
+                            <NumInput
+                              name={field.name}
+                              defaultValue={field.value}
+                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                            />
+                          ) : (
+                            <input
+                              type="number"
+                              name={field.name}
+                              defaultValue={field.value}
+                              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-brand-400"
+                            />
+                          )}
                           {"note" in field ? (
                             <span className="mt-2 block text-xs text-slate-500">{field.note}</span>
                           ) : null}

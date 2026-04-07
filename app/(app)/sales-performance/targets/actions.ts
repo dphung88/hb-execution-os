@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 import { demoSalesAsms } from "@/lib/demo-data";
 import { createWriteClient } from "@/lib/supabase/write";
 
+function num(val: FormDataEntryValue | null): number {
+  return parseFloat(String(val ?? "0").replace(/\./g, "").replace(",", ".")) || 0;
+}
+
 function normalizeSkuCode(value: FormDataEntryValue | null, fallback: string) {
   const raw = String(value ?? "").trim().toUpperCase();
 
@@ -61,7 +65,7 @@ export async function saveSalesTargetRowAction(formData: FormData) {
     {
       asm_id: asmId,
       month: period,
-      revenue_target: Number(formData.get("revenue_target") ?? 0),
+      revenue_target: num(formData.get("revenue_target")),
       new_customers_target: Number(formData.get("new_customers_target") ?? 0),
       key_sku_code_1: normalizeSkuCode(formData.get("key_sku_code_1"), "HB031"),
       key_sku_code_2: normalizeSkuCode(formData.get("key_sku_code_2"), "HB035"),
@@ -98,7 +102,7 @@ export async function saveSalesTargetDefaultsAction(formData: FormData) {
     redirect(`/sales-performance/targets?period=${period}&error=save-not-configured`);
   }
 
-  const revenueTarget = Number(formData.get("revenue_target") ?? 0);
+  const revenueTarget = num(formData.get("revenue_target"));
   const newCustomersTarget = Number(formData.get("new_customers_target") ?? 0);
   const keySkuCode1 = normalizeSkuCode(formData.get("key_sku_code_1"), "HB031");
   const keySkuCode2 = normalizeSkuCode(formData.get("key_sku_code_2"), "HB035");

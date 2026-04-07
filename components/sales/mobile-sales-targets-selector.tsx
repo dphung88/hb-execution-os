@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { NumInput } from "@/components/sales/num-input";
 
 type MobileSalesTargetRow = {
   id: string;
@@ -119,8 +120,7 @@ export function MobileSalesTargetsSelector({
             <div className="grid grid-cols-2 gap-2">
               <label className="block">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Sales Target</span>
-                <input
-                  type="number"
+                <NumInput
                   name="revenue_target"
                   defaultValue={selectedAsm.target.revenue_target}
                   className="mt-1 h-9 w-full rounded-2xl border border-sky-100 bg-sky-50 px-3 text-xs text-slate-900 outline-none transition focus:border-sky-400"
