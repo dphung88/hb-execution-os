@@ -28,6 +28,7 @@ export type SalesAsmResolved = SalesAsm & {
   sourceSyncedAt: string | null;
   fromDate: string | null;
   toDate: string | null;
+  isProbation: boolean;
   keySkuTargets: Array<{
     code: string;
     target: number;
@@ -64,6 +65,7 @@ type SalesTargetRow = {
   key_sku_lot_date_2?: string | null;
   clearstock_lot_date_1?: string | null;
   clearstock_lot_date_2?: string | null;
+  is_probation?: boolean;
 };
 
 type SalesReviewRow = {
@@ -192,6 +194,7 @@ function toResolvedAsm(
     toDate: row.to_date,
     keySkuTargets,
     clearstockTargets,
+    isProbation: target?.is_probation ?? false,
   };
 }
 
@@ -241,6 +244,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
         { code: "HB006", target: salesKpiProducts.HB006.target, actual: asm.hb006, minPct: salesKpiProducts.HB006.minPct, name: salesKpiProducts.HB006.name, lotDate: "" },
         { code: "HB034", target: salesKpiProducts.HB034.target, actual: asm.hb034, minPct: salesKpiProducts.HB034.minPct, name: salesKpiProducts.HB034.name, lotDate: "" },
       ],
+      isProbation: false,
     }));
   }
 
@@ -351,17 +355,10 @@ export async function getSalesScorecardsData(periodKey?: string | null) {
   const scorecards = await getSalesScorecards(asms);
   const selectedPeriod = defaultPeriod;
 
-  // Load is_probation per ASM for this period
+  // isProbation is now embedded in each asm via sales_monthly_targets
   const probationMap: Record<string, boolean> = {};
-  if (hasSupabaseClientEnv()) {
-    const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
-    const { data: reviews } = await supabase
-      .from("sales_manager_reviews")
-      .select("asm_id, is_probation")
-      .eq("month", selectedPeriod);
-    for (const r of reviews ?? []) {
-      probationMap[r.asm_id] = r.is_probation ?? false;
-    }
+  for (const asm of asms) {
+    probationMap[asm.id] = asm.isProbation;
   }
 
   return {
@@ -439,6 +436,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
           lotDate: "",
         },
       ],
+      isProbation: false,
     };
   }
 

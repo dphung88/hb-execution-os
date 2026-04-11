@@ -9,6 +9,7 @@ type MobileSalesTargetRow = {
   name: string;
   region: string;
   saved: boolean;
+  is_probation: boolean;
   target: {
     revenue_target: number;
     new_customers_target: number;
@@ -115,6 +116,22 @@ export function MobileSalesTargetsSelector({
                 </span>
               ) : null}
             </div>
+
+            {/* Probation checkbox */}
+            <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+              <input type="hidden" name="is_probation" value="0" />
+              <input
+                type="checkbox"
+                name="is_probation"
+                value="1"
+                defaultChecked={selectedAsm.is_probation}
+                className="h-4 w-4 accent-amber-500"
+              />
+              <div>
+                <p className="text-xs font-semibold text-amber-900">Probation employee</p>
+                <p className="text-[10px] text-amber-700">Base salary &amp; allowance ×85%</p>
+              </div>
+            </label>
 
             {/* Revenue + Dealers — 2 cols */}
             <div className="grid grid-cols-2 gap-2">

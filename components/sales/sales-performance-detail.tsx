@@ -26,7 +26,6 @@ type SalesPerformanceDetailProps = {
     discipline_score: number;
     reporting_score: number;
     manager_note: string | null;
-    is_probation: boolean;
   } | null;
   saveStatus?: string;
   errorStatus?: string;
@@ -46,7 +45,7 @@ export async function SalesPerformanceDetail({
   errorStatus,
 }: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
-  const isProbation = review?.is_probation ?? false;
+  const isProbation = asm.isProbation;
   const income = calculateIncome(scorecard.revenuePct, scorecard.payout, isProbation);
   const periodLabel = await getSalesPeriodLabel(asm.periodKey);
   const fmt = (n: number) => n.toLocaleString("vi-VN");
@@ -220,23 +219,7 @@ export async function SalesPerformanceDetail({
                 />
               </label>
 
-              {/* Probation toggle — affects base salary & allowance (×85%), KPI unchanged */}
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                <input type="hidden" name="is_probation" value="0" />
-                <input
-                  type="checkbox"
-                  name="is_probation"
-                  value="1"
-                  defaultChecked={review?.is_probation ?? false}
-                  className="mt-0.5 h-4 w-4 accent-amber-500"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-amber-900">Nhân viên thử việc</p>
-                  <p className="mt-0.5 text-xs text-amber-700">Lương chính và phụ cấp nhân 85% · Lương KPI giữ nguyên 100%</p>
-                </div>
-              </label>
-
-              <button
+<button
                 type="submit"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
               >

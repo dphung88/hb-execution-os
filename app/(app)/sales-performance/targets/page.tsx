@@ -85,6 +85,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
       name: asm.name,
       region: asm.region,
       saved: savedAsm === asm.id,
+      is_probation: target?.is_probation ?? false,
       target: {
         revenue_target: toM(target?.revenue_target ?? 500),
         new_customers_target: target?.new_customers_target ?? 10,
@@ -406,6 +407,22 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
                         </label>
                       ))}
                     </div>
+
+                    {/* Probation checkbox */}
+                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                      <input type="hidden" name="is_probation" value="0" />
+                      <input
+                        type="checkbox"
+                        name="is_probation"
+                        value="1"
+                        defaultChecked={target?.is_probation ?? false}
+                        className="h-4 w-4 accent-amber-500"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-amber-900">Probation employee</p>
+                        <p className="text-xs text-amber-700">Base salary &amp; allowance ×85% · KPI unchanged</p>
+                      </div>
+                    </label>
 
                     <div className="grid gap-3 xl:grid-cols-2">
                       <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
