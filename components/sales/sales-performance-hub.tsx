@@ -111,7 +111,10 @@ export function SalesPerformanceHub({
 
       // Prefer lot date from actual ASM target data; fall back to hardcoded map
       const lotDateFromData = scorecards
-        .map((asm) => asm[category].find((item) => item.code === product.code)?.lotDate)
+        .map((asm) => {
+          const item = asm[category].find((i) => i.code === product.code);
+          return (item as { lotDate?: string } | undefined)?.lotDate;
+        })
         .find((d) => d && d.trim() !== "");
 
       return {
