@@ -111,6 +111,7 @@ export async function saveSalesReviewAction(formData: FormData) {
       discipline_score: Number(formData.get("discipline_score") ?? 0),
       reporting_score: Number(formData.get("reporting_score") ?? 0),
       manager_note: String(formData.get("manager_note") ?? ""),
+      is_probation: formData.get("is_probation") === "1",
       reviewed_by: "vp.edisonyang.store",
       reviewed_at: new Date().toISOString(),
     },

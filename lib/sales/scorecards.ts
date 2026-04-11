@@ -26,12 +26,27 @@ export async function getSalesPeriodLabel(periodKey: string): Promise<string> {
 
 export function calculateRevenueScore(revenuePct: number) {
   if (revenuePct >= 100) return 65;
-  if (revenuePct >= 90) return 62;
-  if (revenuePct >= 80) return 55;
-  if (revenuePct >= 70) return 49;
-  if (revenuePct >= 60) return 39;
-  if (revenuePct >= 50) return 33;
+  if (revenuePct >= 90) return 55;
+  if (revenuePct >= 80) return 45;
+  if (revenuePct >= 50) return 25;
   return 0;
+}
+
+// BASE_SALARY and ALLOWANCE thresholds
+const BASE_SALARY = 12_000_000;
+const ALLOWANCE   = 5_000_000;
+
+export function calculateIncome(
+  revenuePct: number,
+  kpiPayoutMillions: number,
+  isProbation: boolean,
+) {
+  const qualifies = revenuePct >= 50;
+  const probFactor = isProbation ? 0.85 : 1;
+  const baseSalary  = qualifies ? Math.round(BASE_SALARY * probFactor) : 0;
+  const allowance   = qualifies ? Math.round(ALLOWANCE   * probFactor) : 0;
+  const kpiSalary   = Math.round(kpiPayoutMillions * 1_000_000);
+  return { baseSalary, allowance, kpiSalary, total: baseSalary + allowance + kpiSalary, qualifies };
 }
 
 export function calculateRevenuePayout(revenuePct: number, revenueTarget: number) {

@@ -495,7 +495,7 @@ export async function getSalesManagementFormData(asmId: string, periodKey: strin
       .maybeSingle(),
     supabase
       .from("sales_manager_reviews")
-      .select("discipline_score, reporting_score, manager_note")
+      .select("discipline_score, reporting_score, manager_note, is_probation")
       .eq("asm_id", asmId)
       .eq("month", periodKey)
       .maybeSingle(),

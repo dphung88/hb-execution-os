@@ -3,7 +3,7 @@ import { ArrowLeft, BadgeDollarSign, ClipboardCheck, Database, UserCircle2 } fro
 
 import { saveSalesReviewAction, saveSalesTargetsAction } from "@/app/(app)/sales-performance/[id]/actions";
 import type { SalesAsmResolved } from "@/lib/sales/queries";
-import { getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
+import { calculateIncome, getAsmScorecard, getSalesPeriodLabel } from "@/lib/sales/scorecards";
 
 type SalesPerformanceDetailProps = {
   asm: SalesAsmResolved;
@@ -26,6 +26,7 @@ type SalesPerformanceDetailProps = {
     discipline_score: number;
     reporting_score: number;
     manager_note: string | null;
+    is_probation: boolean;
   } | null;
   saveStatus?: string;
   errorStatus?: string;
@@ -45,7 +46,10 @@ export async function SalesPerformanceDetail({
   errorStatus,
 }: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
+  const isProbation = review?.is_probation ?? false;
+  const income = calculateIncome(scorecard.revenuePct, scorecard.payout, isProbation);
   const periodLabel = await getSalesPeriodLabel(asm.periodKey);
+  const fmt = (n: number) => n.toLocaleString("vi-VN");
   const keyChecks = asm.keySkuTargets.map((item) => ({
     ...item,
     threshold: item.target * item.minPct,
@@ -215,6 +219,23 @@ export async function SalesPerformanceDetail({
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-400"
                 />
               </label>
+
+              {/* Probation toggle — affects base salary & allowance (×85%), KPI unchanged */}
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <input type="hidden" name="is_probation" value="0" />
+                <input
+                  type="checkbox"
+                  name="is_probation"
+                  value="1"
+                  defaultChecked={review?.is_probation ?? false}
+                  className="mt-0.5 h-4 w-4 accent-amber-500"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-amber-900">Nhân viên thử việc</p>
+                  <p className="mt-0.5 text-xs text-amber-700">Lương chính và phụ cấp nhân 85% · Lương KPI giữ nguyên 100%</p>
+                </div>
+              </label>
+
               <button
                 type="submit"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
@@ -335,6 +356,96 @@ export async function SalesPerformanceDetail({
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* ── Income Breakdown ─────────────────────────────────── */}
+      <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Thu nhập tháng</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Income Breakdown</h2>
+          </div>
+          {isProbation && (
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+              Thử việc · ×85%
+            </span>
+          )}
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              label: "Lương chính",
+              value: income.qualifies ? `${fmt(income.baseSalary)} đ` : "—",
+              note: income.qualifies
+                ? isProbation ? "12.000.000 × 85%" : "Đạt ≥50% doanh thu"
+                : "Chưa đạt 50% doanh thu",
+              color: income.qualifies ? "border-sky-100 bg-sky-50" : "border-slate-200 bg-slate-50",
+              badge: income.qualifies ? "text-sky-700" : "text-slate-400",
+            },
+            {
+              label: "Phụ cấp",
+              value: income.qualifies ? `${fmt(income.allowance)} đ` : "—",
+              note: income.qualifies
+                ? isProbation ? "5.000.000 × 85%" : "Đạt ≥50% doanh thu"
+                : "Chưa đạt 50% doanh thu",
+              color: income.qualifies ? "border-violet-100 bg-violet-50" : "border-slate-200 bg-slate-50",
+              badge: income.qualifies ? "text-violet-700" : "text-slate-400",
+            },
+            {
+              label: "Lương KPI",
+              value: `${fmt(income.kpiSalary)} đ`,
+              note: `${scorecard.payout}M · ${scorecard.total}/100 điểm`,
+              color: "border-emerald-100 bg-emerald-50",
+              badge: "text-emerald-700",
+            },
+            {
+              label: "Tổng thu nhập",
+              value: `${fmt(income.total)} đ`,
+              note: isProbation ? "Áp dụng hệ số thử việc" : "Lương chính + phụ cấp + KPI",
+              color: "border-slate-900 bg-slate-950",
+              badge: "text-white",
+              dark: true,
+            },
+          ].map((card) => (
+            <div key={card.label} className={`rounded-2xl border p-5 ${card.color}`}>
+              <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${card.dark ? "text-slate-400" : "text-slate-500"}`}>{card.label}</p>
+              <p className={`mt-3 text-xl font-semibold leading-tight ${card.dark ? "text-white" : "text-slate-900"}`}>{card.value}</p>
+              <p className={`mt-2 text-xs ${card.dark ? "text-slate-400" : "text-slate-500"}`}>{card.note}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Revenue achievement table */}
+        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">% Hoàn thành</th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Điểm doanh thu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { range: "≥ 100%", pts: 65 },
+                { range: "90 – 99%", pts: 55 },
+                { range: "80 – 89%", pts: 45 },
+                { range: "50 – 79%", pts: 25 },
+                { range: "< 50%", pts: 0 },
+              ].map((row) => {
+                const active = row.pts === scorecard.revenueScore;
+                return (
+                  <tr key={row.range} className={`border-b border-slate-100 last:border-0 ${active ? "bg-sky-50" : ""}`}>
+                    <td className={`px-4 py-3 font-medium ${active ? "text-sky-700" : "text-slate-700"}`}>{row.range}</td>
+                    <td className={`px-4 py-3 text-right font-semibold ${active ? "text-sky-700" : "text-slate-500"}`}>
+                      {row.pts}{active && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[10px]">hiện tại</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>
