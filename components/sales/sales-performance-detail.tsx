@@ -351,7 +351,7 @@ export async function SalesPerformanceDetail({
           </div>
           {isProbation && (
             <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-              Thử việc · ×85%
+              Probation · ×85%
             </span>
           )}
         </div>
@@ -386,7 +386,7 @@ export async function SalesPerformanceDetail({
             {
               label: "Tổng thu nhập",
               value: `${fmt(income.total)} đ`,
-              note: isProbation ? "Áp dụng hệ số thử việc" : "Lương chính + phụ cấp + KPI",
+              note: isProbation ? "Probation rate applied" : "Base salary + allowance + KPI",
               color: "border-slate-900 bg-slate-950",
               badge: "text-white",
               dark: true,

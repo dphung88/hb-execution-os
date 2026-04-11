@@ -327,7 +327,7 @@ export function SalesPerformanceHub({
                           <div className="mt-1 text-[11px] text-slate-500">KPI {asm.scorecard.payout}M</div>
                           {isProbation && (
                             <span className="mt-1 inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                              Thử việc
+                              Probation
                             </span>
                           )}
                         </td>
