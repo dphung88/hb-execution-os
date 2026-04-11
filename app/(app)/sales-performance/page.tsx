@@ -18,7 +18,7 @@ export default async function SalesPerformancePage({ searchParams }: SalesPerfor
   const synced = resolvedSearchParams?.synced;
   const failed = resolvedSearchParams?.failed;
   const message = resolvedSearchParams?.message;
-  const { scorecards, liveCount, periods, selectedPeriod } = await getSalesScorecardsData(period);
+  const { scorecards, liveCount, periods, selectedPeriod, probationMap } = await getSalesScorecardsData(period);
 
   const syncMessage =
     sync === "success"
@@ -37,6 +37,7 @@ export default async function SalesPerformancePage({ searchParams }: SalesPerfor
       selectedPeriod={selectedPeriod}
       syncStatus={sync}
       syncMessage={syncMessage}
+      probationMap={probationMap}
     />
   );
 }

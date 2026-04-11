@@ -351,12 +351,26 @@ export async function getSalesScorecardsData(periodKey?: string | null) {
   const scorecards = await getSalesScorecards(asms);
   const selectedPeriod = defaultPeriod;
 
+  // Load is_probation per ASM for this period
+  const probationMap: Record<string, boolean> = {};
+  if (hasSupabaseClientEnv()) {
+    const supabase = hasSupabaseAdminEnv() ? createAdminClient() : await createClient();
+    const { data: reviews } = await supabase
+      .from("sales_manager_reviews")
+      .select("asm_id, is_probation")
+      .eq("month", selectedPeriod);
+    for (const r of reviews ?? []) {
+      probationMap[r.asm_id] = r.is_probation ?? false;
+    }
+  }
+
   return {
     asms,
     scorecards,
     liveCount: asms.length,
     periods,
     selectedPeriod,
+    probationMap,
   };
 }
 

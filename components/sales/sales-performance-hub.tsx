@@ -7,7 +7,7 @@ import { MobileSalesScorecardSelector } from "@/components/sales/mobile-sales-sc
 
 import { salesKpiProducts, salesScoringRules } from "@/lib/demo-data";
 import type { SalesAsmResolved, SalesPeriodOption } from "@/lib/sales/queries";
-import type { SalesAsmScorecard } from "@/lib/sales/scorecards";
+import { calculateIncome, type SalesAsmScorecard } from "@/lib/sales/scorecards";
 
 function getHealthTone(total: number) {
   if (total >= 80) return "text-emerald-700 bg-emerald-50";
@@ -56,6 +56,7 @@ type SalesPerformanceHubProps = {
   selectedPeriod: string;
   syncStatus?: string;
   syncMessage?: string;
+  probationMap?: Record<string, boolean>;
 };
 
 export function SalesPerformanceHub({
@@ -65,6 +66,7 @@ export function SalesPerformanceHub({
   selectedPeriod,
   syncStatus,
   syncMessage,
+  probationMap = {},
 }: SalesPerformanceHubProps) {
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
@@ -254,12 +256,15 @@ export function SalesPerformanceHub({
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">CLEARSTOCK</th>
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">DISCIPLINE</th>
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">TOTAL</th>
-                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">KPI PAYOUT</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">INCOME</th>
                     <th className="px-3 py-4 font-medium" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {scorecards.map((asm) => {
+                    const isProbation = probationMap[asm.id] ?? false;
+                    const income = calculateIncome(asm.scorecard.revenuePct, asm.scorecard.payout, isProbation);
+                    const totalM = (income.total / 1_000_000).toFixed(2).replace(/\.?0+$/, "");
                     return (
                       <tr key={asm.id}>
                         <td className="px-3 py-4">
@@ -309,7 +314,15 @@ export function SalesPerformanceHub({
                             {asm.scorecard.total} pts
                           </span>
                         </td>
-                        <td className="px-3 py-4 font-semibold text-brand-700">{asm.scorecard.payout}M</td>
+                        <td className="px-3 py-4">
+                          <div className="font-semibold text-brand-700">{totalM}M</div>
+                          <div className="mt-1 text-[11px] text-slate-500">KPI {asm.scorecard.payout}M</div>
+                          {isProbation && (
+                            <span className="mt-1 inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                              Thử việc
+                            </span>
+                          )}
+                        </td>
                         <td className="px-3 py-4 text-right">
                           <Link
                             href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
