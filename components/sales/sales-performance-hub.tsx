@@ -109,12 +109,17 @@ export function SalesPerformanceHub({
 
       const progressPct = teamTarget > 0 ? Math.round((teamActual / teamTarget) * 100) : 0;
 
+      // Prefer lot date from actual ASM target data; fall back to hardcoded map
+      const lotDateFromData = scorecards
+        .map((asm) => asm[category].find((item) => item.code === product.code)?.lotDate)
+        .find((d) => d && d.trim() !== "");
+
       return {
         ...product,
         teamActual,
         teamTarget,
         progressPct,
-        lotDate: skuLotDates[product.code],
+        lotDate: lotDateFromData ?? skuLotDates[product.code],
       };
     });
   const keySkuProgressCards = aggregateSkuTargets(summaryKeySkuTargets, "keySkuTargets");
