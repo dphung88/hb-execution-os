@@ -65,7 +65,7 @@ export async function saveSalesTargetRowAction(formData: FormData) {
     {
       asm_id: asmId,
       month: period,
-      is_probation: formData.get("is_probation") === "1",
+      is_probation: formData.getAll("is_probation").includes("1"),
       revenue_target: num(formData.get("revenue_target")),
       new_customers_target: Number(formData.get("new_customers_target") ?? 0),
       key_sku_code_1: normalizeSkuCode(formData.get("key_sku_code_1"), "HB031"),
