@@ -385,14 +385,18 @@ export async function SalesPerformanceDetail({
             {
               label: "Base Salary",
               value: `${fmt(income.baseSalary)} đ`,
-              note: isProbation ? "12,000,000 × 85%" : "12,000,000",
+              note: scorecard.revenuePct < 50
+                ? `${scorecard.revenuePct}% × 12,000,000${isProbation ? " × 85%" : ""}`
+                : isProbation ? "12,000,000 × 85%" : "12,000,000",
               color: "border-sky-100 bg-sky-50",
               badge: "text-sky-700",
             },
             {
               label: "Allowance",
               value: `${fmt(income.allowance)} đ`,
-              note: isProbation ? "5,000,000 × 85%" : "5,000,000",
+              note: scorecard.revenuePct < 50
+                ? `${scorecard.revenuePct}% × 5,000,000${isProbation ? " × 85%" : ""}`
+                : isProbation ? "5,000,000 × 85%" : "5,000,000",
               color: "border-violet-100 bg-violet-50",
               badge: "text-violet-700",
             },
