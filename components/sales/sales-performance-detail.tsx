@@ -370,7 +370,7 @@ export async function SalesPerformanceDetail({
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Thu nhập tháng</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Monthly Income</p>
             <h2 className="text-2xl font-semibold text-slate-900">Income Breakdown</h2>
           </div>
           {isProbation && (
@@ -429,8 +429,8 @@ export async function SalesPerformanceDetail({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">% Hoàn thành</th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Điểm doanh thu</th>
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">% Achievement</th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Revenue Score</th>
               </tr>
             </thead>
             <tbody>

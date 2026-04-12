@@ -339,7 +339,7 @@ export function SalesPerformanceHub({
                         <td className="px-3 py-4">
                           <div className="font-semibold text-brand-700">{totalM}M</div>
                           <div className="mt-0.5 text-[11px] text-slate-500">
-                            Base {(income.baseSalary/1_000_000).toFixed(1)}M · Allow {(income.allowance/1_000_000).toFixed(1)}M
+                            Base {(income.baseSalary/1_000_000).toFixed(1)}M · Allowance {(income.allowance/1_000_000).toFixed(1)}M
                           </div>
                           <div className="mt-0.5 text-[11px] text-slate-500">KPI {asm.scorecard.payout}M</div>
                           {isProbation && (
