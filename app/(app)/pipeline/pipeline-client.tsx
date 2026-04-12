@@ -242,11 +242,11 @@ function ConfigTab({
               </select>
             </label>
             <label className="block">
-              <span className={labelCls}>Province / Tỉnh</span>
+              <span className={labelCls}>Province</span>
               <ProvinceSelect provinces={provinces} />
             </label>
             <label className="block">
-              <span className={labelCls}>Channel / Kênh</span>
+              <span className={labelCls}>Channel</span>
               <ChannelSelect />
             </label>
             <label className="block">
@@ -410,11 +410,11 @@ function PipelineTab({
               </select>
             </label>
             <label className="block">
-              <span className={labelCls}>Province / Tỉnh</span>
+              <span className={labelCls}>Province</span>
               <ProvinceSelect provinces={provinces} />
             </label>
             <label className="block">
-              <span className={labelCls}>Channel / Kênh</span>
+              <span className={labelCls}>Channel</span>
               <ChannelSelect />
             </label>
             <label className="block">
@@ -542,11 +542,11 @@ function ActualsTab({
               </select>
             </label>
             <label className="block">
-              <span className={labelCls}>Province / Tỉnh</span>
+              <span className={labelCls}>Province</span>
               <ProvinceSelect provinces={provinces} />
             </label>
             <label className="block">
-              <span className={labelCls}>Channel / Kênh</span>
+              <span className={labelCls}>Channel</span>
               <ChannelSelect />
             </label>
             <label className="block">

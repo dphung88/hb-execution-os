@@ -312,6 +312,21 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
               </div>
             </div>
 
+            {/* Bulk probation */}
+            <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+              <input type="hidden" name="is_probation" value="0" />
+              <input
+                type="checkbox"
+                name="is_probation"
+                value="1"
+                className="h-4 w-4 accent-amber-500"
+              />
+              <div>
+                <p className="text-sm font-semibold text-amber-900">Mark all ASM as Probation</p>
+                <p className="text-xs text-amber-700">Base salary &amp; allowance ×85% · KPI unchanged</p>
+              </div>
+            </label>
+
             <div className="flex justify-end">
               <button
                 type="submit"

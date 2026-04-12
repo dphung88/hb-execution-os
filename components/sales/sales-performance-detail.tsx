@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BadgeDollarSign, ClipboardCheck, Database, UserCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeDollarSign, ChevronLeft, ChevronRight, ClipboardCheck, Database, UserCircle2 } from "lucide-react";
 
 import { saveSalesReviewAction, saveSalesTargetsAction } from "@/app/(app)/sales-performance/[id]/actions";
 import type { SalesAsmResolved } from "@/lib/sales/queries";
@@ -29,6 +29,8 @@ type SalesPerformanceDetailProps = {
   } | null;
   saveStatus?: string;
   errorStatus?: string;
+  prevAsmId?: string | null;
+  nextAsmId?: string | null;
 };
 
 function getStatusColor(passed: boolean) {
@@ -43,6 +45,8 @@ export async function SalesPerformanceDetail({
   review,
   saveStatus,
   errorStatus,
+  prevAsmId,
+  nextAsmId,
 }: SalesPerformanceDetailProps) {
   const scorecard = getAsmScorecard(asm);
   const isProbation = asm.isProbation;
@@ -61,13 +65,33 @@ export async function SalesPerformanceDetail({
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-white/70 bg-slate-950 px-6 py-8 text-white shadow-panel">
-        <Link
-          href={`/sales-performance?period=${selectedPeriod}`}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to KPI board
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/sales-performance?period=${selectedPeriod}`}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to KPI board
+          </Link>
+          {prevAsmId && (
+            <Link
+              href={`/sales-performance/${prevAsmId}?period=${selectedPeriod}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Prev
+            </Link>
+          )}
+          {nextAsmId && (
+            <Link
+              href={`/sales-performance/${nextAsmId}?period=${selectedPeriod}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
+            >
+              Next
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
+        </div>
 
         <div className="mt-6 grid gap-8 xl:grid-cols-[1.08fr,0.92fr] xl:items-end">
           <div>
@@ -359,34 +383,30 @@ export async function SalesPerformanceDetail({
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
             {
-              label: "Lương chính",
-              value: income.qualifies ? `${fmt(income.baseSalary)} đ` : "—",
-              note: income.qualifies
-                ? isProbation ? "12.000.000 × 85%" : "Đạt ≥50% doanh thu"
-                : "Chưa đạt 50% doanh thu",
-              color: income.qualifies ? "border-sky-100 bg-sky-50" : "border-slate-200 bg-slate-50",
-              badge: income.qualifies ? "text-sky-700" : "text-slate-400",
+              label: "Base Salary",
+              value: `${fmt(income.baseSalary)} đ`,
+              note: isProbation ? "12,000,000 × 85%" : "12,000,000",
+              color: "border-sky-100 bg-sky-50",
+              badge: "text-sky-700",
             },
             {
-              label: "Phụ cấp",
-              value: income.qualifies ? `${fmt(income.allowance)} đ` : "—",
-              note: income.qualifies
-                ? isProbation ? "5.000.000 × 85%" : "Đạt ≥50% doanh thu"
-                : "Chưa đạt 50% doanh thu",
-              color: income.qualifies ? "border-violet-100 bg-violet-50" : "border-slate-200 bg-slate-50",
-              badge: income.qualifies ? "text-violet-700" : "text-slate-400",
+              label: "Allowance",
+              value: `${fmt(income.allowance)} đ`,
+              note: isProbation ? "5,000,000 × 85%" : "5,000,000",
+              color: "border-violet-100 bg-violet-50",
+              badge: "text-violet-700",
             },
             {
-              label: "Lương KPI",
+              label: "KPI Salary",
               value: `${fmt(income.kpiSalary)} đ`,
-              note: `${scorecard.payout}M · ${scorecard.total}/100 điểm`,
+              note: `${scorecard.payout}M · ${scorecard.total}/100 pts`,
               color: "border-emerald-100 bg-emerald-50",
               badge: "text-emerald-700",
             },
             {
-              label: "Tổng thu nhập",
+              label: "Total Income",
               value: `${fmt(income.total)} đ`,
-              note: isProbation ? "Probation rate applied" : "Base salary + allowance + KPI",
+              note: isProbation ? "Probation rate applied" : "Base + allowance + KPI",
               color: "border-slate-900 bg-slate-950",
               badge: "text-white",
               dark: true,

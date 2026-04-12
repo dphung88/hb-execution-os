@@ -123,9 +123,12 @@ export async function saveSalesTargetDefaultsAction(formData: FormData) {
   const clearstockLotDate1 = normDate(formData.get("clearstock_lot_date_1"));
   const clearstockLotDate2 = normDate(formData.get("clearstock_lot_date_2"));
 
+  const isProbation = formData.getAll("is_probation").includes("1");
+
   const rows = demoSalesAsms.map((asm) => ({
     asm_id: asm.id,
     month: period,
+    is_probation: isProbation,
     revenue_target: asm.id === "NV0001" ? 4000 : revenueTarget,
     new_customers_target: newCustomersTarget,
     key_sku_code_1: keySkuCode1,

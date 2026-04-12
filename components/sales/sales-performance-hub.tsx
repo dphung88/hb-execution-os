@@ -74,6 +74,16 @@ export function SalesPerformanceHub({
   const totalCustomers = scorecards.reduce((sum, asm) => sum + asm.newCustomersActual, 0);
   const skuQualified = scorecards.filter((asm) => asm.scorecard.keySkuScore > 0).length;
   const clearstockQualified = scorecards.filter((asm) => asm.scorecard.clearstockScore > 0).length;
+  // Income aggregates
+  const allIncomes = scorecards.map((asm) =>
+    calculateIncome(asm.scorecard.revenuePct, asm.scorecard.payout, probationMap[asm.id] ?? false)
+  );
+  const totalBaseSalaryM = (allIncomes.reduce((s, i) => s + i.baseSalary, 0) / 1_000_000).toFixed(1);
+  const totalAllowanceM  = (allIncomes.reduce((s, i) => s + i.allowance, 0) / 1_000_000).toFixed(1);
+  const totalKpiSalaryM  = allIncomes.reduce((s, i) => s + i.kpiSalary / 1_000_000, 0).toFixed(2);
+  const reportingAvg = scorecards.length
+    ? (scorecards.reduce((s, a) => s + a.scorecard.reportingScore, 0) / scorecards.length).toFixed(1)
+    : "0";
   const summaryKeySkuTargets = scorecards[0]?.keySkuTargets ?? Object.values(salesKpiProducts)
     .filter((product) => product.category === "key")
     .map((product) => ({
@@ -207,7 +217,7 @@ export function SalesPerformanceHub({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {[
             { label: "SALES REVENUE", value: `${totalRevenue.toLocaleString("en-US")}M` },
             { label: "REVENUE >= 80%", value: `${aboveEighty}/${scorecards.length}` },
@@ -215,6 +225,10 @@ export function SalesPerformanceHub({
             { label: "QUALIFIED ON KEY SKU", value: `${skuQualified}/${scorecards.length}` },
             { label: "QUALIFIED ON CLEARSTOCK", value: `${clearstockQualified}/${scorecards.length}` },
             { label: "ASM KPI SCORE >= 70%", value: `${asmKpiSeventy}/${scorecards.length}` },
+            { label: "TOTAL KPI SALARY", value: `${totalKpiSalaryM}M` },
+            { label: "TOTAL BASE SALARY", value: `${totalBaseSalaryM}M` },
+            { label: "TOTAL ALLOWANCE", value: `${totalAllowanceM}M` },
+            { label: "REPORTING (AVG)", value: `${reportingAvg}/5` },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/10 p-4">
               <p className={darkCardLabelClass}>{item.label}</p>
@@ -324,7 +338,10 @@ export function SalesPerformanceHub({
                         </td>
                         <td className="px-3 py-4">
                           <div className="font-semibold text-brand-700">{totalM}M</div>
-                          <div className="mt-1 text-[11px] text-slate-500">KPI {asm.scorecard.payout}M</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            Base {(income.baseSalary/1_000_000).toFixed(1)}M · Allow {(income.allowance/1_000_000).toFixed(1)}M
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">KPI {asm.scorecard.payout}M</div>
                           {isProbation && (
                             <span className="mt-1 inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                               Probation

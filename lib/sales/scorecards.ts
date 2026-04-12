@@ -41,12 +41,11 @@ export function calculateIncome(
   kpiPayoutMillions: number,
   isProbation: boolean,
 ) {
-  const qualifies = revenuePct >= 50;
   const probFactor = isProbation ? 0.85 : 1;
-  const baseSalary  = qualifies ? Math.round(BASE_SALARY * probFactor) : 0;
-  const allowance   = qualifies ? Math.round(ALLOWANCE   * probFactor) : 0;
+  const baseSalary  = Math.round(BASE_SALARY * probFactor);
+  const allowance   = Math.round(ALLOWANCE   * probFactor);
   const kpiSalary   = Math.round(kpiPayoutMillions * 1_000_000);
-  return { baseSalary, allowance, kpiSalary, total: baseSalary + allowance + kpiSalary, qualifies };
+  return { baseSalary, allowance, kpiSalary, total: baseSalary + allowance + kpiSalary };
 }
 
 export function calculateRevenuePayout(revenuePct: number, revenueTarget: number) {
