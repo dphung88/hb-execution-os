@@ -277,9 +277,9 @@ export function SalesPerformanceHub({
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">KEY SKU</th>
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">CLEARSTOCK</th>
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">DISCIPLINE</th>
-                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">TOTAL</th>
-                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">INCOME</th>
-                    <th className="px-3 py-4 font-medium" />
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">BASE + ALLOW</th>
+                    <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">KPI</th>
+                    <th className="px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-[0.18em]">TOTAL / ACTION</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
@@ -332,30 +332,37 @@ export function SalesPerformanceHub({
                           <div className="mt-1 text-[11px] text-slate-500">Manager review</div>
                         </td>
                         <td className="px-3 py-4">
+                          <div className="font-semibold text-brand-700">{totalM}M</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            Base {(income.baseSalary/1_000_000).toFixed(1)}M
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">
+                            Allowance {(income.allowance/1_000_000).toFixed(1)}M
+                          </div>
+                        </td>
+                        <td className="px-3 py-4">
+                          <div className="font-medium text-slate-900">KPI {asm.scorecard.payout}M</div>
+                        </td>
+                        <td className="px-3 py-4 text-right">
                           <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${getHealthTone(asm.scorecard.total)}`}>
                             {asm.scorecard.total} pts
                           </span>
-                        </td>
-                        <td className="px-3 py-4">
-                          <div className="font-semibold text-brand-700">{totalM}M</div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            Base {(income.baseSalary/1_000_000).toFixed(1)}M · Allowance {(income.allowance/1_000_000).toFixed(1)}M
+                          <div className="mt-2">
+                            <Link
+                              href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
+                              className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                            >
+                              View detail
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </Link>
                           </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">KPI {asm.scorecard.payout}M</div>
                           {isProbation && (
-                            <span className="mt-1 inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                              Probation
-                            </span>
+                            <div className="mt-1.5">
+                              <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                                Probation
+                              </span>
+                            </div>
                           )}
-                        </td>
-                        <td className="px-3 py-4 text-right">
-                          <Link
-                            href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
-                            className="inline-flex whitespace-nowrap items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
-                          >
-                            View detail
-                            <ArrowRight className="h-3.5 w-3.5" />
-                          </Link>
                         </td>
                       </tr>
                     );
