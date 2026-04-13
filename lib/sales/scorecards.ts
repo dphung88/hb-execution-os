@@ -70,8 +70,8 @@ export function calculateRevenuePayout(revenuePct: number, revenueTarget: number
 }
 
 export function calculateCustomerScore(newCustomersActual: number) {
-  if (newCustomersActual >= 10) return 15;
-  if (newCustomersActual >= 7) return 10;
+  if (newCustomersActual >= 6) return 15;
+  if (newCustomersActual >= 5) return 10;
   if (newCustomersActual >= 4) return 5;
   return 0;
 }
