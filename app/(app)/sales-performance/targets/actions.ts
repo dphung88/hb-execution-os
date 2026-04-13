@@ -85,6 +85,7 @@ export async function saveSalesTargetRowAction(formData: FormData) {
   );
 
   if (error) {
+    console.error("[saveSalesTargetRowAction] Supabase error:", error.code, error.message, error.details, error.hint);
     const detail = encodeURIComponent(error.message ?? "unknown");
     redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}&detail=${detail}`);
   }
@@ -151,7 +152,9 @@ export async function saveSalesTargetDefaultsAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}`);
+    console.error("[saveSalesTargetDefaultsAction] Supabase error:", error.code, error.message, error.details, error.hint);
+    const detail = encodeURIComponent(error.message ?? "unknown");
+    redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}&detail=${detail}`);
   }
 
   revalidatePath("/sales-performance");
