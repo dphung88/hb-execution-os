@@ -128,10 +128,12 @@ export function calculateClearstockScore(targets: SalesAsm["clearstockTargets"],
   return 0;
 }
 
-export function getAsmScorecard(asm: SalesAsm) {
+export function getAsmScorecard(asm: SalesAsm & { dealersCodeOverride?: number | null }) {
   const revenuePct = Math.round((asm.revenueActual / asm.revenueTarget) * 100);
   const revenueScore = calculateRevenueScore(revenuePct);
-  const customerScore = calculateCustomerScore(asm.newCustomersActual);
+  // Use manual override if set, otherwise fall back to ERP value
+  const effectiveCustomers = asm.dealersCodeOverride ?? asm.newCustomersActual;
+  const customerScore = calculateCustomerScore(effectiveCustomers);
   const keySkuScore = calculateKeySkuScore(asm.keySkuTargets, asm.hb031, asm.hb035);
   const clearstockScore = calculateClearstockScore(asm.clearstockTargets, asm.hb006, asm.hb034);
   const manualScore = asm.disciplineScore;
@@ -142,6 +144,8 @@ export function getAsmScorecard(asm: SalesAsm) {
     revenuePct,
     revenueScore,
     customerScore,
+    effectiveCustomers,
+    dealersCodeOverrideActive: asm.dealersCodeOverride != null,
     keySkuScore,
     clearstockScore,
     manualScore,

@@ -104,6 +104,9 @@ export async function saveSalesReviewAction(formData: FormData) {
     redirect(`/sales-performance/${asmId}?period=${period}&error=save-not-configured`);
   }
 
+  const dealersOverrideRaw = String(formData.get("dealers_code_override") ?? "").trim();
+  const dealersCodeOverride = dealersOverrideRaw !== "" ? Number(dealersOverrideRaw) : null;
+
   const { error } = await client.from("sales_manager_reviews").upsert(
     {
       asm_id: asmId,
@@ -112,6 +115,7 @@ export async function saveSalesReviewAction(formData: FormData) {
       reporting_score: Number(formData.get("reporting_score") ?? 0),
       manager_note: String(formData.get("manager_note") ?? ""),
       is_probation: formData.get("is_probation") === "1",
+      dealers_code_override: dealersCodeOverride,
       reviewed_by: "vp.edisonyang.store",
       reviewed_at: new Date().toISOString(),
     },

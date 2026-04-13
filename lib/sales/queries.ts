@@ -29,6 +29,7 @@ export type SalesAsmResolved = SalesAsm & {
   fromDate: string | null;
   toDate: string | null;
   isProbation: boolean;
+  dealersCodeOverride: number | null;
   keySkuTargets: Array<{
     code: string;
     target: number;
@@ -75,6 +76,7 @@ type SalesReviewRow = {
   reporting_score: number;
   manager_note: string | null;
   reviewed_at: string | null;
+  dealers_code_override: number | null;
 };
 
 type BreakdownRow = {
@@ -195,6 +197,7 @@ function toResolvedAsm(
     keySkuTargets,
     clearstockTargets,
     isProbation: target?.is_probation ?? false,
+    dealersCodeOverride: review?.dealers_code_override ?? null,
   };
 }
 
@@ -245,6 +248,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
         { code: "HB034", target: salesKpiProducts.HB034.target, actual: asm.hb034, minPct: salesKpiProducts.HB034.minPct, name: salesKpiProducts.HB034.name, lotDate: "" },
       ],
       isProbation: false,
+      dealersCodeOverride: null,
     }));
   }
 
@@ -262,7 +266,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
       .select("*"),
     supabase
       .from("sales_manager_reviews")
-      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at"),
+      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at, dealers_code_override"),
   ]);
 
   const { data, error } = kpiResult;
@@ -437,6 +441,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
         },
       ],
       isProbation: false,
+      dealersCodeOverride: null,
     };
   }
 
@@ -450,7 +455,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
       .maybeSingle(),
     supabase
       .from("sales_manager_reviews")
-      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at")
+      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at, dealers_code_override")
       .eq("asm_id", id)
       .eq("month", effectivePeriod)
       .maybeSingle(),

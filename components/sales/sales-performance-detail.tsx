@@ -209,6 +209,31 @@ export async function SalesPerformanceDetail({
             <form action={saveSalesReviewAction} className="mt-6 space-y-4">
               <input type="hidden" name="asm_id" value={asm.id} />
               <input type="hidden" name="period" value={selectedPeriod} />
+
+              {/* Dealers Code manual override */}
+              <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Dealers Code Override</p>
+                <p className="mt-1 text-xs text-violet-600">
+                  ERP value: <span className="font-semibold">{asm.newCustomersActual}</span> · Overrides ERP when filled in. Leave blank to use ERP data.
+                </p>
+                <div className="mt-3 flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="0"
+                    max="99"
+                    name="dealers_code_override"
+                    defaultValue={asm.dealersCodeOverride ?? ""}
+                    placeholder="e.g. 8"
+                    className="h-11 w-32 rounded-2xl border border-violet-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-violet-400"
+                  />
+                  {scorecard.dealersCodeOverrideActive && (
+                    <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+                      Override active · {scorecard.effectiveCustomers} dealers → {scorecard.customerScore}/15 pts
+                    </span>
+                  )}
+                </div>
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Discipline score</span>
@@ -257,7 +282,7 @@ export async function SalesPerformanceDetail({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
             { icon: Database, label: "Sales Revenue", value: `${asm.revenueActual}/${asm.revenueTarget}M`, note: `${scorecard.revenuePct}% of target`, color: "bg-sky-50 border-sky-100", iconColor: "text-sky-600", labelColor: "text-sky-600" },
-            { icon: ClipboardCheck, label: "Dealers Code", value: `${asm.newCustomersActual}/${asm.newCustomersTarget}`, note: `${scorecard.customerScore}/15 points`, color: "bg-violet-50 border-violet-100", iconColor: "text-violet-600", labelColor: "text-violet-600" },
+            { icon: ClipboardCheck, label: "Dealers Code", value: `${scorecard.effectiveCustomers}/${asm.newCustomersTarget}`, note: scorecard.dealersCodeOverrideActive ? `Manual override · ${scorecard.customerScore}/15 pts` : `${scorecard.customerScore}/15 points (ERP)`, color: "bg-violet-50 border-violet-100", iconColor: "text-violet-600", labelColor: "text-violet-600" },
             { icon: UserCircle2, label: "Manager", value: asm.manager, note: "Field review owner", color: "bg-slate-50 border-slate-200", iconColor: "text-slate-500", labelColor: "text-slate-400" },
             { icon: BadgeDollarSign, label: "KPI Payout", value: `${scorecard.payout}M`, note: asm.sourceSyncedAt ? `Synced ${new Date(asm.sourceSyncedAt).toLocaleDateString("en-US")}` : "Based on formula", color: "bg-emerald-50 border-emerald-100", iconColor: "text-emerald-600", labelColor: "text-emerald-600" },
           ].map((card) => (
