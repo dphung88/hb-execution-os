@@ -106,8 +106,10 @@ export async function saveSalesReviewAction(formData: FormData) {
     redirect(`/sales-performance/${asmId}?period=${period}&error=save-not-configured`);
   }
 
-  const dealersOverrideRaw = String(formData.get("dealers_code_override") ?? "").trim();
-  const dealersCodeOverride = dealersOverrideRaw !== "" ? Number(dealersOverrideRaw) : null;
+  const parseOverride = (name: string) => {
+    const raw = String(formData.get(name) ?? "").trim();
+    return raw !== "" ? Number(raw) : null;
+  };
 
   const { error } = await client.from("sales_manager_reviews").upsert(
     {
@@ -117,7 +119,11 @@ export async function saveSalesReviewAction(formData: FormData) {
       reporting_score: Number(formData.get("reporting_score") ?? 0),
       manager_note: String(formData.get("manager_note") ?? ""),
       is_probation: formData.get("is_probation") === "1",
-      dealers_code_override: dealersCodeOverride,
+      dealers_code_override: parseOverride("dealers_code_override"),
+      key_sku_actual_override_1: parseOverride("key_sku_actual_override_1"),
+      key_sku_actual_override_2: parseOverride("key_sku_actual_override_2"),
+      clearstock_actual_override_1: parseOverride("clearstock_actual_override_1"),
+      clearstock_actual_override_2: parseOverride("clearstock_actual_override_2"),
       reviewed_by: "vp.edisonyang.store",
       reviewed_at: new Date().toISOString(),
     },

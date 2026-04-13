@@ -215,27 +215,68 @@ export async function SalesPerformanceDetail({
               <input type="hidden" name="asm_id" value={asm.id} />
               <input type="hidden" name="period" value={selectedPeriod} />
 
-              {/* Dealers Code manual override */}
-              <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Dealers Code Override</p>
-                <p className="mt-1 text-xs text-violet-600">
-                  ERP value: <span className="font-semibold">{asm.newCustomersActual}</span> · Overrides ERP when filled in. Leave blank to use ERP data.
-                </p>
-                <div className="mt-3 flex items-center gap-3">
-                  <input
-                    type="number"
-                    min="0"
-                    max="99"
-                    name="dealers_code_override"
-                    defaultValue={asm.dealersCodeOverride ?? ""}
-                    placeholder="e.g. 8"
-                    className="h-11 w-32 rounded-2xl border border-violet-200 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-violet-400"
-                  />
-                  {scorecard.dealersCodeOverrideActive && (
-                    <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
-                      Override active · {scorecard.effectiveCustomers} dealers → {scorecard.customerScore}/15 pts
-                    </span>
-                  )}
+              {/* ── Override section ─────────────────────────────── */}
+              <div className="space-y-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Manual Overrides — leave blank to use ERP data</p>
+
+                {/* Dealers Code */}
+                <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-700">Dealers Code</p>
+                  <p className="mt-1 text-xs text-violet-600">ERP: <span className="font-semibold">{asm.newCustomersActual}</span></p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <input type="number" min="0" max="99" name="dealers_code_override"
+                      defaultValue={asm.dealersCodeOverride ?? ""} placeholder="override"
+                      className="h-9 w-28 rounded-xl border border-violet-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-violet-400" />
+                    {scorecard.dealersCodeOverrideActive && (
+                      <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[11px] font-semibold text-violet-700">
+                        {scorecard.effectiveCustomers} dealers → {scorecard.customerScore}/15 pts
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Key SKU overrides */}
+                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-700">Key SKU Actuals</p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {asm.keySkuTargets.map((item, idx) => (
+                      <div key={item.code}>
+                        <p className="text-xs font-semibold text-sky-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <input type="number" min="0"
+                            name={idx === 0 ? "key_sku_actual_override_1" : "key_sku_actual_override_2"}
+                            defaultValue={idx === 0 ? (asm.keySkuActualOverride1 ?? "") : (asm.keySkuActualOverride2 ?? "")}
+                            placeholder="override"
+                            className="h-9 w-28 rounded-xl border border-sky-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
+                          {item.overrideActive && (
+                            <span className="text-[11px] font-semibold text-sky-600">→ {item.actual}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Clearstock overrides */}
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-700">Clearstock Actuals</p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {asm.clearstockTargets.map((item, idx) => (
+                      <div key={item.code}>
+                        <p className="text-xs font-semibold text-rose-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <input type="number" min="0"
+                            name={idx === 0 ? "clearstock_actual_override_1" : "clearstock_actual_override_2"}
+                            defaultValue={idx === 0 ? (asm.clearstockActualOverride1 ?? "") : (asm.clearstockActualOverride2 ?? "")}
+                            placeholder="override"
+                            className="h-9 w-28 rounded-xl border border-rose-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-rose-400" />
+                          {item.overrideActive && (
+                            <span className="text-[11px] font-semibold text-rose-600">→ {item.actual}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

@@ -8,6 +8,7 @@ export type SalesAsm = (typeof demoSalesAsms)[number] & {
     actual: number;
     minPct: number;
     name: string;
+    overrideActive?: boolean;
   }>;
   clearstockTargets?: Array<{
     code: string;
@@ -15,6 +16,7 @@ export type SalesAsm = (typeof demoSalesAsms)[number] & {
     actual: number;
     minPct: number;
     name: string;
+    overrideActive?: boolean;
   }>;
 };
 export type SalesAsmScorecard = ReturnType<typeof getAsmScorecard>;

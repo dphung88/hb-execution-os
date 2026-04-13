@@ -30,6 +30,10 @@ export type SalesAsmResolved = SalesAsm & {
   toDate: string | null;
   isProbation: boolean;
   dealersCodeOverride: number | null;
+  keySkuActualOverride1: number | null;
+  keySkuActualOverride2: number | null;
+  clearstockActualOverride1: number | null;
+  clearstockActualOverride2: number | null;
   keySkuTargets: Array<{
     code: string;
     target: number;
@@ -37,6 +41,7 @@ export type SalesAsmResolved = SalesAsm & {
     minPct: number;
     name: string;
     lotDate: string;
+    overrideActive?: boolean;
   }>;
   clearstockTargets: Array<{
     code: string;
@@ -45,6 +50,7 @@ export type SalesAsmResolved = SalesAsm & {
     minPct: number;
     name: string;
     lotDate: string;
+    overrideActive?: boolean;
   }>;
 };
 
@@ -77,6 +83,10 @@ type SalesReviewRow = {
   manager_note: string | null;
   reviewed_at: string | null;
   dealers_code_override: number | null;
+  key_sku_actual_override_1: number | null;
+  key_sku_actual_override_2: number | null;
+  clearstock_actual_override_1: number | null;
+  clearstock_actual_override_2: number | null;
 };
 
 type BreakdownRow = {
@@ -136,15 +146,19 @@ function toResolvedAsm(
       minPct: salesKpiProducts.HB035.minPct,
       lotDate: String(target?.key_sku_lot_date_2 ?? ""),
     },
-  ].map((item) => ({
+  ].map((item, idx) => ({
     ...item,
     actual:
+      (idx === 0 ? review?.key_sku_actual_override_1 : review?.key_sku_actual_override_2) ??
       breakdownsByCode.get(item.code) ??
       (item.code === "HB031"
         ? Number(row.hb031 ?? 0)
         : item.code === "HB035"
           ? Number(row.hb035 ?? 0)
           : 0),
+    overrideActive: idx === 0
+      ? review?.key_sku_actual_override_1 != null
+      : review?.key_sku_actual_override_2 != null,
     name:
       Object.values(salesKpiProducts).find((product) => product.code === item.code)?.name ??
       lookupSkuName(item.code),
@@ -163,15 +177,19 @@ function toResolvedAsm(
       minPct: salesKpiProducts.HB034.minPct,
       lotDate: String(target?.clearstock_lot_date_2 ?? ""),
     },
-  ].map((item) => ({
+  ].map((item, idx) => ({
     ...item,
     actual:
+      (idx === 0 ? review?.clearstock_actual_override_1 : review?.clearstock_actual_override_2) ??
       breakdownsByCode.get(item.code) ??
       (item.code === "HB006"
         ? Number(row.hb006 ?? 0)
         : item.code === "HB034"
           ? Number(row.hb034 ?? 0)
           : 0),
+    overrideActive: idx === 0
+      ? review?.clearstock_actual_override_1 != null
+      : review?.clearstock_actual_override_2 != null,
     name:
       Object.values(salesKpiProducts).find((product) => product.code === item.code)?.name ??
       lookupSkuName(item.code),
@@ -198,6 +216,10 @@ function toResolvedAsm(
     clearstockTargets,
     isProbation: target?.is_probation ?? false,
     dealersCodeOverride: review?.dealers_code_override ?? null,
+    keySkuActualOverride1: review?.key_sku_actual_override_1 ?? null,
+    keySkuActualOverride2: review?.key_sku_actual_override_2 ?? null,
+    clearstockActualOverride1: review?.clearstock_actual_override_1 ?? null,
+    clearstockActualOverride2: review?.clearstock_actual_override_2 ?? null,
   };
 }
 
@@ -249,6 +271,10 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
       ],
       isProbation: false,
       dealersCodeOverride: null,
+      keySkuActualOverride1: null,
+      keySkuActualOverride2: null,
+      clearstockActualOverride1: null,
+      clearstockActualOverride2: null,
     }));
   }
 
@@ -266,7 +292,7 @@ export async function getSalesAsms(periodKey?: string | null): Promise<SalesAsmR
       .select("*"),
     supabase
       .from("sales_manager_reviews")
-      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at, dealers_code_override"),
+      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at, dealers_code_override, key_sku_actual_override_1, key_sku_actual_override_2, clearstock_actual_override_1, clearstock_actual_override_2"),
   ]);
 
   const { data, error } = kpiResult;
@@ -442,6 +468,10 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
       ],
       isProbation: false,
       dealersCodeOverride: null,
+      keySkuActualOverride1: null,
+      keySkuActualOverride2: null,
+      clearstockActualOverride1: null,
+      clearstockActualOverride2: null,
     };
   }
 
@@ -455,7 +485,7 @@ export async function getSalesAsmByIdResolved(id: string, periodKey?: string | n
       .maybeSingle(),
     supabase
       .from("sales_manager_reviews")
-      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at, dealers_code_override")
+      .select("asm_id, month, discipline_score, reporting_score, manager_note, reviewed_at, dealers_code_override, key_sku_actual_override_1, key_sku_actual_override_2, clearstock_actual_override_1, clearstock_actual_override_2")
       .eq("asm_id", id)
       .eq("month", effectivePeriod)
       .maybeSingle(),
