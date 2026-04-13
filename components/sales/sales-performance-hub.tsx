@@ -252,7 +252,16 @@ export function SalesPerformanceHub({
         {scorecards.length ? (
           <>
             <MobileSalesScorecardSelector
-              scorecards={scorecards.map((s) => ({ ...s, isProbation: probationMap[s.id] ?? false }))}
+              scorecards={scorecards.map((s) => {
+                const isProbation = probationMap[s.id] ?? false;
+                const inc = calculateIncome(s.scorecard.revenuePct, s.scorecard.payout, isProbation);
+                return {
+                  ...s,
+                  isProbation,
+                  baseSalaryM: inc.baseSalary / 1_000_000,
+                  allowanceM: inc.allowance / 1_000_000,
+                };
+              })}
               selectedPeriod={selectedPeriod}
             />
 
