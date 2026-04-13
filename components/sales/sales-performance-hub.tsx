@@ -345,7 +345,7 @@ export function SalesPerformanceHub({
                           <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${getHealthTone(asm.scorecard.total)}`}>
                             {asm.scorecard.total} pts
                           </span>
-                          <div className="mt-1 font-semibold text-brand-700">{totalM}M</div>
+                          <span className="mt-1 inline-flex whitespace-nowrap rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700">{totalM}M</span>
                           <div className="mt-2">
                             <Link
                               href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
