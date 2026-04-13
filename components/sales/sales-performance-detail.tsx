@@ -144,13 +144,13 @@ export async function SalesPerformanceDetail({
       ) : null}
 
       {(canEdit || saveStatus) ? (
-        <section className="grid gap-6 xl:grid-cols-2">
-          {/* Monthly Targets — read-only snapshot, editing is done on /sales-performance/targets */}
-          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+        <section className="rounded-3xl border border-white/70 bg-white/85 shadow-panel">
+          {/* ── Monthly Targets strip ── */}
+          <div className="border-b border-slate-100 px-6 py-5">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Monthly Targets</p>
-                <h2 className="text-2xl font-semibold text-slate-900">Target Snapshot</h2>
+                <h2 className="mt-0.5 text-xl font-semibold text-slate-900">Target Snapshot</h2>
               </div>
               <Link
                 href={`/sales-performance/targets?period=${selectedPeriod}`}
@@ -159,46 +159,38 @@ export async function SalesPerformanceDetail({
                 Edit targets
               </Link>
             </div>
-
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              {/* Sales Target */}
-              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+            <div className="mt-4 flex flex-wrap gap-3">
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 min-w-[130px]">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Sales Target</p>
-                <p className="mt-2 text-xl font-semibold text-slate-900">{target?.revenue_target ?? asm.revenueTarget}M</p>
-                <p className="mt-1 text-[10px] text-slate-500">million VND</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900">{target?.revenue_target ?? asm.revenueTarget}M</p>
+                <p className="text-[10px] text-slate-500">million VND</p>
               </div>
-              {/* Dealers Code */}
-              <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4">
+              <div className="rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 min-w-[130px]">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-600">Dealers Code</p>
-                <p className="mt-2 text-xl font-semibold text-slate-900">{target?.new_customers_target ?? asm.newCustomersTarget}</p>
-                <p className="mt-1 text-[10px] text-slate-500">new codes</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900">{target?.new_customers_target ?? asm.newCustomersTarget}</p>
+                <p className="text-[10px] text-slate-500">new codes</p>
               </div>
-              {/* Key SKU */}
-              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 min-w-[130px]">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Key SKU</p>
-                <div className="mt-2 space-y-1">
-                  {asm.keySkuTargets.map((item) => (
-                    <p key={item.code} className="text-sm font-semibold text-slate-900">
-                      <span className="text-sky-600">{item.code}</span> · {item.target}
-                    </p>
-                  ))}
-                </div>
+                {asm.keySkuTargets.map((item) => (
+                  <p key={item.code} className="mt-1 text-sm font-semibold text-slate-900">
+                    <span className="text-sky-600">{item.code}</span> · {item.target}
+                  </p>
+                ))}
               </div>
-              {/* Clearstock */}
-              <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+              <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 min-w-[130px]">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-600">Clearstock</p>
-                <div className="mt-2 space-y-1">
-                  {asm.clearstockTargets.map((item) => (
-                    <p key={item.code} className="text-sm font-semibold text-slate-900">
-                      <span className="text-rose-500">{item.code}</span> · {item.target}
-                    </p>
-                  ))}
-                </div>
+                {asm.clearstockTargets.map((item) => (
+                  <p key={item.code} className="mt-1 text-sm font-semibold text-slate-900">
+                    <span className="text-rose-500">{item.code}</span> · {item.target}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
+          {/* ── Manager Review ── */}
+          <div className="px-6 py-5">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Manager review</p>
