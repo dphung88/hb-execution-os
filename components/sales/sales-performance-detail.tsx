@@ -439,60 +439,62 @@ export async function SalesPerformanceDetail({
 
       {/* ── Income Breakdown ─────────────────────────────────── */}
       <section className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
-        <div className="flex items-center justify-between gap-4">
-          <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="mr-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700">Monthly Income</p>
-            <h2 className="text-2xl font-semibold text-slate-900">Income Breakdown</h2>
+            <p className="mt-0.5 text-base font-semibold text-slate-900">Income Breakdown</p>
           </div>
           {isProbation && (
             <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
               Probation · ×85%
             </span>
           )}
-        </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            {
-              label: "Base Salary",
-              value: `${fmt(income.baseSalary)} đ`,
-              note: scorecard.revenuePct < 50
-                ? `${scorecard.revenuePct}% × 12,000,000${isProbation ? " × 85%" : ""}`
-                : isProbation ? "12,000,000 × 85%" : "12,000,000",
-              color: "border-sky-100 bg-sky-50",
-              badge: "text-sky-700",
-            },
-            {
-              label: "Allowance",
-              value: `${fmt(income.allowance)} đ`,
-              note: scorecard.revenuePct < 50
-                ? `${scorecard.revenuePct}% × 5,000,000${isProbation ? " × 85%" : ""}`
-                : isProbation ? "5,000,000 × 85%" : "5,000,000",
-              color: "border-violet-100 bg-violet-50",
-              badge: "text-violet-700",
-            },
-            {
-              label: "KPI Salary",
-              value: `${fmt(income.kpiSalary)} đ`,
-              note: `${scorecard.payout}M · ${scorecard.total}/100 pts`,
-              color: "border-emerald-100 bg-emerald-50",
-              badge: "text-emerald-700",
-            },
-            {
-              label: "Total Income",
-              value: `${fmt(income.total)} đ`,
-              note: isProbation ? "Probation rate applied" : "Base + allowance + KPI",
-              color: "border-slate-900 bg-slate-950",
-              badge: "text-white",
-              dark: true,
-            },
-          ].map((card) => (
-            <div key={card.label} className={`rounded-2xl border p-5 ${card.color}`}>
-              <p className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${card.dark ? "text-slate-400" : "text-slate-500"}`}>{card.label}</p>
-              <p className={`mt-3 text-xl font-semibold leading-tight ${card.dark ? "text-white" : "text-slate-900"}`}>{card.value}</p>
-              <p className={`mt-2 text-xs ${card.dark ? "text-slate-400" : "text-slate-500"}`}>{card.note}</p>
-            </div>
-          ))}
+          <div className="ml-auto flex flex-wrap gap-3">
+            {[
+              {
+                label: "Base Salary",
+                value: `${fmt(income.baseSalary)} đ`,
+                note: scorecard.revenuePct < 50
+                  ? `${scorecard.revenuePct}% × 12M${isProbation ? " × 85%" : ""}`
+                  : isProbation ? "12M × 85%" : "12,000,000",
+                color: "border-sky-100 bg-sky-50",
+                text: "text-slate-900",
+                sub: "text-slate-500",
+              },
+              {
+                label: "Allowance",
+                value: `${fmt(income.allowance)} đ`,
+                note: scorecard.revenuePct < 50
+                  ? `${scorecard.revenuePct}% × 5M${isProbation ? " × 85%" : ""}`
+                  : isProbation ? "5M × 85%" : "5,000,000",
+                color: "border-violet-100 bg-violet-50",
+                text: "text-slate-900",
+                sub: "text-slate-500",
+              },
+              {
+                label: "KPI Salary",
+                value: `${fmt(income.kpiSalary)} đ`,
+                note: `${scorecard.payout}M · ${scorecard.total}/100 pts`,
+                color: "border-emerald-100 bg-emerald-50",
+                text: "text-slate-900",
+                sub: "text-slate-500",
+              },
+              {
+                label: "Total Income",
+                value: `${fmt(income.total)} đ`,
+                note: isProbation ? "Probation rate applied" : "Base + allowance + KPI",
+                color: "border-slate-900 bg-slate-950",
+                text: "text-white",
+                sub: "text-slate-400",
+              },
+            ].map((card) => (
+              <div key={card.label} className={`rounded-2xl border px-4 py-3 min-w-[160px] ${card.color}`}>
+                <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${card.sub}`}>{card.label}</p>
+                <p className={`mt-1.5 text-base font-semibold leading-tight ${card.text}`}>{card.value}</p>
+                <p className={`mt-1 text-[11px] ${card.sub}`}>{card.note}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Revenue achievement table */}
