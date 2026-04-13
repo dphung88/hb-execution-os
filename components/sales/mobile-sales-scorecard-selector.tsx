@@ -25,6 +25,8 @@ type ScorecardRow = {
     revenueScore: number;
     revenuePct: number;
     customerScore: number;
+    effectiveCustomers: number;
+    dealersCodeOverrideActive: boolean;
     keySkuScore: number;
     clearstockScore: number;
     manualScore: number;
@@ -127,8 +129,10 @@ export function MobileSalesScorecardSelector({
             </div>
             <div className="rounded-2xl border border-violet-100 bg-violet-50 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-600">Dealers Code</p>
-              <p className="mt-1.5 text-[11px] font-semibold leading-snug text-slate-900">{selected.newCustomersActual}/{selected.newCustomersTarget}</p>
-              <p className="mt-1 text-[10px] text-slate-500">{selected.scorecard.customerScore}/15</p>
+              <p className="mt-1.5 text-[11px] font-semibold leading-snug text-slate-900">{selected.scorecard.effectiveCustomers}/{selected.newCustomersTarget}</p>
+              <p className="mt-1 text-[10px] text-slate-500">
+                {selected.scorecard.customerScore}/15{selected.scorecard.dealersCodeOverrideActive ? " · override" : ""}
+              </p>
             </div>
             <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Key SKU</p>

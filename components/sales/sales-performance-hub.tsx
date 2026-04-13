@@ -71,7 +71,7 @@ export function SalesPerformanceHub({
   const totalRevenue = scorecards.reduce((sum, asm) => sum + asm.revenueActual, 0);
   const aboveEighty = scorecards.filter((asm) => asm.scorecard.revenuePct >= 80).length;
   const asmKpiSeventy = scorecards.filter((asm) => asm.scorecard.total >= 70).length;
-  const totalCustomers = scorecards.reduce((sum, asm) => sum + asm.newCustomersActual, 0);
+  const totalCustomers = scorecards.reduce((sum, asm) => sum + asm.scorecard.effectiveCustomers, 0);
   const skuQualified = scorecards.filter((asm) => asm.scorecard.keySkuScore > 0).length;
   const clearstockQualified = scorecards.filter((asm) => asm.scorecard.clearstockScore > 0).length;
   // Income aggregates
@@ -312,9 +312,14 @@ export function SalesPerformanceHub({
                         </td>
                         <td className="px-3 py-4">
                           <div className="font-medium text-slate-900">
-                            {asm.newCustomersActual}/{asm.newCustomersTarget}
+                            {asm.scorecard.effectiveCustomers}/{asm.newCustomersTarget}
                           </div>
-                          <div className="mt-1 text-[11px] text-slate-500">{asm.scorecard.customerScore}/15</div>
+                          <div className="mt-1 text-[11px] text-slate-500">
+                            {asm.scorecard.customerScore}/15
+                            {asm.scorecard.dealersCodeOverrideActive && (
+                              <span className="ml-1 text-violet-500">·&nbsp;override</span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-3 py-4">
                           <div className="space-y-1 font-medium leading-6 text-slate-900">
