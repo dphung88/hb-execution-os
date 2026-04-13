@@ -235,7 +235,7 @@ export async function SalesPerformanceDetail({
                   {/* Key SKU overrides */}
                   <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-700">Key SKU Actuals</p>
-                    <div className="mt-3 space-y-3">
+                    <div className="mt-3 grid grid-cols-2 gap-3">
                       {asm.keySkuTargets.map((item, idx) => (
                         <div key={item.code}>
                           <p className="text-xs font-semibold text-sky-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
@@ -244,7 +244,7 @@ export async function SalesPerformanceDetail({
                               name={idx === 0 ? "key_sku_actual_override_1" : "key_sku_actual_override_2"}
                               defaultValue={idx === 0 ? (asm.keySkuActualOverride1 ?? "") : (asm.keySkuActualOverride2 ?? "")}
                               placeholder="override"
-                              className="h-9 w-28 rounded-xl border border-sky-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
+                              className="h-9 w-full rounded-xl border border-sky-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
                             {item.overrideActive && (
                               <span className="text-[11px] font-semibold text-sky-600">→ {item.actual}</span>
                             )}
@@ -257,7 +257,7 @@ export async function SalesPerformanceDetail({
                   {/* Clearstock overrides */}
                   <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-700">Clearstock Actuals</p>
-                    <div className="mt-3 space-y-3">
+                    <div className="mt-3 grid grid-cols-2 gap-3">
                       {asm.clearstockTargets.map((item, idx) => (
                         <div key={item.code}>
                           <p className="text-xs font-semibold text-rose-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
@@ -266,7 +266,7 @@ export async function SalesPerformanceDetail({
                               name={idx === 0 ? "clearstock_actual_override_1" : "clearstock_actual_override_2"}
                               defaultValue={idx === 0 ? (asm.clearstockActualOverride1 ?? "") : (asm.clearstockActualOverride2 ?? "")}
                               placeholder="override"
-                              className="h-9 w-28 rounded-xl border border-rose-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-rose-400" />
+                              className="h-9 w-full rounded-xl border border-rose-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-rose-400" />
                             {item.overrideActive && (
                               <span className="text-[11px] font-semibold text-rose-600">→ {item.actual}</span>
                             )}
