@@ -159,32 +159,36 @@ export async function SalesPerformanceDetail({
                 Edit targets
               </Link>
             </div>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 min-w-[130px]">
+            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Sales Target</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">{target?.revenue_target ?? asm.revenueTarget}M</p>
-                <p className="text-[10px] text-slate-500">million VND</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{target?.revenue_target ?? asm.revenueTarget}M</p>
+                <p className="mt-1 text-[10px] text-slate-500">million VND</p>
               </div>
-              <div className="rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 min-w-[130px]">
+              <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-600">Dealers Code</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">{target?.new_customers_target ?? asm.newCustomersTarget}</p>
-                <p className="text-[10px] text-slate-500">new codes</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{target?.new_customers_target ?? asm.newCustomersTarget}</p>
+                <p className="mt-1 text-[10px] text-slate-500">new codes</p>
               </div>
-              <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 min-w-[130px]">
+              <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Key SKU</p>
-                {asm.keySkuTargets.map((item) => (
-                  <p key={item.code} className="mt-1 text-sm font-semibold text-slate-900">
-                    <span className="text-sky-600">{item.code}</span> · {item.target}
-                  </p>
-                ))}
+                <div className="mt-2 space-y-1">
+                  {asm.keySkuTargets.map((item) => (
+                    <p key={item.code} className="text-sm font-semibold text-slate-900">
+                      <span className="text-sky-600">{item.code}</span> · {item.target}
+                    </p>
+                  ))}
+                </div>
               </div>
-              <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 min-w-[130px]">
+              <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-rose-600">Clearstock</p>
-                {asm.clearstockTargets.map((item) => (
-                  <p key={item.code} className="mt-1 text-sm font-semibold text-slate-900">
-                    <span className="text-rose-500">{item.code}</span> · {item.target}
-                  </p>
-                ))}
+                <div className="mt-2 space-y-1">
+                  {asm.clearstockTargets.map((item) => (
+                    <p key={item.code} className="text-sm font-semibold text-slate-900">
+                      <span className="text-rose-500">{item.code}</span> · {item.target}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -208,66 +212,68 @@ export async function SalesPerformanceDetail({
               <input type="hidden" name="period" value={selectedPeriod} />
 
               {/* ── Override section ─────────────────────────────── */}
-              <div className="space-y-3">
+              <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Manual Overrides — leave blank to use ERP data</p>
 
-                {/* Dealers Code */}
-                <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-700">Dealers Code</p>
-                  <p className="mt-1 text-xs text-violet-600">ERP: <span className="font-semibold">{asm.newCustomersActual}</span></p>
-                  <div className="mt-2 flex items-center gap-3">
-                    <input type="number" min="0" max="99" name="dealers_code_override"
-                      defaultValue={asm.dealersCodeOverride ?? ""} placeholder="override"
-                      className="h-9 w-28 rounded-xl border border-violet-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-violet-400" />
-                    {scorecard.dealersCodeOverrideActive && (
-                      <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[11px] font-semibold text-violet-700">
-                        {scorecard.effectiveCustomers} dealers → {scorecard.customerScore}/15 pts
-                      </span>
-                    )}
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+                  {/* Dealers Code */}
+                  <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-violet-700">Dealers Code</p>
+                    <p className="mt-1 text-xs text-violet-600">ERP: <span className="font-semibold">{asm.newCustomersActual}</span></p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <input type="number" min="0" max="99" name="dealers_code_override"
+                        defaultValue={asm.dealersCodeOverride ?? ""} placeholder="override"
+                        className="h-9 w-28 rounded-xl border border-violet-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-violet-400" />
+                      {scorecard.dealersCodeOverrideActive && (
+                        <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[11px] font-semibold text-violet-700">
+                          {scorecard.effectiveCustomers} → {scorecard.customerScore}/15 pts
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Key SKU overrides */}
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-700">Key SKU Actuals</p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    {asm.keySkuTargets.map((item, idx) => (
-                      <div key={item.code}>
-                        <p className="text-xs font-semibold text-sky-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <input type="number" min="0"
-                            name={idx === 0 ? "key_sku_actual_override_1" : "key_sku_actual_override_2"}
-                            defaultValue={idx === 0 ? (asm.keySkuActualOverride1 ?? "") : (asm.keySkuActualOverride2 ?? "")}
-                            placeholder="override"
-                            className="h-9 w-28 rounded-xl border border-sky-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
-                          {item.overrideActive && (
-                            <span className="text-[11px] font-semibold text-sky-600">→ {item.actual}</span>
-                          )}
+                  {/* Key SKU overrides */}
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-700">Key SKU Actuals</p>
+                    <div className="mt-3 space-y-3">
+                      {asm.keySkuTargets.map((item, idx) => (
+                        <div key={item.code}>
+                          <p className="text-xs font-semibold text-sky-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <input type="number" min="0"
+                              name={idx === 0 ? "key_sku_actual_override_1" : "key_sku_actual_override_2"}
+                              defaultValue={idx === 0 ? (asm.keySkuActualOverride1 ?? "") : (asm.keySkuActualOverride2 ?? "")}
+                              placeholder="override"
+                              className="h-9 w-28 rounded-xl border border-sky-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-sky-400" />
+                            {item.overrideActive && (
+                              <span className="text-[11px] font-semibold text-sky-600">→ {item.actual}</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Clearstock overrides */}
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-700">Clearstock Actuals</p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    {asm.clearstockTargets.map((item, idx) => (
-                      <div key={item.code}>
-                        <p className="text-xs font-semibold text-rose-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <input type="number" min="0"
-                            name={idx === 0 ? "clearstock_actual_override_1" : "clearstock_actual_override_2"}
-                            defaultValue={idx === 0 ? (asm.clearstockActualOverride1 ?? "") : (asm.clearstockActualOverride2 ?? "")}
-                            placeholder="override"
-                            className="h-9 w-28 rounded-xl border border-rose-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-rose-400" />
-                          {item.overrideActive && (
-                            <span className="text-[11px] font-semibold text-rose-600">→ {item.actual}</span>
-                          )}
+                  {/* Clearstock overrides */}
+                  <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-700">Clearstock Actuals</p>
+                    <div className="mt-3 space-y-3">
+                      {asm.clearstockTargets.map((item, idx) => (
+                        <div key={item.code}>
+                          <p className="text-xs font-semibold text-rose-600">{item.code} <span className="text-slate-400 font-normal">ERP: {item.actual}</span></p>
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <input type="number" min="0"
+                              name={idx === 0 ? "clearstock_actual_override_1" : "clearstock_actual_override_2"}
+                              defaultValue={idx === 0 ? (asm.clearstockActualOverride1 ?? "") : (asm.clearstockActualOverride2 ?? "")}
+                              placeholder="override"
+                              className="h-9 w-28 rounded-xl border border-rose-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-rose-400" />
+                            {item.overrideActive && (
+                              <span className="text-[11px] font-semibold text-rose-600">→ {item.actual}</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -509,7 +515,7 @@ export async function SalesPerformanceDetail({
                   <tr key={row.range} className={`border-b border-slate-100 last:border-0 ${active ? "bg-sky-50" : ""}`}>
                     <td className={`px-4 py-3 font-medium ${active ? "text-sky-700" : "text-slate-700"}`}>{row.range}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${active ? "text-sky-700" : "text-slate-500"}`}>
-                      {row.pts}{active && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[10px]">hiện tại</span>}
+                      {row.pts}{active && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[10px]">current</span>}
                     </td>
                   </tr>
                 );
