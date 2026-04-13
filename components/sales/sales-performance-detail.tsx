@@ -339,43 +339,45 @@ export async function SalesPerformanceDetail({
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
+      {/* ── KPI Breakdown + Manager Review ── */}
+      <section className="space-y-4">
+        {/* KPI Breakdown — 5 cards in a single horizontal row */}
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <h2 className="text-2xl font-semibold text-slate-900">KPI Breakdown</h2>
-          <div className="mt-6 space-y-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {[
-              { label: "Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% revenue attainment`, color: "border-sky-100 bg-sky-50", badge: "bg-sky-100 text-sky-700" },
-              { label: "Dealers Code", value: `${scorecard.customerScore}/15`, detail: `${asm.newCustomersActual} dealer codes`, color: "border-violet-100 bg-violet-50", badge: "bg-violet-100 text-violet-700" },
+              { label: "Revenue", value: `${scorecard.revenueScore}/65`, detail: `${scorecard.revenuePct}% attainment`, color: "border-sky-100 bg-sky-50", badge: "bg-sky-100 text-sky-700" },
+              { label: "Dealers Code", value: `${scorecard.customerScore}/15`, detail: `${scorecard.effectiveCustomers} codes`, color: "border-violet-100 bg-violet-50", badge: "bg-violet-100 text-violet-700" },
               { label: "Key SKU", value: `${scorecard.keySkuScore}/5`, detail: keyChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · "), color: "border-sky-100 bg-sky-50", badge: "bg-sky-100 text-sky-700" },
               { label: "Clearstock", value: `${scorecard.clearstockScore}/10`, detail: clearChecks.map((item) => `${item.code} ${item.actual}/${item.target}`).join(" · "), color: "border-rose-100 bg-rose-50", badge: "bg-rose-100 text-rose-700" },
-              { label: "Discipline", value: `${scorecard.manualScore}/5`, detail: "Entered manually by the manager", color: "border-amber-100 bg-amber-50", badge: "bg-amber-100 text-amber-700" },
+              { label: "Discipline", value: `${scorecard.manualScore}/5`, detail: "Manual by manager", color: "border-amber-100 bg-amber-50", badge: "bg-amber-100 text-amber-700" },
             ].map((item) => (
-              <div key={item.label} className={`rounded-2xl border px-4 py-4 ${item.color}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900">{item.label}</p>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.badge}`}>{item.value}</span>
+              <div key={item.label} className={`flex flex-col rounded-2xl border px-3 py-3 ${item.color}`}>
+                <div className="flex items-start justify-between gap-1">
+                  <p className="text-xs font-semibold text-slate-700">{item.label}</p>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.badge}`}>{item.value}</span>
                 </div>
-                <p className="mt-2 text-sm text-slate-500">{item.detail}</p>
+                <p className="mt-2 text-[11px] leading-4 text-slate-500">{item.detail}</p>
               </div>
             ))}
           </div>
         </div>
 
+        {/* Manager Review — horizontal layout */}
         <div className="rounded-3xl border border-white/70 bg-white/85 p-6 shadow-panel">
           <h2 className="text-2xl font-semibold text-slate-900">Manager Review</h2>
-          <div className="mt-6 rounded-3xl bg-slate-50 p-5">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Manager note</p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">{asm.managerNote}</p>
-          </div>
-
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Discipline</p>
-              <p className="mt-3 text-2xl font-semibold text-slate-950">{scorecard.manualScore}/5</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <div className="min-w-[200px] flex-1 rounded-2xl bg-slate-50 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Manager note</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{asm.managerNote || "—"}</p>
             </div>
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Reporting quality</p>
-              <p className="mt-3 text-2xl font-semibold text-slate-950">{scorecard.reportingScore}/5</p>
+            <div className="w-32 shrink-0 rounded-2xl bg-slate-50 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Discipline</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">{scorecard.manualScore}/5</p>
+            </div>
+            <div className="w-36 shrink-0 rounded-2xl bg-slate-50 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Reporting</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">{scorecard.reportingScore}/5</p>
             </div>
           </div>
         </div>
