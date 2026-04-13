@@ -16,6 +16,7 @@ type SalesTargetsPageProps = {
     period?: string;
     saved?: string;
     error?: string;
+    detail?: string;
     asm?: string;
   }>;
 };
@@ -27,6 +28,7 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
   const selectedPeriod = resolvedSearchParams?.period ?? configPeriods[0]?.key ?? "2026-03";
   const savedAsm = resolvedSearchParams?.saved;
   const errorState = resolvedSearchParams?.error;
+  const errorDetail = resolvedSearchParams?.detail ? decodeURIComponent(resolvedSearchParams.detail) : null;
   const selectedAsm = resolvedSearchParams?.asm ?? demoSalesAsms[0]?.id;
 
   const supabase = hasSupabaseClientEnv() ? await createClient() : null;
@@ -169,14 +171,17 @@ export default async function SalesTargetsPage({ searchParams }: SalesTargetsPag
 
       {errorState ? (
         <section className="rounded-3xl border border-rose-200 bg-rose-50/90 p-5 shadow-panel">
-          <p className="text-sm font-semibold text-rose-900">Unable to save targets</p>
+          <p className="text-sm font-semibold text-rose-900">Save did not complete</p>
           <p className="mt-2 text-sm text-rose-800">
             {errorState === "missing-columns"
-              ? "Supabase is missing the new SKU code columns in sales_monthly_targets, so the target row cannot be saved yet."
+              ? "A column is missing in Supabase — run the pending SQL migration."
               : errorState === "rls-blocked"
-                ? "Supabase row-level security is still blocking write access for this Sales table."
-                : "The write connection is not ready yet. I can finish this by opening public write access for these two Sales tables or by adding the Supabase service key on the deployment."}
+                ? "Row-level security is blocking this write. Check the Supabase RLS policy for sales_monthly_targets."
+                : "Write connection not ready. Check SUPABASE_SERVICE_KEY is set on Vercel."}
           </p>
+          {errorDetail ? (
+            <p className="mt-2 rounded-xl bg-rose-100 px-3 py-2 font-mono text-xs text-rose-900">{errorDetail}</p>
+          ) : null}
         </section>
       ) : null}
 

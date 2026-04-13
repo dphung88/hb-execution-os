@@ -85,7 +85,8 @@ export async function saveSalesTargetRowAction(formData: FormData) {
   );
 
   if (error) {
-    redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}`);
+    const detail = encodeURIComponent(error.message ?? "unknown");
+    redirect(`/sales-performance/targets?period=${period}&error=${getErrorKey(error.message)}&detail=${detail}`);
   }
 
   revalidatePath("/sales-performance");
