@@ -70,7 +70,9 @@ export async function saveSalesTargetsAction(formData: FormData) {
   );
 
   if (targetError) {
-    redirect(`/sales-performance/${asmId}?period=${period}&error=${getErrorKey(targetError.message)}`);
+    console.error("[saveSalesTargetsAction] Supabase error:", targetError.code, targetError.message, targetError.details, targetError.hint);
+    const detail = encodeURIComponent(targetError.message ?? "unknown");
+    redirect(`/sales-performance/${asmId}?period=${period}&error=${getErrorKey(targetError.message)}&detail=${detail}`);
   }
 
   await client

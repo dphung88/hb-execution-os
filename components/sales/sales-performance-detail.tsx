@@ -29,6 +29,7 @@ type SalesPerformanceDetailProps = {
   } | null;
   saveStatus?: string;
   errorStatus?: string;
+  errorDetail?: string | null;
   prevAsmId?: string | null;
   nextAsmId?: string | null;
 };
@@ -45,6 +46,7 @@ export async function SalesPerformanceDetail({
   review,
   saveStatus,
   errorStatus,
+  errorDetail,
   prevAsmId,
   nextAsmId,
 }: SalesPerformanceDetailProps) {
@@ -130,11 +132,14 @@ export async function SalesPerformanceDetail({
           <p className="text-sm font-semibold text-rose-900">Save did not complete</p>
           <p className="mt-2 text-sm text-rose-800">
             {errorStatus === "missing-columns"
-              ? "Supabase is still missing the new SKU code columns in sales_monthly_targets, so the target update cannot be stored yet."
+              ? "A column is missing in Supabase — run the pending SQL migration in the dashboard."
               : errorStatus === "rls-blocked"
-                ? "Supabase row-level security is blocking write access for this Sales form."
-                : "The write request did not finish successfully. If this keeps happening, I will need to re-check the Supabase write policy for the Sales review and target tables."}
+                ? "Row-level security is blocking this write. Check the RLS policy for sales_monthly_targets."
+                : "Write failed — check SUPABASE_SERVICE_ROLE_KEY is set on Vercel."}
           </p>
+          {errorDetail ? (
+            <p className="mt-2 rounded-xl bg-rose-100 px-3 py-2 font-mono text-xs text-rose-900 break-all">{errorDetail}</p>
+          ) : null}
         </section>
       ) : null}
 

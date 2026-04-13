@@ -12,6 +12,7 @@ type SalesPerformanceDetailPageProps = {
     period?: string;
     saved?: string;
     error?: string;
+    detail?: string;
   }>;
 };
 
@@ -24,6 +25,7 @@ export default async function SalesPerformanceDetailPage({
   const period = resolvedSearchParams?.period;
   const saved = resolvedSearchParams?.saved;
   const error = resolvedSearchParams?.error;
+  const detail = resolvedSearchParams?.detail ? decodeURIComponent(resolvedSearchParams.detail) : null;
   const asm = await getSalesAsmByIdResolved(id, period);
 
   if (!asm) {
@@ -46,6 +48,7 @@ export default async function SalesPerformanceDetailPage({
       review={management.review}
       saveStatus={saved}
       errorStatus={error}
+      errorDetail={detail}
       prevAsmId={prevId}
       nextAsmId={nextId}
     />
