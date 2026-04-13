@@ -279,7 +279,7 @@ export function SalesPerformanceHub({
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">DISCIPLINE</th>
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">BASE + ALLOW</th>
                     <th className="px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.18em]">KPI</th>
-                    <th className="px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-[0.18em]">TOTAL / ACTION</th>
+                    <th className="px-3 py-4 text-right text-[11px] font-semibold uppercase tracking-[0.18em]">TOTAL</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
@@ -332,21 +332,20 @@ export function SalesPerformanceHub({
                           <div className="mt-1 text-[11px] text-slate-500">Manager review</div>
                         </td>
                         <td className="px-3 py-4">
-                          <div className="font-semibold text-brand-700">{totalM}M</div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            Base {(income.baseSalary/1_000_000).toFixed(1)}M
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-slate-500">
-                            Allowance {(income.allowance/1_000_000).toFixed(1)}M
-                          </div>
+                          <div className="font-medium text-slate-900">{(income.baseSalary/1_000_000).toFixed(1)}M</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">Base</div>
+                          <div className="mt-2 font-medium text-slate-900">{(income.allowance/1_000_000).toFixed(1)}M</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">Allowance</div>
                         </td>
                         <td className="px-3 py-4">
-                          <div className="font-medium text-slate-900">KPI {asm.scorecard.payout}M</div>
+                          <div className="font-medium text-slate-900">{asm.scorecard.payout}M</div>
+                          <div className="mt-0.5 text-[11px] text-slate-500">KPI</div>
                         </td>
                         <td className="px-3 py-4 text-right">
                           <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${getHealthTone(asm.scorecard.total)}`}>
                             {asm.scorecard.total} pts
                           </span>
+                          <div className="mt-1 font-semibold text-brand-700">{totalM}M</div>
                           <div className="mt-2">
                             <Link
                               href={`/sales-performance/${asm.id}?period=${selectedPeriod}`}
