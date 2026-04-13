@@ -252,7 +252,7 @@ export function SalesPerformanceHub({
         {scorecards.length ? (
           <>
             <MobileSalesScorecardSelector
-              scorecards={scorecards}
+              scorecards={scorecards.map((s) => ({ ...s, isProbation: probationMap[s.id] ?? false }))}
               selectedPeriod={selectedPeriod}
             />
 

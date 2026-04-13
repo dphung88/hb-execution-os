@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { calculateIncome } from "@/lib/sales/scorecards";
 
 function getHealthTone(total: number) {
   if (total >= 80) return "text-emerald-700 bg-emerald-50";
@@ -30,6 +31,7 @@ type ScorecardRow = {
     manualScore: number;
     payout: number;
   };
+  isProbation?: boolean;
 };
 
 type MobileSalesScorecardSelectorProps = {
@@ -153,6 +155,23 @@ export function MobileSalesScorecardSelector({
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-600">KPI Payout</p>
               <p className="mt-1.5 text-[11px] font-semibold leading-snug text-emerald-700">{selected.scorecard.payout}M</p>
             </div>
+            {(() => {
+              const income = calculateIncome(selected.scorecard.revenuePct, selected.scorecard.payout, selected.isProbation ?? false);
+              return (
+                <>
+                  <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-600">Base Salary</p>
+                    <p className="mt-1.5 text-[11px] font-semibold leading-snug text-sky-700">{(income.baseSalary / 1_000_000).toFixed(1)}M</p>
+                    {(selected.isProbation) && <p className="mt-0.5 text-[10px] text-sky-500">×85% probation</p>}
+                  </div>
+                  <div className="rounded-2xl border border-violet-100 bg-violet-50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-600">Allowance</p>
+                    <p className="mt-1.5 text-[11px] font-semibold leading-snug text-violet-700">{(income.allowance / 1_000_000).toFixed(1)}M</p>
+                    {(selected.isProbation) && <p className="mt-0.5 text-[10px] text-violet-500">×85% probation</p>}
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           <Link
